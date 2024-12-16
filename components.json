@@ -1,0 +1,12 @@
+{
+	"tailwind": {
+		"config": "tailwind.config.ts",
+		"css": "src\\app.pcss",
+		"baseColor": "slate"
+	},
+	"aliases": {
+		"components": "$lib/components",
+		"utils": "$lib/utils"
+	},
+	"typescript": true
+}

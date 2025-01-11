@@ -1,5 +1,11 @@
-import Root from './selectList.svelte';
+import SelectList from './selectList.svelte';
+import CompanySelectList from './companySelectList.svelte';
+import CompanyTypeSelectList from './companyTypeSelectList.svelte';
+import TimezoneSelectList from './timezoneSelectList.svelte';
 
 export {
-    Root as SelectList
-}
+	SelectList,
+	CompanySelectList,
+	CompanyTypeSelectList,
+	TimezoneSelectList
+};

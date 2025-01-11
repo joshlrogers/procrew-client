@@ -1,69 +1,106 @@
 <script lang="ts">
-    import '../app.pcss';
-    import {onMount} from "svelte";
-    import {Icons} from "$lib/components/icon/Icons";
-    import {NavMenu, NavMenuDropdown, NavMenuGroup, NavMenuItem} from "$lib/components/navMenu/index.js";
-    import {NavBar} from "$lib/components/navBar";
-    import {Icon} from "$lib/components/icon";
-    import {Toast} from '$lib/components/toast';
-    import {page} from "$app/stores";
+	import '../app.pcss';
+	import { onMount } from 'svelte';
+	import { MaterialIcon } from '$lib/components/icon';
+	import { NavMenu, NavMenuDropdown, NavMenuGroup, NavMenuItem } from '$lib/components/navMenu/index.js';
+	import { page } from '$app/stores';
+	import { ActiveCompany } from '$lib/shared/stores';
+	import { AppBar } from '@skeletonlabs/skeleton-svelte';
+	import { Loader } from '$lib/components/loader';
+	import { CompanySelectList } from '$lib/components/selectList';
+	import { IconButton } from '$lib/components/buttons/iconButton';
+	import { ToastProvider } from '@skeletonlabs/skeleton-svelte';
 
+	let { children, data } = $props();
+	let sidebarOpen = $state(false);
 
-    let {children} = $props();
-    let sidebarOpen = $state(false);
+	onMount(() => {
+		document.onkeyup = (event: KeyboardEvent) => {
+			if (event.key === 'Escape' && sidebarOpen) {
+				toggleSidebar();
+			}
+		};
 
-    onMount(() => {
-        document.onkeyup = (event: KeyboardEvent) => {
-            if (event.key === "Escape" && sidebarOpen) {
-                toggleSidebar();
-            }
-        }
+		let overlay = document.getElementById('navigation-overlay');
+		if (overlay) {
+			overlay.onclick = () => {
+				toggleSidebar();
+			};
+		}
+	});
 
-        let overlay = document.getElementById("navigation-overlay");
-        if (overlay) {
-            overlay.onclick = () => {
-                toggleSidebar();
-            }
-        }
-    });
+	function toggleSidebar() {
+		sidebarOpen = !sidebarOpen;
+	}
 
-    function toggleSidebar() {
-        sidebarOpen = !sidebarOpen;
-    }
+	let currentPath = $state($page.url.pathname);
 
-    let currentPath = $state($page.url.pathname);
+	$effect(() => {
+		if (currentPath !== $page.url.pathname) {
+			sidebarOpen = !sidebarOpen;
+			currentPath = $page.url.pathname;
+		}
+	});
 
-    $effect(() => {
-        if (currentPath !== $page.url.pathname) {
-            sidebarOpen = !sidebarOpen;
-            currentPath = $page.url.pathname;
-        }
-    });
+	$effect(() => {
+		if (!$ActiveCompany) {
+			fetch('/api/current/company', { method: 'GET' })
+				.then(res => res.json())
+				.then(json => {
+					$ActiveCompany = json;
+				});
+		} else {
+			fetch('/api/current/company', { method: 'POST', body: $ActiveCompany })
+				.then(res => res.json());
+		}
+	});
 </script>
 
-<Toast />
+<div class="grid grid-cols-1">
+	<div class="grid grid-rows-[auto_1fr_auto]">
+		<header class="sticky top-0 z-10">
+			<AppBar background="bg-surface-900/80" classes="backdrop-blur-sm">
+				{#snippet lead()}
+					<div>
+						<IconButton flat={true}
+												icon={MaterialIcon.MENU}
+												onclick={toggleSidebar} />
+					</div>
+				{/snippet}
+				{#snippet trail()}
+					<div>
+						{#await data.companies}
+							<Loader />
+						{:then companies}
+							<CompanySelectList {companies} bind:value={$ActiveCompany} />
+						{/await}
+					</div>
+				{/snippet}
+			</AppBar>
+		</header>
 
-<NavBar>
-    <button type="button"
-            class="p-1"
-            onclick={toggleSidebar}
-            aria-controls="drawer-navigation">
-        <Icon icon={Icons.MENU}/>
-    </button>
-</NavBar>
+		<div class="grid grid-cols-1">
+			<main class="p-4 space-y-4">
+				<ToastProvider placement="top-end">
+					{@render children?.()}
+				</ToastProvider>
+			</main>
+		</div>
 
-<NavMenu id="navigation-menu" overlayId="navigation-overlay" isOpen={sidebarOpen}>
-    <NavMenuGroup>
-        <NavMenuItem text="Company" icon={Icons.LIST} href="/company"/>
-        <NavMenuItem text="Employees" icon={Icons.BADGE} href="/employees"/>
-        <NavMenuDropdown leadingIcon={Icons.SETTINGS} title="Settings">
-            <NavMenuItem text="Company" icon={Icons.BUSINESS} href="/settings/company"/>
-            <NavMenuItem text="Organization" icon={Icons.BUSINESS_CENTER} href="/settings/organization"/>
-            <NavMenuItem text="Accounts" icon={Icons.GROUPS} href="/settings/accounts"/>
-        </NavMenuDropdown>
-    </NavMenuGroup>
-</NavMenu>
-
-<div class="contents">
-    {@render children?.()}
+		<footer class="p-4"></footer>
+	</div>
 </div>
+
+<span style="display:none;">
+<NavMenu isOpen={sidebarOpen}>
+	<NavMenuGroup>
+		<NavMenuItem text="Company" icon={MaterialIcon.LIST} href="/company" />
+		<NavMenuItem text="Employees" icon={MaterialIcon.BADGE} href="/employees" />
+		<NavMenuDropdown leadingIcon={MaterialIcon.SETTINGS} title="Settings">
+			<NavMenuItem text="Company" icon={MaterialIcon.BUSINESS} href="/settings/company" />
+			<NavMenuItem text="Organization" icon={MaterialIcon.BUSINESS_CENTER} href="/settings/organization" />
+			<NavMenuItem text="Accounts" icon={MaterialIcon.GROUPS} href="/settings/accounts" />
+		</NavMenuDropdown>
+	</NavMenuGroup>
+</NavMenu>
+</span>

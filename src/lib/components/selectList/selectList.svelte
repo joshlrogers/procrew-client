@@ -1,109 +1,122 @@
 <script lang="ts">
-    import {createSelect, melt} from "@melt-ui/svelte";
-    import {fade} from 'svelte/transition';
-    import {Icon} from "$lib/components/icon/index.js";
-    import {Icons} from "$lib/components/icon/Icons";
-    import type {ListboxOption} from "@melt-ui/svelte/dist/builders/listbox";
-    import {cn} from "$lib/utils";
-    import type {HTMLButtonAttributes} from "svelte/elements";
+	import { createSelect, melt } from '@melt-ui/svelte';
+	import { fade } from 'svelte/transition';
+	import { Icon } from '$lib/components/icon/index.js';
+	import { MaterialIcon } from '$lib/components/icon';
+	import { cn } from '$lib/utils';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-    interface SelectListOption {
-        label: string;
-        value: string;
-    }
+	interface SelectListOption {
+		icon?: MaterialIcon;
+		label: string;
+		value: string | number;
+	}
 
-    interface SelectListProps extends HTMLButtonAttributes {
-        backgroundColor?: string;
-        emptyText?: string;
-        height?: string;
-        id?: string;
-        labelClass?: string;
-        label?: string;
-        name?: string;
-        required: boolean;
-        minWidth?: string;
-        textColor?: string;
-        selectedValue?: SelectListOption;
-        tabindex?: number;
-        items: SelectListOption[];
-        maxListHeight?: string;
-        width?: string;
-    }
+	interface SelectListProps extends HTMLAttributes<HTMLButtonElement> {
+		emptyText?: string;
+		height?: string;
+		labelClass?: string;
+		label?: string;
+		name?: string;
+		required: boolean;
+		minWidth?: string;
+		textColor?: string;
+		items: SelectListOption[];
+		maxListHeight?: string;
+		value?: string | number;
+		wrapperClass?: string;
+		onchanged?: (val: string | number | undefined) => void;
+	}
 
-    let {
-        backgroundColor = "bg-white",
-        id = undefined,
-        labelClass = 'block',
-        label: labelText = undefined,
-        emptyText = '',
-        height = "h-10",
-        maxListHeight = "max-h-48",
-        name = undefined,
-        items,
-        selectedValue = undefined,
-        required = false,
-        minWidth = "min-w-56",
-        tabindex = -1,
-        textColor = 'text-black',
-        width = 'w-auto',
-        ...otherProps
-    }: SelectListProps = $props();
+	let {
+		id = undefined,
+		labelClass = 'block',
+		label: labelText = undefined,
+		emptyText = 'No items found.',
+		height = 'h-10',
+		maxListHeight = 'max-h-48',
+		name = undefined,
+		items,
+		required = false,
+		textColor = undefined,
+		wrapperClass = undefined,
+		value = undefined,
+		onchanged = undefined,
+		...otherProps
+	}: SelectListProps = $props();
 
-    const {
-        elements: {trigger, menu, label, option},
-        states: {open, selectedLabel, selected},
-    } = createSelect<string>({
-        required: required,
-        defaultSelected: selectedValue as ListboxOption<string>,
-        onSelectedChange: (val) => {
-            selectedValue = val.next as ListboxOption<string>;
-            return val.next;
-        },
-        forceVisible: true,
-        positioning: {
-            placement: "bottom",
-            fitViewport: false,
-            sameWidth: true,
-        }
-    })
+	const {
+		elements: { trigger, menu, label, option },
+		states: { open, selectedLabel, selected }
+	} = createSelect<string | number>({
+		required: required,
+		defaultSelected: value ? items[items.findIndex(i => i.value === value)] : undefined,
+		forceVisible: true,
+		onSelectedChange: ({ curr, next }) => {
+			if (curr?.value !== next?.value) {
+				onchanged?.(next?.value);
+			}
 
-    let buttonClass = cn("flex items-center justify-between rounded-lg px-3 py-2 shadow transition-opacity hover:opacity-90", minWidth,
-        backgroundColor, textColor, height, width);
-    let listClass = cn("z-10 flex flex-col overflow-y-auto rounded-lg p-1 shadow focus:!ring-0", maxListHeight, backgroundColor, textColor);
-    let listItemClass = cn("relative cursor-pointer rounded-lg py-1 pl-4 pr-4 focus:z-10 data-[highlighted]:bg-sandy-brown data-[highlighted]:font-bold data-[disabled]:opacity-50");
+			return next;
+		},
+		positioning: {
+			placement: 'bottom',
+			fitViewport: false,
+			sameWidth: true
+		}
+	});
 
-    $effect(() => {
-        selected.set(selectedValue);
-    })
+	let buttonClass = cn('select-list input', 'flex items-center justify-between rounded-lg px-3 py-2 shadow', textColor, height);
+	let listClass = cn('select-list-contents z-100 flex flex-col overflow-y-auto rounded-lg p-1 shadow focus:!ring-0', maxListHeight, textColor);
+	let listItemClass = cn('relative cursor-pointer rounded-lg py-1 pl-4 pr-4 focus:z-100 ' +
+		'data-[highlighted]:bg-primary-500 data-[highlighted]:font-bold data-[disabled]:opacity-50 ' +
+		'flex flex-row gap-2 justify-items-center');
 
-    let extLabelClass = cn('block', 'mb-2', 'text-sm', 'font-medium', 'text-text', 'label', labelClass);
+	let extLabelClass = cn('block', 'mb-2', 'text-sm', 'font-medium', 'label', labelClass);
+
+	$effect(() => {
+		$selected = value ? items[items.findIndex(i => i.value === value)] : undefined;
+	});
 </script>
 
-<div class="flex flex-col">
-    {#if name}
-    <input type="hidden" name={name} value="{selectedValue?.value}" />
-    {/if}
-    {#if labelText}
-        <label for={id} class={extLabelClass} use:melt={$label}>{labelText}</label>
-    {/if}
-    <button class={buttonClass}
-            use:melt={$trigger}
-            {tabindex}
-            {...otherProps}>
-        { $selectedLabel || emptyText }
-        <Icon icon={Icons.ARROW_DROP_DOWN} class="ml-auto mr-0"/>
-    </button>
-    {#if $open}
-        <div class={listClass}
-             use:melt={$menu}
-             transition:fade={{ duration: 150 }}>
-            {#each items as item}
-                <div class={listItemClass}
-                     use:melt={$option(item)}>
-                    {item.label}
-                </div>
-            {/each}
-        </div>
-    {/if}
+<div class={wrapperClass}>
+	{#if labelText}
+		<label for={id} class={extLabelClass} use:melt={$label}>{labelText}</label>
+	{/if}
+
+	<button class={buttonClass}
+					use:melt={$trigger}
+					{...otherProps}>
+		{#if $selected?.icon}
+			<Icon icon={$selected.icon} class="mr-2" />
+		{/if}
+		{ $selectedLabel }
+		<Icon icon={MaterialIcon.ARROW_DROP_DOWN} class="ml-auto mr-0" />
+	</button>
+
+	{#if $open}
+		<div class={listClass}
+				 use:melt={$menu}
+				 transition:fade={{ duration: 150 }}>
+
+			{#if items?.length > 0}
+				{#each items as item}
+					<div class={listItemClass}
+							 use:melt={$option(item)}>
+						{#if item.icon}
+							<Icon icon={item.icon} />
+						{/if}
+						{item.label}
+					</div>
+				{/each}
+			{:else}
+				<div class={listItemClass}>
+					{emptyText}
+				</div>
+			{/if}
+
+		</div>
+	{/if}
+
 </div>
 

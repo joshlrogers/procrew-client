@@ -1,30 +1,28 @@
 <script lang="ts">
-    import {Icon} from "$lib/components/icon";
-    import {Icons} from "$lib/components/icon/Icons";
-    import type {IconButtonProps} from "$lib/components/buttons/iconButton/index";
-    import {cn} from "$lib/utils";
+	import { Icon } from '$lib/components/icon';
+	import type { IconButtonProps } from '$lib/components/buttons/iconButton/index';
+	import { cn } from '$lib/utils';
 
-    let {
-        icon = undefined,
-        iconStyle = undefined,
-        id = undefined,
-        onclick = undefined,
-        isRounded = false,
-        class: className = undefined,
-        ...otherProps
-    }: IconButtonProps = $props();
+	let {
+		icon,
+		onclick = undefined,
+		isRounded = false,
+		class: className = undefined,
+		width = 2.5,
+		flat = false,
+		...otherProps
+	}: IconButtonProps = $props();
 
-    if((icon && !iconStyle) || (!icon && iconStyle)) {
-        throw new Error("If either `icon` or `iconStyle` are provided, both must be provided.")
-    }
-
-    const buttonClasses = cn("aspect-auto", "grid", "place-items-center", "w-10", "h-10", "shadow",
-        "bg-primary", "text-primary-foreground", isRounded ? "rounded-full" : "", className);
+	const buttonClasses = cn(
+		'grid group aspect-auto place-items-center',
+		flat ? '' : 'shadow-lg',
+		`w-[${width}rem] h-[${width}rem]`,
+		isRounded ? 'rounded-full' : '', className);
+	const iconClasses = cn('text-2xl');
 </script>
 
-<button id={id}
-        class={buttonClasses}
-        onclick={onclick}
-        {...otherProps}>
-    <Icon icon={Icons.MENU} />
+<button class={buttonClasses}
+				{onclick}
+				{...otherProps}>
+	<Icon {icon} class={iconClasses} />
 </button>

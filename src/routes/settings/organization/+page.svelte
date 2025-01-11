@@ -1,86 +1,184 @@
 <script lang="ts">
-    import {enhance} from "$app/forms";
-    import {Panel} from "$lib/components/panel/index.js";
-    import {TextInput} from "$lib/components/textInput";
-    import type {ActionData} from "./$types";
-    import {AddressForm} from "$lib/components/addressForm/index.js";
-    import {Button, ButtonStyle} from "$lib/components/buttons/button/index.js";
-    import {addToast} from "$lib/components/toast"
-    import {applyAction, deserialize} from "$app/forms";
-    import {invalidateAll} from "$app/navigation";
-    import type {ActionResult} from "@sveltejs/kit";
+	import { Panel } from '$lib/components/panel';
+	import { TextInput } from '$lib/components/inputs';
+	import { AddressForm } from '$lib/components/addressForm/index.js';
+	import { Button, ButtonStyle } from '$lib/components/buttons/button/index.js';
+	import { superForm } from 'sveltekit-superforms';
+	import { zod } from 'sveltekit-superforms/adapters';
+	import type { PageData } from './$types';
+	import { IconButton } from '$lib/components/buttons/iconButton';
+	import { Icon, MaterialIcon } from '$lib/components/icon';
+	import { Tooltip } from '$lib/components/tooltip';
+	import CompanyCreationDialog from '../company/companyCreationDialog.svelte';
+	import { Loader } from '$lib/components/loader';
+	import { ActiveCompany } from '$lib/shared/stores';
+	import { OrganizationSchema } from '$lib/shared/models/organization';
 
-    let {data, form}: { data: any, form: ActionData } = $props()
-    let organization = $state(data.organization);
-    let organizationAddress = $state(data.organization.address);
-    let organizationState = $state(data.states[data.states.findIndex(s => s.abbreviation === organization.address.state)])
-    let organizationCountry = $state(data.countries[data.countries.findIndex(c => c.shortCode === organization.address.country)])
-    let isWorking = $state(false);
+	let { data }: { data: PageData } = $props();
+	let companyCreationDialogOpen = $state(false);
 
-    function enhanceForm() {
-        isWorking = true;
-        return async (event: any) => {
-            isWorking = false;
-            if(event.result.type === 'success') {
-                await invalidateAll();
-                console.log("Cheers!");
-                addToast({
-                    data: {
-                        title: "Success",
-                        description: "Organization updated.",
-                        color: "bg-conifer"
-                    }
-                });
+	const { form, enhance, constraints, errors, tainted, isTainted, submitting } = superForm(data.form, {
+		dataType: 'json',
+		validationMethod: 'oninput',
+		clearOnSubmit: 'errors-and-message',
+		multipleSubmits: 'prevent',
+		validators: zod(OrganizationSchema),
+		resetForm: false,
+		onUpdated: (event) => {
+			console.log(event);
+			if (event.form.posted) {
+				addToast({
+					data: { title: 'Success!', description: 'Organization updated!', type: ToastType.Success },
+					type: 'foreground'
+				});
+			}
+		}
+	});
 
-                refreshData();
-            }
-
-            await applyAction(event.result);
-        };
-    };
-
-    function refreshData() {
-        organization = data.organization;
-        organizationAddress = data.organization.address;
-        organizationState = data.states[data.states.findIndex(s => s.abbreviation === organization.address.state)]
-        organizationCountry = data.countries[data.countries.findIndex(c => c.shortCode === organization.address.country)]
-    }
+	const onAddCompanyClicked = () => {
+		companyCreationDialogOpen = true;
+	};
 </script>
 
-<Panel class="m-5 p-4 max-w-[60%] mx-auto">
-    <form method="POST" action="?/updateOrganization" use:enhance={enhanceForm}>
-        <div class="flex flex-col gap-2">
-            <input name="id" type="hidden" value={organization.id}/>
-            <TextInput id="organization_name"
-                       name="organization_name"
-                       bind:value={organization.name}
-                       label="Organization"
-                       maxlength={120}
-                       wrapperClass='mb-5'
-                       required={true}
-                       autofocus={true}
-                       width="w-full"
-                       tabIndex="1"/>
+<div class="flex flex-col gap-4 items-center">
 
-            <AddressForm name="address"
-                         defaultAddress={organizationAddress}
-                         states={data.states}
-                         defaultState={organizationState}
-                         countries={data.countries}
-                         defaultCountry={organizationCountry}
-                         onAddressChanged={(address) => organizationAddress = address}/>
+	<Panel class="w-[65%]">
+		{#snippet header()}
+			<div class="flex flex-row items-center">
+				<Icon icon={MaterialIcon.BUSINESS_CENTER} class="mr-2" />
+				Organization
+			</div>
+		{/snippet}
 
-            <div class="flex flex-row justify-end gap-2">
-                <Button text="Cancel" buttonStyle={ButtonStyle.SECONDARY}/>
-                <Button disabled={isWorking}
-                        text="Save"
-                        buttonStyle={ButtonStyle.PRIMARY}
-                        type="submit"/>
-            </div>
-        </div>
-    </form>
-</Panel>
+		{#snippet content()}
+			<form method="POST" action="?/updateOrganization" use:enhance>
+				<div class="flex flex-col gap-2">
+					<input name="id" type="hidden" bind:value={$form.id} />
+					<TextInput id="name"
+										 name="name"
+										 bind:value={$form.name}
+										 label="Organization"
+										 maxlength={120}
+										 wrapperClass='mb-5'
+										 required={true}
+										 autofocus={true}
+										 tabindex={1}
+										 autocomplete="off"
+										 errors={$errors.name}
+										 constraints={$constraints.name} />
 
-<Panel class="m-5 p-4 max-w-[60%] mx-auto">
+					{#await data.countries}
+						<Loader />
+					{:then countries}
+						{#await data.states}
+							<Loader />
 
-</Panel>
+						{:then states}
+							<AddressForm name="address"
+													 {countries}
+													 {states}
+													 formConstraints={constraints}
+													 formData={form}
+													 startingTabIndex={2}
+													 formErrors={errors} />
+						{/await}
+					{/await}
+
+
+					<div class="flex flex-row justify-end gap-2">
+						<Button disabled={!isTainted($tainted) || $submitting}
+										text="Save"
+										tabindex={7}
+										buttonStyle={ButtonStyle.PRIMARY}
+										type="submit" />
+					</div>
+				</div>
+			</form>
+		{/snippet}
+	</Panel>
+
+	<Panel class="w-[65%]">
+		{#snippet header()}
+			<div class="flex flex-row items-center">
+				<Icon icon={MaterialIcon.BUSINESS} class="mr-2" />
+				Companies
+			</div>
+		{/snippet}
+
+		{#snippet content()}
+			<div class="w-full px-4 py-2 shadow-md bg-surface-300-700 rounded-t-lg">
+				<Tooltip text="Add a new company">
+					<IconButton onclick={onAddCompanyClicked}
+											icon={MaterialIcon.ADD}
+											isRounded={true} />
+				</Tooltip>
+			</div>
+			<table class="table">
+				<thead>
+				<tr>
+					<th>Company name</th>
+					<th>Street address</th>
+					<th>City</th>
+					<th>State</th>
+					<th>Zip code</th>
+					<th>Phone number</th>
+				</tr>
+				</thead>
+				<tbody>
+				{#await data.companies}
+					<tr class="border-b text-regent-gray-900 bg-regent-gray-100 border-regent-gray-300">
+						<th scope="row"
+								colspan="6"
+								class="px-4 py-3 font-medium whitespace-nowrap">
+							Loading companies...
+						</th>
+					</tr>
+				{:then companies}
+					{#if companies && companies.length > 0}
+						{#each companies as company}
+							{#key company.id}
+								<tr>
+									<th>
+										{#if $ActiveCompany === company.id}
+											<Icon icon={MaterialIcon.BOLT} class="mr-2" />
+										{/if}
+										{company.name}
+									</th>
+									<td>{company.address.addressLine1}</td>
+									<td>{company.address.city}</td>
+									<td>{company.address.state}</td>
+									<td>{company.address.postalCode}</td>
+									<td>{company.phoneNumber}</td>
+								</tr>
+							{/key}
+						{/each}
+					{:else}
+						<tr class="border-b text-regent-gray-900 bg-regent-gray-100 border-regent-gray-300">
+							<th scope="row"
+									colspan="6"
+									class="px-4 py-3 font-medium whitespace-nowrap">
+								No companies found.
+							</th>
+						</tr>
+					{/if}
+				{/await}
+				</tbody>
+			</table>
+			<div class="w-full px-4 py-2 overflow-x-auto shadow-md bg-surface-300-700 rounded-b-lg">
+			</div>
+		{/snippet}
+	</Panel>
+
+</div>
+{#await data.companyTypes then companyTypes}
+	{#await data.countries then countries}
+		{#await data.states then states}
+			<CompanyCreationDialog
+				{states}
+				{countries}
+				open={companyCreationDialogOpen}
+				{companyTypes}
+				onclosed={() => companyCreationDialogOpen = false} />
+		{/await}
+	{/await}
+{/await}

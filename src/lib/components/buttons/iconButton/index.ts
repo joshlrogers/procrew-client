@@ -1,12 +1,14 @@
 import Root from "./iconButton.svelte";
-import type {HTMLElementProps} from "$lib/components/shared/htmlElementProps";
-import type {IconStyle} from "$lib/components/icon/IconStyle";
+import type { HTMLAttributes } from 'svelte/elements';
+import type { MaterialIcon } from '$lib/components/icon';
 
-export interface IconButtonProps extends HTMLElementProps {
+export interface IconButtonProps extends HTMLAttributes<HTMLButtonElement> {
     doTransform?: boolean;
-    icon?: string;
-    iconStyle?: IconStyle;
-    isRounded: boolean;
+    icon: MaterialIcon;
+    flat?: boolean;
+    isRounded?: boolean;
+    width?: number;
+    height?: number;
     onclick?: () => void;
 }
 

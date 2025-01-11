@@ -1,10 +1,11 @@
 <script lang="ts">
-    import type {HTMLButtonAttributes} from "svelte/elements";
+    import type { HTMLButtonAttributes } from 'svelte/elements';
     import {cn} from "$lib/utils";
     import {ButtonStyle} from "$lib/components/buttons/button/index";
 
     interface ButtonProps extends HTMLButtonAttributes {
         backgroundColor?: string;
+        baseClass?: string;
         buttonStyle?: ButtonStyle;
         disabled?: boolean;
         height?: string;
@@ -14,6 +15,7 @@
     }
 
     let {
+        baseClass = "btn",
         buttonStyle = ButtonStyle.PRIMARY,
         class: extClass = undefined,
         text,
@@ -28,14 +30,14 @@
     let innerButtonStyle = '';
     switch (buttonStyle) {
         case ButtonStyle.PRIMARY:
-            innerButtonStyle = 'bg-conifer hover:bg-conifer-500';
+            innerButtonStyle = 'preset-filled-primary-500';
             break;
         case ButtonStyle.SECONDARY:
-            innerButtonStyle = 'bg-coral-red hover:bg-coral-red-500';
+            innerButtonStyle = 'preset-tonal-secondary';
             break;
     }
 
-    let buttonClass = cn(innerButtonStyle, backgroundColor, height, width, extClass);
+    let buttonClass = cn(baseClass, innerButtonStyle, backgroundColor, height, width, extClass);
 </script>
 
 <button {...otherProps}

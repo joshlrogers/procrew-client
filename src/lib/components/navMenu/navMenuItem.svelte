@@ -8,8 +8,8 @@
         isActive = $page.url.pathname === href;
     })
 
-    let activeClass = 'flex items-center p-2 text-base font-normal text-primary bg-sandy-brown font-bold rounded-lg hover:cursor-default';
-    let nonActiveClass = 'flex items-center p-2 text-base font-normal text-green-900 rounded-lg hover:bg-gray-200';
+    let activeClass = 'flex items-center p-2 font-bold rounded-lg hover:cursor-default bg-surface-300-700';
+    let nonActiveClass = 'flex items-center p-2 font-norma rounded-lg hover:bg-surface-300-700';
 
 </script>
 

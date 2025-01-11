@@ -1,178 +1,146 @@
 <script lang="ts">
-    import {onDestroy, onMount} from "svelte";
-    import {env} from "$env/dynamic/public";
-    import {browser} from "$app/environment";
-    import {TextInput} from "$lib/components/textInput";
-    import {SelectList} from "$lib/components/selectList";
-    import type {HTMLInputAttributes} from "svelte/elements";
-    import type {Address, CountrySelectOption, StateSelectOption} from "$lib/shared/models/address";
+	import { onDestroy, onMount } from 'svelte';
+	import { env } from '$env/dynamic/public';
+	import { browser } from '$app/environment';
+	import { TextInput } from '$lib/components/inputs';
+	import { SelectList } from '$lib/components/selectList';
+	import type { HTMLInputAttributes } from 'svelte/elements';
+	import type { SuperFormData, SuperFormErrors } from 'sveltekit-superforms/client';
+	import type { InputConstraints } from 'sveltekit-superforms';
+	import type { Writable } from 'svelte/store';
+	import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 
-    class AddressFormModel {
-        addressLine1 = $state('')
-        addressLine2: string | undefined = $state(undefined);
-        addressLine3: string | undefined = $state(undefined);
-        city = $state('');
-        country = $state('')
-        state = $state('');
-        postalCode = $state('');
+	interface AddressFormProps extends HTMLInputAttributes {
+		countries?: CountrySelectOption[]
+		states?: StateSelectOption[],
+		formConstraints: Writable<InputConstraints<Record<string, any>>>,
+		formData: SuperFormData<Record<string, any>>;
+		formErrors: SuperFormErrors<Record<string, any>>;
+		startingTabIndex?: number;
+	}
 
-        constructor(address: Address) {
-            this.addressLine1 = address.addressLine1;
-            this.addressLine2 = address.addressLine2;
-            this.addressLine3 = address.addressLine3;
-            this.city = address.city;
-            this.country = address.country;
-            this.state = address.state;
-            this.postalCode = address.postalCode;
-        }
+	let {
+		countries = [],
+		states = [],
+		formConstraints = $bindable(),
+		formData = $bindable(),
+		formErrors = $bindable(),
+		startingTabIndex = undefined
+	}: AddressFormProps = $props();
 
-        address = (): Address => {
-            return {
-                addressLine1: this.addressLine1,
-                addressLine2: this.addressLine2,
-                addressLine3: this.addressLine3,
-                city: this.city,
-                postalCode: this.postalCode,
-                country: this.country,
-                state: this.state
-            }
-        }
 
-        reset = () => {
-            this.addressLine1 = '';
-            this.addressLine2 = undefined;
-            this.addressLine3 = undefined;
-            this.city = '';
-            this.state = '';
-            this.postalCode = '';
-            this.country = '';
-        }
-    }
+	let availableCountries = $derived(countries.map(country => ({ value: country.shortCode, label: country.name })));
 
-    interface AddressFormProps extends HTMLInputAttributes {
-        defaultAddress?: Address;
-        countries: CountrySelectOption[];
-        defaultCountry: CountrySelectOption;
-        defaultState: StateSelectOption;
-        onAddressChanged?: (address: Address) => void;
-        states: StateSelectOption[];
-    }
+	let availableStates = $derived(states.map(state => ({value: state.abbreviation, label: state.name})));
 
-    let {
-        countries = [] as CountrySelectOption[],
-        defaultAddress = {} as Address,
-        defaultCountry,
-        defaultState,
-        onAddressChanged = undefined,
-        states = [] as StateSelectOption[],
-    }: AddressFormProps = $props();
+	let addressAutofill: any;
 
-    let currentAddress = $state(new AddressFormModel(defaultAddress));
+	onMount((async () => {
+		if (browser) {
+			let { autofill } = await import('@mapbox/search-js-web');
+			addressAutofill = autofill({
+				accessToken: env.PUBLIC_MAPBOX_API_TOKEN,
+				options: {
+					country: 'us',
+					proximity: 'ip',
+					streets: false
+				}
+			});
 
-    let availableCountries = countries.map(country => {
-        return {value: country.shortCode, label: country.name};
-    });
-    let availableStates = states.map(state => {
-        return {value: state.abbreviation, label: state.name};
-    });
+			addressAutofill.addEventListener('retrieve', onInternalAddressChanged);
+		}
+	}));
 
-    let selectedState = $state(availableStates[availableStates.findIndex(s => s.value === defaultState?.abbreviation)]);
-    let selectedCountry = $state(availableCountries[availableCountries.findIndex(s => s.value === defaultCountry?.shortCode)]);
+	onDestroy(() => {
+		if (addressAutofill) {
+			addressAutofill.removeEventListener('retrieve', onInternalAddressChanged);
+			addressAutofill.remove();
+		}
+	});
 
-    let addressAutofill: any;
+	const onInternalAddressChanged = (event: any) => {
+		let selectedProperties = event.detail.features[0].properties;
 
-    onMount(async () => {
-        if (browser) {
-            let {autofill} = await import('@mapbox/search-js-web');
-            addressAutofill = autofill({
-                accessToken: env.PUBLIC_MAILBOX_API_TOKEN,
-                options: {
-                    country: "us",
-                    proximity: "ip",
-                    streets: false
-                }
-            });
+		$formData.address.addressLine1 = selectedProperties.address_line1;
+		$formData.address.addressLine2 = selectedProperties.address_line2;
+		$formData.address.addressLine3 = selectedProperties.address_line3;
+		$formData.address.city = selectedProperties.address_level2;
+		$formData.address.state = selectedProperties.address_level1;
+		$formData.address.postalCode = selectedProperties.postcode;
+		$formData.address.country = selectedProperties.country_code.toUpperCase();
+	};
 
-            addressAutofill.addEventListener('retrieve', onInternalAddressChanged);
-        }
-    });
-
-    onDestroy(() => {
-        if (addressAutofill) {
-            addressAutofill.removeEventListener('retrieve', onInternalAddressChanged);
-            addressAutofill.remove();
-        }
-    })
-
-    const onInternalAddressChanged = (event: any) => {
-        let selectedProperties = event.detail.features[0].properties;
-
-        currentAddress.addressLine1 = selectedProperties.address_line1;
-        currentAddress.addressLine2 = selectedProperties.address_line2;
-        currentAddress.addressLine3 = selectedProperties.address_line3;
-        currentAddress.city = selectedProperties.address_level2;
-        currentAddress.state = selectedProperties.address_level1;
-        currentAddress.postalCode = selectedProperties.postcode;
-        currentAddress.country = selectedProperties.country_code.toUpperCase();
-
-        selectedCountry = availableCountries[availableCountries.findIndex(c => c.value === currentAddress.country)];
-        selectedState = availableStates[availableStates.findIndex(s => s.value === currentAddress.state)];
-
-        onAddressChanged?.(currentAddress.address());
-    }
 </script>
 
+<div class="flex flex-col gap-2">
+	<input type="hidden"
+				 autocomplete="address-line1"
+				 bind:value={$formData.address.addressLine1} />
 <TextInput label="Address"
-           maxlength={240}
-           width="w-full"
-           required={true}
-           value={currentAddress.addressLine1}
-           autocomplete="street-address"/>
-
-<input type="hidden" name="addressLine1" value={currentAddress.addressLine1}/>
-<TextInput maxlength={240}
-           name="addressLine2"
-           width="w-full"
-           autocomplete="address-line2"
-           value={currentAddress.addressLine2}/>
+					 autocomplete="street-address"
+					 maxlength={240}
+					 wrapperClass="w-full"
+					 required={true}
+					 tabindex={startingTabIndex ? startingTabIndex : undefined}
+					 constraints={$formConstraints.address?.addressLine1}
+					 errors={$formErrors.address?.addressLine1}
+					 value={$formData.address.addressLine1} />
 
 <TextInput maxlength={240}
-           name="addressLine3"
-           width="w-full"
-           wrapperClass='mb-5'
-           autocomplete="address-line3"
-           value={currentAddress.addressLine3}/>
+					 name="addressLine2"
+					 wrapperClass="w-full"
+					 autocomplete="address-line2"
+					 constraints={$formConstraints.address?.addressLine2}
+					 errors={$formErrors.address?.addressLine2}
+					 bind:value={$formData.address.addressLine2} />
 
-<div class="flex flex-col md:flex-row md:flex-wrap gap-2">
-    <TextInput label="City"
-               name="city"
-               maxlength={120}
-               width="md:w-[12rem] w-full"
-               required={true}
-               autocomplete="address-level2"
-               value={currentAddress.city}/>
+<TextInput maxlength={240}
+					 name="addressLine3"
+					 wrapperClass='w-full'
+					 autocomplete="address-line3"
+					 constraints={$formConstraints.address?.addressLine3}
+					 errors={$formErrors.address?.addressLine3}
+					 bind:value={$formData.address.addressLine3} />
 
-    <SelectList items={availableStates}
-                name="state"
-                label="State"
-                required={true}
-                selectedValue={selectedState}
-                width="md:w-[10rem] w-full"/>
+</div>
 
-    <TextInput label="Zip code"
-               name="postalCode"
-               maxlength={10}
-               width="2xl:w-[10rem] w-full"
-               required={true}
-               autocomplete="address-postalCode"
-               value={currentAddress.postalCode}/>
+<div class="flex flex-col md:flex-row sm:flex-wrap gap-2">
+	<TextInput label="City"
+						 maxlength={120}
+						 wrapperClass="lg:w-[12rem] w-full"
+						 required={true}
+						 tabindex={startingTabIndex ? startingTabIndex + 1 : undefined}
+						 constraints={$formConstraints.address?.city}
+						 errors={$formErrors.address?.city}
+						 bind:value={$formData.address.city} />
 
-    <input type="hidden" name="country" autocomplete="country" value={selectedCountry?.value}/>
-    <SelectList items={availableCountries}
-                label="Country"
-                required={true}
-                selectedValue={selectedCountry}
-                width="2xl:w-[15rem] w-full"/>
+	<SelectList items={availableStates}
+							name="state"
+							label="State"
+							required={true}
+							value={$formData.address.state}
+							onchanged={(val) => $formData.address.state = val}
+							tabindex={startingTabIndex ? startingTabIndex + 2 : undefined}
+							wrapperClass="lg:w-[10rem] w-full" />
 
+	<TextInput label="Zip code"
+						 name="postalCode"
+						 maxlength={10}
+						 wrapperClass="lg:w-[10rem] w-full"
+						 required={true}
+						 autocomplete="address-postalCode"
+						 constraints={$formConstraints.address?.postalCode}
+						 errors={$formErrors.address?.postalCode}
+						 tabindex={startingTabIndex ? startingTabIndex + 3 : undefined}
+						 bind:value={$formData.address.postalCode} />
+
+	<SelectList items={availableCountries}
+							name="country"
+							label="Country"
+							required={true}
+							value={$formData.address.country}
+							onchanged={(val) => $formData.address.country = val}
+							tabindex={startingTabIndex ? startingTabIndex + 4 : undefined}
+							wrapperClass="lg:w-[15rem] w-full" />
 </div>
 

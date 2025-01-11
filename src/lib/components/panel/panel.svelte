@@ -1,23 +1,43 @@
-<script lang="ts">
-    import {cn} from "$lib/utils";
-    import type {HTMLHtmlAttributes} from "svelte/elements";
+<script lang="ts" generics="T">
+	import type { Snippet } from 'svelte';
+	import { cn } from '$lib/utils';
+	import type { HTMLAttributes } from 'svelte/elements';
 
-    interface PanelProps extends HTMLHtmlAttributes {
-        backgroundColor?: string;
-        class?: string;
-        rounded?: boolean;
-    }
+	interface PanelProps extends HTMLAttributes<HTMLElement> {
+		baseClass?: string;
+		header?: Snippet;
+		content?: Snippet;
+		footer?: Snippet;
+	}
 
-    let {
-        children,
-        backgroundColor = "bg-gray-100",
-        class: extClass,
-        rounded = true
-    }: PanelProps = $props();
+	let {
+		baseClass = 'card',
+		class: extClass = undefined,
+		content = undefined,
+		footer = undefined,
+		header = undefined,
+		...otherProps
+	}: PanelProps = $props();
 
-    let panelClass = cn('p-2', 'my-2', rounded ? 'rounded-lg' : '', 'shadow-md', backgroundColor, extClass);
+	let panelClass = cn(baseClass, extClass);
 </script>
 
-<div class={panelClass}>
-    {@render children?.()}
+<div class={panelClass} {...otherProps}>
+	{#if header}
+		<header>
+			{@render header()}
+		</header>
+	{/if}
+
+	{#if content}
+		<article>
+			{@render content()}
+		</article>
+	{/if}
+
+	{#if footer}
+		<footer>
+			{@render footer()}
+		</footer>
+	{/if}
 </div>

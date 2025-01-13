@@ -4,10 +4,9 @@ import type {AuthenticationResult, AuthorizationCodeRequest} from "@azure/msal-n
 import {AZURE_REDIRECT_URI, AZURE_SCOPES} from "$env/static/private";
 import {ApiClient} from "$lib/server/apiClient";
 import type {Account} from "$lib/shared/models/account";
-import { getCompany, setAccountCookie, setSessionCookie } from '$lib/server/session';
+import { setAccountCookie, setSessionCookie } from '$lib/server/session';
 
 export async function GET(event: RequestEvent): Promise<Response> {
-    const companyId = getCompany(event);
     const requestCode = event.url.searchParams.get("code");
     const requestState = event.url.searchParams.get("state");
 
@@ -47,7 +46,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
             return new Response(null, {status: 401});
         }
 
-        const account = await getUser(tokenResponse, companyId);
+        const account = await getUser(event, tokenResponse);
         if(!account?.idpId) {
             return new Response("User not found", {status: 404});
         }
@@ -71,7 +70,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
     }
 }
 
-async function getUser(authenticationResult: AuthenticationResult, companyId?: string) {
-    const result = await ApiClient.get<Account>("account/me", authenticationResult.accessToken, companyId);
+async function getUser(event: RequestEvent, authenticationResult: AuthenticationResult) {
+    const result = await ApiClient.get<Account>(event, "account/me", authenticationResult.accessToken);
     return result.isOk ? result.value : null;
 }

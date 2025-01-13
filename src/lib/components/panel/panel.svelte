@@ -4,33 +4,39 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 
 	interface PanelProps extends HTMLAttributes<HTMLElement> {
+		background?: string;
 		baseClass?: string;
+		contentClass?: string;
 		header?: Snippet;
+		headerClass?: string;
 		content?: Snippet;
 		footer?: Snippet;
 	}
 
 	let {
 		baseClass = 'card',
+		background = 'preset-filled-surface-100-900',
 		class: extClass = undefined,
 		content = undefined,
+		contentClass = 'p-4',
 		footer = undefined,
 		header = undefined,
+		headerClass = 'p-2 preset-filled-surface-300-700 rounded-t-[var(--radii-container)]',
 		...otherProps
 	}: PanelProps = $props();
 
-	let panelClass = cn(baseClass, extClass);
+	let panelClasses = cn(baseClass, background, extClass);
 </script>
 
-<div class={panelClass} {...otherProps}>
+<div class={panelClasses} {...otherProps}>
 	{#if header}
-		<header>
+		<header class={headerClass}>
 			{@render header()}
 		</header>
 	{/if}
 
 	{#if content}
-		<article>
+		<article class={contentClass}>
 			{@render content()}
 		</article>
 	{/if}

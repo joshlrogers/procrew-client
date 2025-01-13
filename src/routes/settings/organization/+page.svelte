@@ -1,18 +1,25 @@
 <script lang="ts">
-	import { Panel } from '$lib/components/panel';
-	import { TextInput } from '$lib/components/inputs';
-	import { AddressForm } from '$lib/components/addressForm/index.js';
-	import { Button, ButtonStyle } from '$lib/components/buttons/button/index.js';
+	import { getContext } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import type { PageData } from './$types';
+
+	import { Panel } from '$lib/components/panel';
+	import { TextInput } from '$lib/components/inputs';
+	import { AddressForm } from '$lib/components/addressForm';
+	import { Button, ButtonStyle } from '$lib/components/buttons/button';
 	import { IconButton } from '$lib/components/buttons/iconButton';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
 	import { Tooltip } from '$lib/components/tooltip';
-	import CompanyCreationDialog from '../company/companyCreationDialog.svelte';
 	import { Loader } from '$lib/components/loader';
 	import { ActiveCompany } from '$lib/shared/stores';
 	import { OrganizationSchema } from '$lib/shared/models/organization';
+
+	import CompanyCreationDialog from '../company/companyCreationDialog.svelte';
+
+	import type { PageData } from './$types';
+	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
+
+	const toast: ToastContext = getContext('toast');
 
 	let { data }: { data: PageData } = $props();
 	let companyCreationDialogOpen = $state(false);
@@ -25,11 +32,12 @@
 		validators: zod(OrganizationSchema),
 		resetForm: false,
 		onUpdated: (event) => {
-			console.log(event);
-			if (event.form.posted) {
-				addToast({
-					data: { title: 'Success!', description: 'Organization updated!', type: ToastType.Success },
-					type: 'foreground'
+			if (event.form.valid) {
+				toast.create({
+					type: 'success',
+					title: 'Success!',
+					description: `Organization updated!`,
+					duration: 10000
 				});
 			}
 		}
@@ -43,6 +51,7 @@
 <div class="flex flex-col gap-4 items-center">
 
 	<Panel class="w-[65%]">
+
 		{#snippet header()}
 			<div class="flex flex-row items-center">
 				<Icon icon={MaterialIcon.BUSINESS_CENTER} class="mr-2" />
@@ -98,6 +107,7 @@
 	</Panel>
 
 	<Panel class="w-[65%]">
+
 		{#snippet header()}
 			<div class="flex flex-row items-center">
 				<Icon icon={MaterialIcon.BUSINESS} class="mr-2" />

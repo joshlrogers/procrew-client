@@ -1,6 +1,12 @@
 import type { PageServerLoad, RequestEvent } from './$types';
 import { ApiClient } from '$lib/server/apiClient';
-import { type Company, CompanySchema, type CompanyType } from '$lib/shared/models/company';
+import {
+	type BusinessHours,
+	BusinessHoursSchema,
+	type Company,
+	CompanySchema,
+	type CompanyType
+} from '$lib/shared/models/company';
 import { getAccount, getCompany, getToken } from '$lib/server/session';
 import { fail, redirect } from '@sveltejs/kit';
 import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
@@ -22,41 +28,74 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 	}
 
 	return {
-		countries: fetchCountries(accessToken, companyId),
-		states: fetchStates(accessToken, companyId),
-		companyTypes: fetchCompanyTypes(accessToken, companyId),
-		company: await getCurrentCompany(companyId, accessToken)
+		countries: fetchCountries(event, accessToken, companyId),
+		states: fetchStates(event, accessToken, companyId),
+		companyTypes: fetchCompanyTypes(event, accessToken, companyId),
+		company: await getCurrentCompany(event, companyId, accessToken)
 	};
 };
 
 export const actions = {
-	updateCompany: async (event) => {
+	updateBusinessHours: async (event) => {
 		const accessToken = await getToken(event);
 		const account = getAccount(event);
-		const companyId = getCompany(event);
 
 		if (!accessToken || !account?.defaultOrganizationId) {
 			return redirect(302, `/login/b2c?redirect_url=${event.url.pathname}`);
 		}
 
-		const form = await superValidate<Company>(
+		const form = await superValidate<BusinessHours>(
 			await event.request.formData(),
-			zod(CompanySchema)
+			zod(BusinessHoursSchema)
 		);
+
+		if (!form.valid) {
+			return message(form, { type: 'error', text: 'Invalid business hours.' });
+		}
+
+		let result = await ApiClient.put<Company>(
+			event,
+			`/organization/company/hours`,
+			form.data,
+			accessToken
+		);
+
+		if (result.isOk && result.value) {
+			return message(form, { type: 'success', text: 'Company business hours updated!' });
+		}
+
+		return message(
+			form,
+			{
+				type: 'error',
+				text: "Unexpected error encountered updating the company's business hours."
+			},
+			{ status: 500 }
+		);
+	},
+	updateCompany: async (event) => {
+		const accessToken = await getToken(event);
+		const account = getAccount(event);
+
+		if (!accessToken || !account?.defaultOrganizationId) {
+			return redirect(302, `/login/b2c?redirect_url=${event.url.pathname}`);
+		}
+
+		const form = await superValidate<Company>(await event.request.formData(), zod(CompanySchema));
 
 		if (!form.valid) {
 			return message(form, { type: 'error', text: 'Invalid organization.' });
 		}
 
 		let result = await ApiClient.put<Company>(
+			event,
 			`/organization/company`,
 			form.data,
-			accessToken,
-			companyId
+			accessToken
 		);
 
 		if (result.isOk && result.value) {
-			return message(form, { type: 'success', text: 'Company updated!' });
+			return message(form, { type: 'success', text: 'Company business hours updated!' });
 		}
 
 		return message(
@@ -70,40 +109,37 @@ export const actions = {
 	}
 };
 
-const getCurrentCompany = async (companyId: string, accessToken: string) => {
-	let response = await ApiClient.get<Company>(`/organization/company/${companyId}`, accessToken);
+const getCurrentCompany = async (event: RequestEvent, companyId: string, accessToken: string) => {
+	let response = await ApiClient.get<Company>(event, `/organization/company/${companyId}`, accessToken);
 	if (response.isOk && response.value) {
 		return response.value;
 	}
 };
 
-const fetchCompanyTypes = async (accessToken: string, companyId?: string) => {
-	const response = await ApiClient.get<CompanyType[]>(
-		'/utility/company/types',
-		accessToken,
-		companyId
-	);
+const fetchCompanyTypes = async (event: RequestEvent, accessToken: string, companyId?: string) => {
+	const response = await ApiClient.get<CompanyType[]>(event, '/utility/company/types', accessToken);
+
 	if (response.isOk && response.value) {
 		return response.value;
 	}
 };
 
-const fetchCountries = async (accessToken: string, companyId?: string) => {
+const fetchCountries = async (event: RequestEvent, accessToken: string, companyId?: string) => {
 	let response = await ApiClient.get<CountrySelectOption[]>(
+		event,
 		'/utility/lookup/address/countries',
-		accessToken,
-		companyId
+		accessToken
 	);
 	if (response.isOk && response.value) {
 		return response.value;
 	}
 };
 
-const fetchStates = async (accessToken: string, companyId?: string) => {
+const fetchStates = async (event: RequestEvent, accessToken: string, companyId?: string) => {
 	let response = await ApiClient.get<StateSelectOption[]>(
+		event,
 		'/utility/lookup/address/states',
-		accessToken,
-		companyId
+		accessToken
 	);
 	if (response.isOk && response.value) {
 		return response.value;

@@ -1,13 +1,17 @@
-<script>
+<script lang="ts">
+	import { getContext } from 'svelte';
+	import { zod } from 'sveltekit-superforms/adapters';
+	import { superForm, defaults } from 'sveltekit-superforms/client';
+	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
+
 	import { Dialog } from '$lib/components/dialog';
 	import { InputField, TextInput } from '$lib/components/inputs';
 	import { CompanyTypeSelectList, TimezoneSelectList } from '$lib/components/selectList';
-	import { superForm, defaults } from 'sveltekit-superforms/client';
-	import { NewCompanySchema } from '$lib/shared/models/company';
-	import { zod } from 'sveltekit-superforms/adapters';
 	import { AddressForm } from '$lib/components/addressForm';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
-	import { addToast, ToastType } from '$lib/components/toast';
+	import { CompanySchema } from '$lib/shared/models/company';
+
+	const toast: ToastContext = getContext('toast');
 
 	let {
 		states = [],
@@ -27,19 +31,18 @@
 		submitting,
 		tainted,
 		isTainted
-	} = superForm(defaults(zod(NewCompanySchema)), {
+	} = superForm(defaults(zod(CompanySchema)), {
 		dataType: 'json',
 		validationMethod: 'oninput',
-		validators: zod(NewCompanySchema),
+		validators: zod(CompanySchema),
 		resetForm: true,
 		onUpdated: (event) => {
 			if (event.form.posted) {
-				addToast({
-					type: 'foreground', data: {
-						title: 'Success!',
-						description: `Created company ${event.form.data.name}`,
-						type: ToastType.Success
-					}
+				toast.create({
+					type: 'success',
+					title: 'Success!',
+					description: `Created company ${event.form.data.name}!`,
+					duration: 10000
 				});
 				open = false;
 				onclosed?.();

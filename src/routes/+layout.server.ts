@@ -2,7 +2,7 @@ import { ApiClient } from '$lib/server/apiClient';
 import { getToken } from '$lib/server/session';
 import type { Company } from '$lib/shared/models/company';
 import type { LayoutServerLoad } from '../../.svelte-kit/types/src/routes/$types';
-import { redirect } from '@sveltejs/kit';
+import { redirect, type RequestEvent } from '@sveltejs/kit';
 
 export const load: LayoutServerLoad = async (event) => {
 	const accessToken = await getToken(event);
@@ -18,12 +18,12 @@ export const load: LayoutServerLoad = async (event) => {
 
 	return {
 		account: event.locals.account,
-		companies: fetchCompanies(accessToken)
+		companies: fetchCompanies(event, accessToken)
 	};
 };
 
-const fetchCompanies = async (accessToken: string) => {
-	let companiesResponse = await ApiClient.get<Company[]>('/organization/company', accessToken);
+const fetchCompanies = async (event: RequestEvent, accessToken: string) => {
+	let companiesResponse = await ApiClient.get<Company[]>(event, '/organization/company', accessToken);
 	if (companiesResponse.isOk && companiesResponse.value) {
 		return companiesResponse.value;
 	}

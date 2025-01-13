@@ -1,13 +1,15 @@
 <script lang="ts">
+	import { getContext } from 'svelte';
+	import { defaults, superForm } from 'sveltekit-superforms/client';
+	import { zod } from 'sveltekit-superforms/adapters';
+	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
+
 	import { page } from '$app/stores';
+
 	import { type Company, CompanySchema } from '$lib/shared/models/company';
 	import { TextInput } from '$lib/components/inputs';
 	import { AddressForm } from '$lib/components/addressForm';
-	import { defaults, superForm } from 'sveltekit-superforms/client';
-	import { zod } from 'sveltekit-superforms/adapters';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
-	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
-	import { getContext } from 'svelte';
 	import { TimezoneSelectList } from '$lib/components/selectList/index.js';
 
 	const toast: ToastContext = getContext('toast');

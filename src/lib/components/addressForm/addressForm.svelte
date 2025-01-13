@@ -84,7 +84,7 @@
 					 tabindex={startingTabIndex ? startingTabIndex : undefined}
 					 constraints={$formConstraints.address?.addressLine1}
 					 errors={$formErrors.address?.addressLine1}
-					 value={$formData.address.addressLine1} />
+					 bind:value={$formData.address.addressLine1} />
 
 <TextInput maxlength={240}
 					 name="addressLine2"

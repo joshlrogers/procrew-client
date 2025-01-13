@@ -1,14 +1,5 @@
 import { z } from 'zod';
 
-type Address = {
-    addressLine1: string,
-    addressLine2?: string,
-    addressLine3?: string,
-    city: string,
-    country: string,
-    postalCode: string
-    state: string,
-}
 type CountrySelectOption = {
     abbreviation: string;
     name: string;
@@ -30,6 +21,8 @@ const addressSchema = z.object({
     postalCode: z.string().min(4, 'Postal code is required.'),
     country: z.string().min(2, 'Country is required.'),
 });
+
+type Address = z.infer<typeof addressSchema>;
 
 export {
     addressSchema as AddressSchema,

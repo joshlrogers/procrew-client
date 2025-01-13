@@ -1,21 +1,29 @@
+import type { RequestEvent } from '@sveltejs/kit';
+
 import {INTERNAL_API_URL} from "$env/static/private";
+
 import type {Result} from "$lib/shared/models/result";
+import { getCompany } from '$lib/server/session';
 
 export class ApiClient {
-    static async delete(route: string, token: string, companyId?: string) {
-        return await this.fetchRoute("DELETE", route, null, token, companyId);
+    static async delete(event: RequestEvent, route: string, token: string) {
+        let company = getCompany(event);
+        return await this.fetchRoute("DELETE", route, null, token, company);
     }
 
-    static async get<T>(route: string, token: string, companyId?: string): Promise<Result<T>> {
-        return await this.fetchRoute("GET", route, null, token, companyId);
+    static async get<T>(event: RequestEvent, route: string, token: string): Promise<Result<T>> {
+        let company = getCompany(event);
+        return await this.fetchRoute('GET', route, null, token, company);
     }
 
-    static async post<T>(route: string, content: T, token: string, companyId?: string): Promise<Result<T>> {
-        return await this.fetchRoute("POST", route, JSON.stringify(content), token, companyId);
+    static async post<T>(event: RequestEvent, route: string, content: T, token: string): Promise<Result<T>> {
+        let company = getCompany(event);
+        return await this.fetchRoute("POST", route, JSON.stringify(content), token, company);
     }
 
-    static async put<T>(route: string, content: any, token: string, companyId?: string): Promise<Result<T>> {
-        return await this.fetchRoute("PUT", route, JSON.stringify(content), token, companyId);
+    static async put<T>(event: RequestEvent, route: string, content: any, token: string): Promise<Result<T>> {
+        let company = getCompany(event);
+        return await this.fetchRoute("PUT", route, JSON.stringify(content), token, company);
     }
 
     private static buildRoute(route: string) {

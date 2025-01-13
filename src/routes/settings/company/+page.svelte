@@ -1,16 +1,18 @@
 <script lang="ts">
 	import { Tabs } from '@skeletonlabs/skeleton-svelte';
+	import { invalidateAll } from '$app/navigation';
+
 	import { TabOptions } from './index';
 	import GeneralPanel from "./generalPanel.svelte";
+	import OperationsPanel from "./operationsPanel.svelte";
+
 	import avatar from '$lib/assets/avatar.svg';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
 	import { CompanyTypeSelectList } from '$lib/components/selectList';
-	import type { Company } from '$lib/shared/models/company';
 	import { ActiveCompany } from '$lib/shared/stores';
-	import { invalidateAll } from '$app/navigation';
 	import { Panel } from '$lib/components/panel';
 
-
+	import type { Company } from '$lib/shared/models/company';
 
 	class CompanyPageState {
 		activeTab = $state(TabOptions.General.toString());
@@ -91,7 +93,7 @@
 						Departments
 					</Tabs.Panel>
 					<Tabs.Panel value={TabOptions.Operations.toString()}>
-						Operations
+						<OperationsPanel bind:company={pageState.company} />
 					</Tabs.Panel>
 					<Tabs.Panel value={TabOptions.Holidays.toString()}>
 						Holidays

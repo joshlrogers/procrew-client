@@ -24,8 +24,8 @@ export function deleteSessionTokenCookie(event: RequestEvent): void {
 	});
 }
 
-export function getAccount(event: RequestEvent): Account | null {
-	const rawAccount = event.cookies.get('account');
+export function getAccount({ cookies }: RequestEvent): Account | null {
+	const rawAccount = cookies?.get('account');
 	if (!rawAccount) {
 		return null;
 	}
@@ -33,8 +33,8 @@ export function getAccount(event: RequestEvent): Account | null {
 	return JSON.parse(rawAccount) as Account;
 }
 
-export function getCompany(event: RequestEvent): string | undefined {
-	const rawCompany = event.cookies.get('company');
+export function getCompany({ cookies }: RequestEvent): string | undefined {
+	const rawCompany = cookies?.get('company');
 	if (!rawCompany) {
 		return undefined;
 	}

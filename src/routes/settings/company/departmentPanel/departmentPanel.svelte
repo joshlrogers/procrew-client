@@ -33,7 +33,7 @@
 		invalidateAll: false,
 		onUpdated: async (event) => {
 			if (event.form.valid) {
-				console.log(event);
+				hasFocused = false;
 				let department = event.form.data;
 
 				let updated = departments
@@ -43,6 +43,7 @@
 					activeDepartmentId = undefined;
 					departments[departments.findIndex(d => d.id === department.id)] = department;
 				} else {
+					activeDepartmentId = undefined;
 					showAddNewDepartment = false;
 					departments.push(department);
 					reset({ date: { name: '', shortCode: '' }, newState: { name: '', shortCode: '' } });

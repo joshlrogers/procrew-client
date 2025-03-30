@@ -17,7 +17,6 @@ import { zod } from 'sveltekit-superforms/adapters';
 import type { CountrySelectOption } from '$lib/shared/models/address';
 import { type Department, DepartmentSchema } from '$lib/shared/models/department';
 import type { Result } from '$lib/shared/models/result';
-import { sleep } from '@melt-ui/svelte/internal/helpers';
 
 export const load: PageServerLoad = async (event: RequestEvent) => {
 	const accessToken = await getToken(event);
@@ -154,8 +153,6 @@ export const actions = {
 			form.data = result.value;
 			return message(form, { type: 'success', text: `Company department ${action}!` });
 		}
-
-		await sleep(30000);
 
 		return message(
 			form,

@@ -1,9 +1,8 @@
 <script lang="ts">
-	import '../app.pcss';
-	import { onMount } from 'svelte';
+	import '../app.css';
 	import { MaterialIcon } from '$lib/components/icon';
 	import { NavMenu, NavMenuDropdown, NavMenuGroup, NavMenuItem } from '$lib/components/navMenu/index.js';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { ActiveCompany } from '$lib/shared/stores';
 	import { AppBar } from '@skeletonlabs/skeleton-svelte';
 	import { Loader } from '$lib/components/loader';
@@ -14,31 +13,16 @@
 	let { children, data } = $props();
 	let sidebarOpen = $state(false);
 
-	onMount(() => {
-		document.onkeyup = (event: KeyboardEvent) => {
-			if (event.key === 'Escape' && sidebarOpen) {
-				toggleSidebar();
-			}
-		};
-
-		let overlay = document.getElementById('navigation-overlay');
-		if (overlay) {
-			overlay.onclick = () => {
-				toggleSidebar();
-			};
-		}
-	});
-
 	function toggleSidebar() {
 		sidebarOpen = !sidebarOpen;
 	}
 
-	let currentPath = $state($page.url.pathname);
+	let currentPath = $state(page.url.pathname);
 
 	$effect(() => {
-		if (currentPath !== $page.url.pathname) {
+		if (currentPath !== page.url.pathname) {
 			sidebarOpen = !sidebarOpen;
-			currentPath = $page.url.pathname;
+			currentPath = page.url.pathname;
 		}
 	});
 
@@ -92,7 +76,7 @@
 </div>
 
 <span style="display:none;">
-<NavMenu isOpen={sidebarOpen}>
+<NavMenu isOpen={sidebarOpen} onOpenChanged={(e) => sidebarOpen = e}>
 	<NavMenuGroup>
 		<NavMenuItem text="Company" icon={MaterialIcon.LIST} href="/company" />
 		<NavMenuItem text="Employees" icon={MaterialIcon.BADGE} href="/employees" />

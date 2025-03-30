@@ -9,12 +9,11 @@
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
 	import { IconButton } from '$lib/components/buttons/iconButton';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
-	import { Tooltip } from '$lib/components/tooltip';
 	import { Loader } from '$lib/components/loader';
 	import { ActiveCompany } from '$lib/shared/stores';
 	import { OrganizationSchema } from '$lib/shared/models/organization';
 
-	import CompanyCreationDialog from '../company/companyCreationDialog.svelte';
+	import CompanyCreationDialog from './companyCreationDialog/companyCreationDialog.svelte';
 
 	import type { PageData } from './$types';
 	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
@@ -117,11 +116,10 @@
 
 		{#snippet content()}
 			<div class="w-full px-4 py-2 shadow-md bg-surface-300-700 rounded-t-lg">
-				<Tooltip text="Add a new company">
-					<IconButton onclick={onAddCompanyClicked}
-											icon={MaterialIcon.ADD}
-											isRounded={true} />
-				</Tooltip>
+				<IconButton onclick={onAddCompanyClicked}
+										icon={MaterialIcon.ADD}
+										isRounded={true}
+										tooltip="Add a new company" />
 			</div>
 			<table class="table">
 				<thead>

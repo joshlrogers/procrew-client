@@ -4,23 +4,23 @@
 	import { zod } from 'sveltekit-superforms/adapters';
 	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
 
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 
 	import { type Company, CompanySchema } from '$lib/shared/models/company';
 	import { TextInput } from '$lib/components/inputs';
 	import { AddressForm } from '$lib/components/addressForm';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
-	import { TimezoneSelectList } from '$lib/components/selectList/index.js';
+	import { TimezoneSelectList } from '$lib/components/selectList';
 
 	const toast: ToastContext = getContext('toast');
 
 	interface CompanyDetailsProps {
 		company?: Company;
-		onclosed?: () => void
+		onclosed?: () => void;
 	}
 
 	let {
-		company = $bindable(),
+		company = $bindable()
 	}: CompanyDetailsProps = $props();
 
 	const {
@@ -59,7 +59,6 @@
 			});
 		}
 	});
-
 </script>
 
 {#if company}
@@ -76,8 +75,8 @@
 				errors={$errors.name}
 				bind:value={$form.name} />
 
-			{#await $page.data.countries then countries}
-				{#await $page.data.states then states}
+			{#await page.data.countries then countries}
+				{#await page.data.states then states }
 					<AddressForm name="address"
 											 {countries}
 											 {states}
@@ -88,25 +87,42 @@
 				{/await}
 			{/await}
 
+			<TextInput label="Email address"
+								 name="emailAddress"
+								 errors={$errors.emailAddress}
+								 constraints={$constraints.emailAddress}
+								 tabindex={7}
+								 type="email"
+								 bind:value={$form.emailAddress} />
+
+			<TextInput label="Phone number"
+								 name="phoneNumber"
+								 errors={$errors.phoneNumber}
+								 constraints={$constraints.phoneNumber}
+								 tabindex={8}
+								 type="tel"
+								 bind:value={$form.phoneNumber} />
+
 			<TimezoneSelectList name="timezone"
 													label="Timezone"
 													required={true}
 													errors={$errors.timezone}
 													constraints={$constraints.timezone}
+													tabindex={9}
 													bind:value={$form.timezone} />
 
 			<div class="flex flex-row justify-end gap-2">
 
 				<Button disabled={!isTainted($tainted) || $submitting}
 								text="Reset"
-								tabindex={8}
+								tabindex={11}
 								onclick={() => reset()}
 								buttonStyle={ButtonStyle.SECONDARY}
 								type="button" />
 
 				<Button disabled={!isTainted($tainted) || $submitting}
 								text="Save"
-								tabindex={7}
+								tabindex={10}
 								buttonStyle={ButtonStyle.PRIMARY}
 								type="submit" />
 			</div>

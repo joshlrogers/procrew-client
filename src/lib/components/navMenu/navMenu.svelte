@@ -1,16 +1,21 @@
 <script lang="ts">
 	import { Modal } from '@skeletonlabs/skeleton-svelte';
 
+	interface NavMenuProps {
+		isOpen: boolean;
+		children: any;
+		onOpenChanged?: (isOpen: boolean) => void;
+	}
+
 	let {
 		isOpen = false,
-		trigger = undefined,
 		children = undefined,
-	} = $props();
+		onOpenChanged = undefined
+	}: NavMenuProps = $props();
+
 
 </script>
-
 <Modal
-	trigger={trigger}
 	triggerBase="btn preset-tonal"
 	contentBase="bg-surface-100-900 p-4 space-y-4 shadow-xl w-[480px] h-screen"
 	positionerJustify="justify-start"
@@ -18,7 +23,8 @@
 	positionerPadding=""
 	transitionsPositionerIn={{ x: -480, duration: 200 }}
 	transitionsPositionerOut={{ x: -480, duration: 200 }}
-	bind:open={isOpen}>
+	onOpenChange={(e) => onOpenChanged?.(e.open)}
+	open={isOpen}>
 	{#snippet content()}
 		{@render children?.()}
 	{/snippet}

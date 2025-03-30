@@ -2,6 +2,7 @@
 	import { Icon } from '$lib/components/icon';
 	import type { IconButtonProps } from '$lib/components/buttons/iconButton/index';
 	import { cn } from '$lib/utils';
+	import { Tooltip } from '$lib/components/tooltip';
 
 	let {
 		icon,
@@ -10,6 +11,8 @@
 		class: className = undefined,
 		width = 2.5,
 		flat = false,
+		tooltip = undefined,
+		type = 'button',
 		...otherProps
 	}: IconButtonProps = $props();
 
@@ -21,8 +24,16 @@
 	const iconClasses = cn('text-2xl');
 </script>
 
-<button class={buttonClasses}
-				{onclick}
-				{...otherProps}>
-	<Icon {icon} class={iconClasses} />
-</button>
+{#if tooltip && tooltip.length > 0}
+	<Tooltip openDelay={200} onclick={onclick} text={tooltip} triggerClasses={buttonClasses}>
+			<Icon {icon} class={iconClasses} />
+	</Tooltip>
+{:else}
+	<button class={buttonClasses}
+					{type}
+					{onclick}
+					{...otherProps}>
+		<Icon {icon} class={iconClasses} />
+	</button>
+{/if}
+

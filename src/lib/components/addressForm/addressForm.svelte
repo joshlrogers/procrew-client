@@ -31,7 +31,7 @@
 
 	let availableCountries = $derived(countries.map(country => ({ value: country.shortCode, label: country.name })));
 
-	let availableStates = $derived(states.map(state => ({value: state.abbreviation, label: state.name})));
+	let availableStates = $derived(states.map(state => ({ value: state.abbreviation, label: state.name })));
 
 	let addressAutofill: any;
 
@@ -67,8 +67,26 @@
 		$formData.address.city = selectedProperties.address_level2;
 		$formData.address.state = selectedProperties.address_level1;
 		$formData.address.postalCode = selectedProperties.postcode;
-		$formData.address.country = selectedProperties.country_code.toUpperCase();
-	};
+		$formData.address.country = countries[countries.findIndex(c => c.shortCode == selectedProperties.country_code.toUpperCase())].abbreviation;
+
+		$inspect(formData);
+	}
+
+	const setCountry = (country: any) => {
+		if(country) {
+			$formData.address.country = countries[countries.findIndex(c => c.shortCode == country.toUpperCase())].abbreviation;
+		} else {
+			$formData.address.country = undefined;
+		}
+	}
+
+	const getCountry = (countryAbbreviation: any) => {
+		if(countryAbbreviation) {
+			return countries[countries.findIndex(c => c.abbreviation == countryAbbreviation.toUpperCase())].shortCode;
+		} else {
+			return undefined;
+		}
+	}
 
 </script>
 
@@ -76,31 +94,31 @@
 	<input type="hidden"
 				 autocomplete="address-line1"
 				 bind:value={$formData.address.addressLine1} />
-<TextInput label="Address"
-					 autocomplete="street-address"
-					 maxlength={240}
-					 wrapperClass="w-full"
-					 required={true}
-					 tabindex={startingTabIndex ? startingTabIndex : undefined}
-					 constraints={$formConstraints.address?.addressLine1}
-					 errors={$formErrors.address?.addressLine1}
-					 bind:value={$formData.address.addressLine1} />
+	<TextInput label="Address"
+						 autocomplete="street-address"
+						 maxlength={240}
+						 wrapperClass="w-full"
+						 required={true}
+						 tabindex={startingTabIndex ? startingTabIndex : undefined}
+						 constraints={$formConstraints.address?.addressLine1}
+						 errors={$formErrors.address?.addressLine1}
+						 bind:value={$formData.address.addressLine1} />
 
-<TextInput maxlength={240}
-					 name="addressLine2"
-					 wrapperClass="w-full"
-					 autocomplete="address-line2"
-					 constraints={$formConstraints.address?.addressLine2}
-					 errors={$formErrors.address?.addressLine2}
-					 bind:value={$formData.address.addressLine2} />
+	<TextInput maxlength={240}
+						 name="addressLine2"
+						 wrapperClass="w-full"
+						 autocomplete="address-line2"
+						 constraints={$formConstraints.address?.addressLine2}
+						 errors={$formErrors.address?.addressLine2}
+						 bind:value={$formData.address.addressLine2} />
 
-<TextInput maxlength={240}
-					 name="addressLine3"
-					 wrapperClass='w-full'
-					 autocomplete="address-line3"
-					 constraints={$formConstraints.address?.addressLine3}
-					 errors={$formErrors.address?.addressLine3}
-					 bind:value={$formData.address.addressLine3} />
+	<TextInput maxlength={240}
+						 name="addressLine3"
+						 wrapperClass='w-full'
+						 autocomplete="address-line3"
+						 constraints={$formConstraints.address?.addressLine3}
+						 errors={$formErrors.address?.addressLine3}
+						 bind:value={$formData.address.addressLine3} />
 
 </div>
 
@@ -138,8 +156,8 @@
 							name="country"
 							label="Country"
 							required={true}
-							value={$formData.address.country}
-							onchanged={(val) => $formData.address.country = val}
+							value={getCountry($formData.address.country)}
+							onchanged={setCountry}
 							tabindex={startingTabIndex ? startingTabIndex + 4 : undefined}
 							wrapperClass="lg:w-[15rem] w-full" />
 </div>

@@ -1,11 +1,13 @@
 <script lang="ts">
-	import { Button } from '$lib/components/buttons/button';
-	import { type BusinessHours, BusinessHoursSchema } from '$lib/shared/models/company';
+	import { getContext } from 'svelte';
+	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
 	import { defaults, superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
+
+	import { Button } from '$lib/components/buttons/button';
+	import { type BusinessHours, BusinessHoursSchema } from '$lib/shared/models/company';
+
 	import BusinessHoursRow from './businessHoursRow.svelte';
-	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
-	import { getContext } from 'svelte';
 
 	const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	const toast: ToastContext = getContext('toast');
@@ -17,7 +19,6 @@
 	let {
 		form,
 		errors,
-		constraints,
 		enhance,
 		reset,
 		submitting,
@@ -30,6 +31,7 @@
 		resetForm: false,
 		validationMethod: 'oninput',
 		validators: zod(BusinessHoursSchema),
+		invalidateAll: false,
 		onUpdated: (event) => {
 			if (event.form.valid) {
 				reset({ data: event.form.data, newState: event.form.data });
@@ -44,7 +46,7 @@
 		}
 	});
 
-	let operationalDays: Record<string, { enabled: boolean, start?: string, end?: string }> = $state(
+	let operationalDays: Record<string, { enabled: boolean, start?: string | null, end?: string | null }> = $state(
 		{
 			'Sunday': {
 				'enabled': Boolean($form.sundayStart) || Boolean($form.sundayEnd),
@@ -84,7 +86,7 @@
 		}
 	);
 
-	const setTime = (day: string, start?: string, end?: string) => {
+	const setTime = (day: string, start?: string | null, end?: string | null) => {
 		switch (day) {
 			case 'Sunday':
 				$form.sundayStart = operationalDays[day].start = start;
@@ -122,21 +124,17 @@
 			return null;
 		}
 
-		let startTime = $errors[`${day.toLowerCase()}Start`];
-		let endTime = $errors[`${day.toLowerCase()}End`];
 
+		let startTime = $errors[`${day.toLowerCase()}Start` as keyof typeof $errors] as Record<string, string[]> | undefined;
 		if (startTime) {
-			return startTime[`${day.toLowerCase()}End`]?.[0];
+			return startTime?.[0];
 		}
 
+		let endTime = $errors[`${day.toLowerCase()}End` as keyof typeof $errors] as Record<string, string[]> | undefined;
 		if (endTime) {
-			return endTime[`${day.toLowerCase()}Start`]?.[0];
+			return endTime?.[0];
 		}
 	};
-
-	$effect(() => {
-		$inspect($errors);
-	});
 
 </script>
 

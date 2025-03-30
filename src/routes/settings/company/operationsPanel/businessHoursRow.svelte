@@ -3,11 +3,11 @@
 	import { Switch } from '@skeletonlabs/skeleton-svelte';
 
 	interface BusinessHoursRowProps {
-		end?: string;
-		start?: string;
+		end?: string | null;
+		start?: string | null;
 		day: string;
 		errors?: any;
-		onBusinessHoursChange?: (day: string, start?: string, end?: string) => void;
+		onBusinessHoursChange?: (day: string, start?: string | null, end?: string | null) => void;
 	}
 
 	let {
@@ -39,7 +39,7 @@
 		{day}
 	</div>
 	<div class="flex flex-col items-center">
-		<Switch name={`${day}Enabled`} bind:checked={enabled} />
+		<Switch name={`${day}Enabled`} checked={enabled} onCheckedChange={(val) => enabled = val.checked} />
 	</div>
 	<div class="mx-4">
 		<input

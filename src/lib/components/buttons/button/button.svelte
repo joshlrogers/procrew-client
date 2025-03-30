@@ -11,6 +11,7 @@
         height?: string;
         rounded?: boolean;
         text: string;
+        type?: 'submit' | 'reset' | 'button';
         width?: string;
     }
 
@@ -24,6 +25,7 @@
         rounded = true,
         height = 'h-[2.75rem]',
         width = 'w-[5rem]',
+        type = 'button',
         ...otherProps
     }: ButtonProps = $props();
 
@@ -42,6 +44,7 @@
 
 <button {...otherProps}
         {disabled}
+        {type}
         class:rounded-md={rounded}
         class={buttonClass}>
     {text}

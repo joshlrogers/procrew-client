@@ -11,10 +11,12 @@
 		label?: string,
 		labelClass?: string,
 		leadAdornment?: Snippet,
-		tailAdornment?: Snippet
+		tailAdornment?: Snippet,
+		casing?: 'Upper' | 'Lower' | 'Default'
 	}
 
 	let {
+		casing = 'Default',
 		class: extClass = '',
 		constraints = undefined,
 		errors = undefined,
@@ -26,23 +28,39 @@
 		placeholder = undefined,
 		required = false,
 		tailAdornment = undefined,
-		value = $bindable(),
+		value = $bindable<string>(),
 		...otherProps
 	}: TextInputProps = $props();
 
-	let inputClass = cn('input block h-10 w-full p-2.5 shadow-sm',
+	let textInput: HTMLInputElement;
+
+	export const setFocus = () => {
+		textInput?.focus();
+	};
+
+	export const setSelectionRange = (start: number, end: number | null) => {
+		textInput?.setSelectionRange(start, end);
+	};
+
+	let getValue = (): string => value;
+	let setValue = (val: string) => {
+		value = casing === "Upper" ? val.toUpperCase() : casing === "Lower" ? val.toLowerCase() : val;
+	}
+
+	let inputClass = $derived(cn('input block h-10 w-full p-2.5 shadow-sm',
 		leadAdornment ? 'rounded-s-0 rounded-e-md focus-visible:outline-none focus-visible:border-l-0' : undefined,
 		tailAdornment ? 'rounded-s-md rounded-e-0 focus-visible:outline-none focus-visible:border-r-0' : undefined,
 		!leadAdornment && !tailAdornment ? 'rounded-md focus-visible:outline-none' : undefined,
-		extClass);
-	let extLabelClass = cn('block', 'mb-2', 'text-sm', 'font-medium', 'label', labelClass);
+		casing === 'Upper' ? 'text-uppercase' : casing === 'Lower' ? 'text-lowercase' : 'text-default',
+		extClass));
+	let extLabelClass = $derived(cn('block', 'mb-2', 'text-sm', 'font-medium', 'label', labelClass));
 </script>
 
 <div class={wrapperClass}>
 	{#if label}
 		<label for={id}
 					 class={extLabelClass}>
-			{label}
+			<span class="label-text">{label}</span>
 		</label>
 	{/if}
 
@@ -56,14 +74,16 @@
 		{/if}
 
 		<input {id}
-					 bind:value
 					 type="text"
 					 class={inputClass}
 					 aria-invalid={errors ? true : undefined }
 					 aria-placeholder={placeholder}
 					 aria-required={required ? 'true' : 'false'}
+					 {placeholder}
 					 {...constraints}
-					 {...otherProps} />
+					 {...otherProps}
+					 bind:value={getValue,setValue}
+					 bind:this={textInput} />
 
 		{#if tailAdornment}
 		<span

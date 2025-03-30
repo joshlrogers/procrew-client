@@ -16,6 +16,7 @@ enum MaterialIcon {
     BUSINESS_CENTER = 'business_center',
     CHECK = 'check',
     CLEANING_SERVICES = 'cleaning_services',
+    DELETE = 'delete',
     EDIT = 'edit',
     ENGINEERING = 'engineering',
     GRASS = 'grass',

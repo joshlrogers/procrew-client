@@ -21,7 +21,7 @@
 		contentClass = 'p-4',
 		footer = undefined,
 		header = undefined,
-		headerClass = 'p-2 preset-filled-surface-300-700 rounded-t-[var(--radii-container)]',
+		headerClass = 'p-2 preset-filled-surface-300-700 rounded-t-[var(--radius-container)]',
 		...otherProps
 	}: PanelProps = $props();
 

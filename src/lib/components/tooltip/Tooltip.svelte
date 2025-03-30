@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { createTooltip, melt } from '@melt-ui/svelte';
-	import { fade } from 'svelte/transition';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import type { Snippet } from 'svelte';
+	import { Tooltip } from '@skeletonlabs/skeleton-svelte';
 
 	interface TooltipProps extends HTMLAttributes<HTMLDivElement> {
 		children: Snippet;
@@ -15,36 +14,16 @@
 		...otherProps
 	}: TooltipProps = $props();
 
-	const {
-		elements: { trigger, content, arrow },
-		states: { open }
-	} = createTooltip({
-		positioning: {
-			placement: 'top'
-		},
-		openDelay: 0,
-		closeDelay: 0,
-		closeOnPointerDown: false,
-		forceVisible: true,
-	});
-
 </script>
 
-<div class="inline-block" use:melt={$trigger} {...otherProps}>
-	{@render children()}
-</div>
-
-{#if $open}
-	<div
-		use:melt={$content}
-		transition:fade={{ duration: 100 }}
-		class=" z-10 rounded-lg bg-white shadow"
-	>
-		<div use:melt={$arrow}></div>
-		<p class="px-4 py-1 text-magnum-700">{text}</p>
-	</div>
-{/if}
-
+<Tooltip openDelay={300} contentBase="card preset-filled p-2" zIndex={99} {...otherProps}>
+	{#snippet trigger()}
+		{@render children?.()}
+	{/snippet}
+	{#snippet content()}
+		{text}
+	{/snippet}
+</Tooltip>
 
 
 

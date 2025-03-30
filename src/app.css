@@ -1,0 +1,31 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded");
+
+@import "tailwindcss";
+
+@import '@skeletonlabs/skeleton';
+@import '@skeletonlabs/skeleton/optional/presets';
+
+@import '../node_modules/@skeletonlabs/skeleton/dist/themes/nouveau.css';
+@import '../node_modules/@skeletonlabs/skeleton/dist/themes/vox.css';
+@import '../node_modules/@skeletonlabs/skeleton/dist/themes/vintage.css';
+
+@source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
+
+@layer base {
+
+    html, body {
+        @apply h-full;
+    }
+
+    .select-list {
+        @apply w-full;
+    }
+
+    .select-list-contents {
+        @apply bg-surface-100-900;
+    }
+
+    table > .actions {
+        @apply px-4 py-2;
+    }
+}

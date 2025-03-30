@@ -58,7 +58,7 @@ type BusinessHours = z.infer<typeof businessHoursSchema>;
 
 const companySchema = z.object({
 	companyTypeId: z.number(),
-	emailAddress: z.string().email(),
+	emailAddress: z.string().email().optional().nullish(),
 	id: z.string().uuid().optional(),
 	name: z.string().min(3, 'Name is required.').max(125),
 	timezone: z.string(),
@@ -69,10 +69,32 @@ const companySchema = z.object({
 
 type Company = z.infer<typeof companySchema>;
 
+const holidaySchema = z.object({
+	country: z.string().max(3).optional().nullish(),
+	day: z.number().min(1).max(31).optional().nullish(),
+	dayOfWeek: z.number().min(0).max(6).optional().nullish(),
+	id: z.string().uuid().optional().nullish(),
+	month: z.number().min(1).max(12),
+	name: z.string(),
+	region: z.string().max(3).optional().nullish(),
+	week: z.number().min(1).max(4).optional().nullish(),
+});
+
+const companyHolidaysSchema = z.object({
+	holidays: z.array(holidaySchema)
+});
+
+type Holiday = z.infer<typeof holidaySchema>;
+type Holidays = z.infer<typeof companyHolidaysSchema>;
+
 export {
 	businessHoursSchema as BusinessHoursSchema,
+	companyHolidaysSchema as CompanyHolidaysSchema,
 	companySchema as CompanySchema,
+	holidaySchema as HolidaySchema,
 	type BusinessHours,
 	type Company,
-	type CompanyType
+	type CompanyType,
+	type Holiday,
+	type Holidays
 };

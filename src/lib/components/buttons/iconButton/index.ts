@@ -10,6 +10,8 @@ export interface IconButtonProps extends HTMLAttributes<HTMLButtonElement> {
     width?: number;
     height?: number;
     onclick?: () => void;
+    tooltip?: string;
+    type?: 'button' | 'submit' | 'reset';
 }
 
 export {

@@ -9,7 +9,6 @@
         buttonStyle?: ButtonStyle;
         disabled?: boolean;
         height?: string;
-        rounded?: boolean;
         text: string;
         type?: 'submit' | 'reset' | 'button';
         width?: string;
@@ -22,7 +21,6 @@
         text,
         backgroundColor = "",
         disabled = false,
-        rounded = true,
         height = 'h-[2.75rem]',
         width = 'w-[5rem]',
         type = 'button',
@@ -45,7 +43,6 @@
 <button {...otherProps}
         {disabled}
         {type}
-        class:rounded-md={rounded}
         class={buttonClass}>
     {text}
 </button>

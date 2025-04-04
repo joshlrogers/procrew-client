@@ -1,12 +1,12 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { getAccount, getCompany, setCompanyCookie } from '$lib/server/session';
+import { setCompanyCookie } from '$lib/server/session';
 
 export const GET: RequestHandler = (event) => {
-	let companyId = getCompany(event);
+	let companyId = event.locals.company
 	if(companyId) {
 		return new Response(JSON.stringify(companyId));
 	} else {
-		let account = getAccount(event);
+		let account = event.locals.account;
 		let expirationDate = new Date();
 		expirationDate.setDate(new Date().getDate() + 1);
 		setCompanyCookie(event, account?.defaultCompanyId ?? "", expirationDate);

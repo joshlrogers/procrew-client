@@ -18,30 +18,20 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 		return redirect(302, `/login/b2c?redirect_url=${event.url.pathname}`);
 	}
 
-	const organization = await fetchOrganization(
-		event,
-		account.defaultOrganizationId,
-		accessToken
-	);
+	const organization = await fetchOrganization(event, account.defaultOrganizationId);
 	const form = await superValidate<Organization>(organization, zod(OrganizationSchema));
 
 	return {
-		companies: fetchCompanies(event, accessToken),
+		companies: fetchCompanies(event),
 		form,
-		companyTypes: fetchCompanyTypes(event, accessToken),
-		countries: fetchCountries(event, accessToken),
-		states: fetchStates(event, accessToken)
+		companyTypes: fetchCompanyTypes(event),
+		countries: fetchCountries(event),
+		states: fetchStates(event)
 	};
 };
 
 export const actions = {
 	createCompany: async (event) => {
-		const accessToken = await getToken(event);
-		const account = getAccount(event);
-		if (!accessToken || !account?.defaultOrganizationId) {
-			return redirect(302, `/login/b2c?redirect_url=${event.url.pathname}`);
-		}
-
 		let company = (await event.request.formData()) as unknown as Company;
 		const form = await superValidate<Company>(company, zod(CompanySchema));
 
@@ -49,12 +39,7 @@ export const actions = {
 			return message(form, { type: 'error', text: 'Invalid company.' });
 		}
 
-		let response = await ApiClient.post<Company>(
-			event,
-			'/organization/company',
-			form.data,
-			accessToken
-		);
+		let response = await ApiClient.post<Company>(event.fetch, '/organization/company', form.data);
 		if (response.isOk && response.value) {
 			form.data = response.value;
 			return message(form, { type: 'success', text: 'Company created!' });
@@ -70,12 +55,6 @@ export const actions = {
 		);
 	},
 	updateOrganization: async (event) => {
-		const accessToken = await getToken(event);
-		const account = getAccount(event);
-		if (!accessToken || !account?.defaultOrganizationId) {
-			return redirect(302, `/login/b2c?redirect_url=${event.url.pathname}`);
-		}
-
 		const form = await superValidate<Organization>(
 			await event.request.formData(),
 			zod(OrganizationSchema)
@@ -85,10 +64,9 @@ export const actions = {
 		}
 
 		let result = await ApiClient.put<Organization>(
-			event,
+			event.fetch,
 			`/organization/${form.data.id}`,
-			form.data,
-			accessToken
+			form.data
 		);
 		if (result.isOk && result.value) {
 			return message(form, { type: 'success', text: 'Organization updated!' });
@@ -105,25 +83,24 @@ export const actions = {
 	}
 };
 
-const fetchCompanies = async (event: RequestEvent, accessToken: string) => {
-	let response = await ApiClient.get<Company[]>(event, '/organization/company', accessToken);
+const fetchCompanies = async (event: RequestEvent) => {
+	let response = await ApiClient.get<Company[]>(event.fetch, '/organization/company');
 	if (response.isOk && response.value) {
 		return response.value;
 	}
 };
 
-const fetchCompanyTypes = async (event: RequestEvent, accessToken: string) => {
-	const response = await ApiClient.get<CompanyType[]>(event, '/utility/company/types', accessToken);
+const fetchCompanyTypes = async (event: RequestEvent) => {
+	const response = await ApiClient.get<CompanyType[]>(event.fetch, '/utility/company/types');
 	if (response.isOk && response.value) {
 		return response.value;
 	}
 };
 
-const fetchCountries = async (event: RequestEvent, accessToken: string) => {
+const fetchCountries = async (event: RequestEvent) => {
 	let response = await ApiClient.get<CountrySelectOption[]>(
-		event,
-		'/utility/lookup/address/countries',
-		accessToken
+		event.fetch,
+		'/utility/lookup/address/countries'
 	);
 	if (response.isOk && response.value) {
 		return response.value;
@@ -132,24 +109,18 @@ const fetchCountries = async (event: RequestEvent, accessToken: string) => {
 
 const fetchOrganization = async (
 	event: RequestEvent,
-	organizationId: string,
-	accessToken: string
+	organizationId: string
 ) => {
-	let response = await ApiClient.get<Organization>(
-		event,
-		`/organization/${organizationId}`,
-		accessToken
-	);
+	let response = await ApiClient.get<Organization>(event.fetch, `/organization/${organizationId}`);
 	if (response.isOk && response.value) {
 		return response.value;
 	}
 };
 
-const fetchStates = async (event: RequestEvent, accessToken: string) => {
+const fetchStates = async (event: RequestEvent) => {
 	let response = await ApiClient.get<StateSelectOption[]>(
-		event,
-		'/utility/lookup/address/states',
-		accessToken
+		event.fetch,
+		'/utility/lookup/address/states'
 	);
 	if (response.isOk && response.value) {
 		return response.value;

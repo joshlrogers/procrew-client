@@ -72,7 +72,9 @@
 						<div class='flex flex-row gap-0 items-center min-w-64'>
 							<h1 class="w-full">{pageState.company?.name}</h1>
 						</div>
-						{#await data.companyTypes then companyTypes}
+						{#await data.companyTypes}
+							Loading
+						{:then companyTypes}
 							<CompanyTypeSelectList disabled={true}
 																		 label={null}
 																		 value={pageState.company?.companyTypeId}

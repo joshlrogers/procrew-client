@@ -1,4 +1,4 @@
-import type { RequestEvent } from '@sveltejs/kit';
+import type { Cookies, RequestEvent } from '@sveltejs/kit';
 import type { Account } from '$lib/shared/models/account';
 import { confidentialClientApp } from '$lib/server/oauth';
 import { type SilentFlowRequest } from '@azure/msal-node';
@@ -33,8 +33,8 @@ export function getAccount({ cookies }: RequestEvent): Account | null {
 	return JSON.parse(rawAccount) as Account;
 }
 
-export function getCompany({ cookies }: RequestEvent): string | undefined {
-	const rawCompany = cookies?.get('company');
+export function getCompany(cookies: Cookies): string | undefined {
+	const rawCompany = cookies.get('company');
 	if (!rawCompany) {
 		return undefined;
 	}

@@ -2,14 +2,13 @@ import type { Preview } from '@storybook/svelte';
 
 import '../src/app.css';
 import { withThemeByDataAttribute } from '@storybook/addon-themes';
-import * as themes from '@skeletonlabs/skeleton/themes';
 
 const preview: Preview = {
 	decorators: [
 		withThemeByDataAttribute({
 			themes: {
-				vintage: themes.vintage.name,
-				vox: themes.vox.name
+				vintage: "vintage",
+				vox: "vox"
 			},
 			defaultTheme: 'vintage',
 			attributeName: 'data-theme',

@@ -14,7 +14,9 @@
 </script>
 
 <li {...otherProps}>
-    <a {href} class={isActive ? activeClass : nonActiveClass} aria-current={isActive ? 'page' : undefined}>
+    <a data-sveltekit-preload-data="tap"
+       data-sveltekit-preload-code="hover"
+       {href} class={isActive ? activeClass : nonActiveClass} aria-current={isActive ? 'page' : undefined}>
         {#if icon}
             <Icon icon={icon} class={iconClass} />
         {/if}

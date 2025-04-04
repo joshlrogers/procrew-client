@@ -7,6 +7,7 @@ export interface IconButtonProps extends HTMLAttributes<HTMLButtonElement> {
     icon: MaterialIcon;
     flat?: boolean;
     isRounded?: boolean;
+    disabled?: boolean;
     width?: number;
     height?: number;
     onclick?: () => void;

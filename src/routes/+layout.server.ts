@@ -18,12 +18,12 @@ export const load: LayoutServerLoad = async (event) => {
 
 	return {
 		account: event.locals.account,
-		companies: fetchCompanies(event, accessToken)
+		companies: fetchCompanies(event)
 	};
 };
 
-const fetchCompanies = async (event: RequestEvent, accessToken: string) => {
-	let companiesResponse = await ApiClient.get<Company[]>(event, '/organization/company', accessToken);
+const fetchCompanies = async (event: RequestEvent) => {
+	let companiesResponse = await ApiClient.get<Company[]>(event.fetch, '/organization/company');
 	if (companiesResponse.isOk && companiesResponse.value) {
 		return companiesResponse.value;
 	}

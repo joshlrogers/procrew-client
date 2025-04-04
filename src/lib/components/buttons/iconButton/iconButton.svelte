@@ -5,6 +5,7 @@
 	import { Tooltip } from '$lib/components/tooltip';
 
 	let {
+		disabled = false,
 		icon,
 		onclick = undefined,
 		isRounded = false,
@@ -16,11 +17,11 @@
 		...otherProps
 	}: IconButtonProps = $props();
 
-	const buttonClasses = cn(
-		'grid group aspect-auto place-items-center',
-		flat ? '' : 'shadow-lg',
+	const buttonClasses = $derived(cn(
+		'chip place-items-center p-2',
+		flat ? '' : 'shadow-md shadow-surface-50/35',
 		`w-[${width}rem] h-[${width}rem]`,
-		isRounded ? 'rounded-full' : '', className);
+		isRounded ? 'rounded-full' : '', className));
 	const iconClasses = cn('text-2xl');
 </script>
 
@@ -32,6 +33,7 @@
 	<button class={buttonClasses}
 					{type}
 					{onclick}
+					{disabled}
 					{...otherProps}>
 		<Icon {icon} class={iconClasses} />
 	</button>

@@ -1,6 +1,6 @@
 import type {RequestEvent} from "@sveltejs/kit";
 import {confidentialClientApp, cryptoProvider} from "$lib/server/oauth";
-import type {AuthenticationResult, AuthorizationCodeRequest} from "@azure/msal-node";
+import type { AuthenticationResult, AuthorizationCodeRequest } from '@azure/msal-node';
 import {AZURE_REDIRECT_URI, AZURE_SCOPES} from "$env/static/private";
 import {ApiClient} from "$lib/server/apiClient";
 import type {Account} from "$lib/shared/models/account";
@@ -71,6 +71,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
 }
 
 async function getUser(event: RequestEvent, authenticationResult: AuthenticationResult) {
-    const result = await ApiClient.get<Account>(event, "account/me", authenticationResult.accessToken);
+    event.locals.token = authenticationResult.accessToken;
+    const result = await ApiClient.get<Account>(event.fetch, "account/me");
     return result.isOk ? result.value : null;
 }

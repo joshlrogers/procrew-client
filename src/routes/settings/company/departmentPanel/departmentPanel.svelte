@@ -12,8 +12,13 @@
 	import { TextInput } from '$lib/components/inputs';
 
 	const toast: ToastContext = getContext('toast');
-	let newDeptInput: TextInput;
-	let updateDeptInput: TextInput;
+	let activeDepartmentId: string | null | undefined = $state();
+	let departments: Department[] = $state([]);
+	let showAddNewDepartment: boolean = $state(false);
+	let hasFocused = $state(false);
+
+	let newDeptInput: TextInput = $state();
+	let updateDeptInput: TextInput = $state();
 
 	let {
 		constraints,
@@ -59,10 +64,7 @@
 		}
 	});
 
-	let activeDepartmentId: string | null | undefined = $state();
-	let departments = $state([]);
-	let showAddNewDepartment: boolean = $state(false);
-	let hasFocused = $state(false);
+
 
 	let deleteDepartment = async (department: Department) => {
 		let result = await fetch(`/api/departments/${department.id}`, {
@@ -123,6 +125,7 @@
 			<IconButton onclick={onAddDepartmentClicked}
 									icon={MaterialIcon.ADD}
 									isRounded={true}
+									flat={true}
 									tooltip="Add a new department" />
 		</div>
 		{#if showAddNewDepartment}
@@ -130,6 +133,7 @@
 				<div class="w-5/12">
 					<TextInput id="newDeptName"
 										 label="Name"
+										 name="departmentName"
 										 constraints={$constraints.name}
 										 bind:value={$form.name}
 										 bind:this={newDeptInput} />
@@ -138,6 +142,7 @@
 					<TextInput id="newDeptShortcode"
 										 label="Short code"
 										 casing="Upper"
+										 name="departmentShortcode"
 										 constraints={$constraints.shortCode}
 										 bind:value={$form.shortCode} />
 				</div>

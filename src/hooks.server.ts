@@ -1,5 +1,5 @@
 import { type Handle, type HandleFetch, redirect } from '@sveltejs/kit';
-import { deleteSessionTokenCookie, getAccount, getCompany, getToken } from '$lib/server/session';
+import { deleteSessionTokenCookie, getAccount, getCompany, getToken } from '$lib/server/auth/session';
 
 export const handle: Handle = async ({ event, resolve }) => {
     const token = await getToken(event);

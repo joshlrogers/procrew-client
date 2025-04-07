@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { superForm, defaults } from 'sveltekit-superforms/client';
-	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
 
 	import { Dialog } from '$lib/components/dialog';
 	import { InputField, TextInput } from '$lib/components/inputs';
@@ -10,8 +8,7 @@
 	import { AddressForm } from '$lib/components/addressForm';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
 	import { CompanySchema } from '$lib/shared/models/company';
-
-	const toast: ToastContext = getContext('toast');
+	import toast from 'svelte-french-toast';
 
 	let {
 		states = [],
@@ -38,12 +35,7 @@
 		resetForm: true,
 		onUpdated: (event) => {
 			if (event.form.posted) {
-				toast.create({
-					type: 'success',
-					title: 'Success!',
-					description: `Created company ${event.form.data.name}!`,
-					duration: 10000
-				});
+				toast.success(`Created company ${event.form.data.name}!`);
 				open = false;
 				onclosed?.();
 			}

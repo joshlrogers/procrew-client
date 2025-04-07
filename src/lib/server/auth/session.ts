@@ -1,6 +1,6 @@
 import type { Cookies, RequestEvent } from '@sveltejs/kit';
 import type { Account } from '$lib/shared/models/account';
-import { confidentialClientApp } from '$lib/server/oauth';
+import { confidentialClientApp } from '$lib/server/auth/oauth';
 import { type SilentFlowRequest } from '@azure/msal-node';
 import { AZURE_SCOPES } from '$env/static/private';
 

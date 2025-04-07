@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
 	import { superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 
@@ -12,15 +11,12 @@
 	import { Loader } from '$lib/components/loader';
 	import { ActiveCompany } from '$lib/shared/stores';
 	import { OrganizationSchema } from '$lib/shared/models/organization';
-
+	import toast from 'svelte-french-toast';
 	import CompanyCreationDialog from './companyCreationDialog/companyCreationDialog.svelte';
 
-	import type { PageData } from './$types';
-	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
+	import type { PageProps } from './$types';
 
-	const toast: ToastContext = getContext('toast');
-
-	let { data }: { data: PageData } = $props();
+	let { data }: PageProps = $props();
 	let companyCreationDialogOpen = $state(false);
 
 	const { form, enhance, constraints, errors, tainted, isTainted, submitting } = superForm(data.form, {
@@ -32,12 +28,7 @@
 		resetForm: false,
 		onUpdated: (event) => {
 			if (event.form.valid) {
-				toast.create({
-					type: 'success',
-					title: 'Success!',
-					description: `Organization updated!`,
-					duration: 10000
-				});
+				toast.success(`Organization updated!`);
 			}
 		}
 	});
@@ -119,6 +110,7 @@
 				<IconButton onclick={onAddCompanyClicked}
 										icon={MaterialIcon.ADD}
 										isRounded={true}
+										flat={true}
 										tooltip="Add a new company" />
 			</div>
 			<table class="table">

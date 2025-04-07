@@ -1,5 +1,5 @@
 import type { RequestHandler } from '@sveltejs/kit';
-import { setCompanyCookie } from '$lib/server/session';
+import { setCompanyCookie } from '$lib/server/auth/session';
 
 export const GET: RequestHandler = (event) => {
 	let companyId = event.locals.company

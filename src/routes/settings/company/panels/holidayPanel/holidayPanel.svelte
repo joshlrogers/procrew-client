@@ -3,15 +3,13 @@
 	import { type Company, CompanyHolidaysSchema, type Holiday, type Holidays } from '$lib/shared/models/company';
 	import { Panel } from '$lib/components/panel';
 	import { Checkbox, TextInput } from '$lib/components/inputs';
-	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
-	import { getContext, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { getDate, getMonth, parse } from 'date-fns';
 	import { Button } from '$lib/components/buttons/button/index.js';
 	import { superForm } from 'sveltekit-superforms';
 	import { defaults } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
-
-	const toast: ToastContext = getContext('toast');
+	import toast from 'svelte-french-toast';
 
 	interface HolidayPanelProps {
 		company?: Company;
@@ -48,13 +46,7 @@
 				companyHolidays = [];
 				let holidays = event.form.data.holidays;
 				applyHolidays(holidays);
-
-				toast.create({
-					type: 'success',
-					title: 'Success!',
-					description: `Updated company's holidays.`,
-					duration: 10000
-				});
+				toast.success(`Updated company's holidays.`);
 			}
 		}
 	});
@@ -62,7 +54,6 @@
 	onMount(async () => {
 		const currentHolidays = await page.data.holidays as Holiday[];
 		federalHolidays = await page.data.federalHolidays as Holiday[];
-
 		applyHolidays(currentHolidays);
 	});
 

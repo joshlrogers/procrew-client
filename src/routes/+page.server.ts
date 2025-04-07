@@ -1,7 +1,7 @@
 import { fail, redirect } from "@sveltejs/kit";
 
 import type { Actions, RequestEvent } from "@sveltejs/kit";
-import {deleteAccountCookie, deleteSessionTokenCookie} from "$lib/server/session";
+import {deleteAccountCookie, deleteSessionTokenCookie} from "$lib/server/auth/session";
 
 export const actions: Actions = {
     default: action

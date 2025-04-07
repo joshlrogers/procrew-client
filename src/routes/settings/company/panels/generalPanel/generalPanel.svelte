@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
 	import { defaults, superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
 
 	import { page } from '$app/state';
 
@@ -11,16 +9,14 @@
 	import { AddressForm } from '$lib/components/addressForm';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
 	import { TimezoneSelectList } from '$lib/components/selectList';
-
-	const toast: ToastContext = getContext('toast');
+	import toast from 'svelte-french-toast';
 
 	interface CompanyDetailsProps {
 		company?: Company;
-		onclosed?: () => void;
 	}
 
 	let {
-		company = $bindable()
+		company
 	}: CompanyDetailsProps = $props();
 
 	const {
@@ -42,12 +38,7 @@
 			if (event.form.valid) {
 				reset({ data: event.form.data, newState: event.form.data });
 
-				toast.create({
-					type: 'success',
-					title: 'Success!',
-					description: `Updated company ${event.form.data.name}`,
-					duration: 10000
-				});
+				toast.success(`Updated company ${event.form.data.name}`);
 			}
 		}
 	});

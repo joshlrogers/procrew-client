@@ -1,4 +1,4 @@
-import { confidentialClientApp, cryptoProvider } from '$lib/server/oauth';
+import { confidentialClientApp, cryptoProvider } from '$lib/server/auth/oauth';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
 import type { AuthorizationUrlRequest } from '@azure/msal-node';
 import { AZURE_AUTHORITY, AZURE_REDIRECT_URI, AZURE_SCOPES } from '$env/static/private';

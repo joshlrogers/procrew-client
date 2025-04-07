@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { page } from '$app/state';
 	import { IconButton } from '$lib/components/buttons/iconButton';
 	import { MaterialIcon } from '$lib/components/icon';
 	import { type Department, DepartmentSchema } from '$lib/shared/models/department';
@@ -7,18 +6,23 @@
 	import { superForm } from 'sveltekit-superforms';
 	import { defaults } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { ProgressRing, type ToastContext } from '@skeletonlabs/skeleton-svelte';
-	import { getContext, onMount } from 'svelte';
+	import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
 	import { TextInput } from '$lib/components/inputs';
+	import toast from 'svelte-french-toast';
 
-	const toast: ToastContext = getContext('toast');
+	interface DepartmentPanelProps {
+		departments: Department[];
+	}
+
+	let { departments }: DepartmentPanelProps = $props();
+
 	let activeDepartmentId: string | null | undefined = $state();
-	let departments: Department[] = $state([]);
 	let showAddNewDepartment: boolean = $state(false);
 	let hasFocused = $state(false);
+	let _departments = $state(departments);
 
-	let newDeptInput: TextInput = $state();
-	let updateDeptInput: TextInput = $state();
+	let newDeptInput: TextInput | undefined = $state();
+	let updateDeptInput: TextInput | undefined= $state();
 
 	let {
 		constraints,
@@ -41,30 +45,22 @@
 				hasFocused = false;
 				let department = event.form.data;
 
-				let updated = departments
-					.some((dept: Department) => dept.id === department.id);
+				let updated = _departments.some((dept: Department) => dept.id === department.id);
 
 				if (updated) {
 					activeDepartmentId = undefined;
-					departments[departments.findIndex(d => d.id === department.id)] = department;
+					_departments[_departments.findIndex(d => d.id === department.id)] = department;
 				} else {
 					activeDepartmentId = undefined;
 					showAddNewDepartment = false;
-					departments.push(department);
-					reset({ date: { name: '', shortCode: '' }, newState: { name: '', shortCode: '' } });
+					_departments.push(department);
+					reset({ data: { name: '', shortCode: '' }, newState: { name: '', shortCode: '' } });
 				}
 
-				toast.create({
-					type: 'success',
-					title: 'Success!',
-					description: `${updated ? 'Updated' : 'Created'} ${department.name} department.`,
-					duration: 10000
-				});
+				toast.success(`${updated ? 'Updated' : 'Created'} ${department.name} department.`);
 			}
 		}
 	});
-
-
 
 	let deleteDepartment = async (department: Department) => {
 		let result = await fetch(`/api/departments/${department.id}`, {
@@ -72,14 +68,9 @@
 		});
 
 		if (result.ok) {
-			departments = departments.filter(d => d.id !== department.id);
+			_departments = _departments.filter(d => d.id !== department.id);
 
-			toast.create({
-				type: 'success',
-				title: 'Success!',
-				description: `Deleted the ${department.name} department.`,
-				duration: 10000
-			});
+			toast.success(`Deleted the ${department.name} department.`);
 		}
 	};
 
@@ -114,9 +105,6 @@
 		hasFocused = true;
 	});
 
-	onMount(async () => {
-		departments = await page.data.departments;
-	});
 </script>
 <div class="flex flex-col items-center px-4">
 
@@ -175,17 +163,19 @@
 			</tr>
 			</thead>
 			<tbody>
-			{#if departments.length > 0}
-				{#each departments as department}
+			{#if _departments.length > 0}
+				{#each _departments as department}
 					<tr>
 						<td class="w-5/12">{department.name}</td>
 						<td class="w-5/12">{department.shortCode}</td>
 						<td class="w-1/6 flex flex-row items-center gap-1">
 							<IconButton icon={MaterialIcon.EDIT}
 													class="m-2"
+													flat={true}
 													onclick={() => editDepartment(department)}
 													tooltip={`Edit the ${department.name} department`} />
 							<IconButton icon={MaterialIcon.DELETE}
+													flat={true}
 													onclick={() => deleteDepartment(department)}
 													tooltip={`Delete the ${department.name} department`} />
 						</td>

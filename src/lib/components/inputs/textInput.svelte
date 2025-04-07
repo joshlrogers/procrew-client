@@ -44,8 +44,8 @@
 
 	let getValue = (): string => value;
 	let setValue = (val: string) => {
-		value = casing === "Upper" ? val.toUpperCase() : casing === "Lower" ? val.toLowerCase() : val;
-	}
+		value = casing === 'Upper' ? val.toUpperCase() : casing === 'Lower' ? val.toLowerCase() : val;
+	};
 
 	let inputClass = $derived(cn('input block h-10 w-full p-2.5 shadow-sm',
 		leadAdornment ? 'rounded-s-0 rounded-e-md focus-visible:outline-none focus-visible:border-l-0' : undefined,
@@ -60,7 +60,12 @@
 	{#if label}
 		<label for={id}
 					 class={extLabelClass}>
-			<span class="label-text">{label}</span>
+			<span class="label-text">
+				{label}
+				{#if required}
+					<span class="text-error-200-800 ml-1">*</span>
+				{/if}
+			</span>
 		</label>
 	{/if}
 

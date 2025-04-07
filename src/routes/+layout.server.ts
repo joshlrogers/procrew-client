@@ -1,15 +1,12 @@
 import { ApiClient } from '$lib/server/apiClient';
-import { getToken } from '$lib/server/session';
 import type { Company } from '$lib/shared/models/company';
-import type { LayoutServerLoad } from '../../.svelte-kit/types/src/routes/$types';
-import { redirect, type RequestEvent } from '@sveltejs/kit';
+import type { LayoutServerLoad } from './$types';
+import { type RequestEvent } from '@sveltejs/kit';
 
 export const load: LayoutServerLoad = async (event) => {
-	const accessToken = await getToken(event);
+	const accessToken = event.locals.token;
 
-	if (!accessToken && !event.url.pathname.startsWith('/login')) {
-		return redirect(302, `/login/b2c?redirect_url=${event.url.pathname}`);
-	} else if (!accessToken) {
+	if (!accessToken) {
 		return {
 			account: null,
 			companies: []

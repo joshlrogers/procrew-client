@@ -17,21 +17,21 @@ import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/
 import { type Department, DepartmentSchema } from '$lib/shared/models/department';
 import type { Result } from '$lib/shared/models/result';
 
-export const load: PageServerLoad = async (event) => {
-	if (!event.locals.company) {
+export const load: PageServerLoad = async ({ fetch, locals }) => {
+	if (!locals.company) {
 		return fail(400, {
 			data: 'Unable to retrieve company.'
 		});
 	}
 
 	return {
-		companyTypes: fetchCompanyTypes(event.fetch),
-		countries: fetchCountries(event.fetch),
-		states: fetchStates(event.fetch),
-		departments: getDepartments(event.fetch),
-		federalHolidays: fetchFederalHolidays(event.fetch),
-		holidays: fetchCompanyHolidays(event.fetch),
-		company: await getCurrentCompany(event.fetch, event.locals.company)
+		countries: fetchCountries(fetch),
+		states: fetchStates(fetch),
+		departments: getDepartments(fetch),
+		federalHolidays: fetchFederalHolidays(fetch),
+		holidays: fetchCompanyHolidays(fetch),
+		companyTypes: fetchCompanyTypes(fetch),
+		company: await getCurrentCompany(fetch, locals.company)
 	};
 };
 

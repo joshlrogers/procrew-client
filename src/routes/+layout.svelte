@@ -8,7 +8,7 @@
 	import { Loader } from '$lib/components/loader';
 	import { CompanySelectList } from '$lib/components/selectList';
 	import { IconButton } from '$lib/components/buttons/iconButton';
-	import { ToastProvider } from '@skeletonlabs/skeleton-svelte';
+	import { Toaster } from 'svelte-french-toast';
 
 	let { children, data } = $props();
 	let sidebarOpen = $state(false);
@@ -65,9 +65,9 @@
 
 		<div class="grid grid-cols-1">
 			<main class="p-4 space-y-4">
-				<ToastProvider placement="top-end">
-					{@render children?.()}
-				</ToastProvider>
+				<Toaster />
+
+				{@render children?.()}
 			</main>
 		</div>
 

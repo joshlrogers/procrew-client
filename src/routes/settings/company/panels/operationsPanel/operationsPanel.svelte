@@ -1,19 +1,16 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	import type { ToastContext } from '@skeletonlabs/skeleton-svelte';
 	import { defaults, superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
+	import toast from 'svelte-french-toast';
 
 	import { Button } from '$lib/components/buttons/button';
 	import { type BusinessHours, BusinessHoursSchema } from '$lib/shared/models/company';
-
 	import BusinessHoursRow from './businessHoursRow.svelte';
 
 	const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-	const toast: ToastContext = getContext('toast');
 
 	let {
-		company = $bindable()
+		company
 	} = $props();
 
 	let {
@@ -36,12 +33,7 @@
 			if (event.form.valid) {
 				reset({ data: event.form.data, newState: event.form.data });
 
-				toast.create({
-					type: 'success',
-					title: 'Success!',
-					description: `Updated company's business hours.`,
-					duration: 10000
-				});
+				toast.success(`Updated company's business hours.`);
 			}
 		}
 	});
@@ -123,7 +115,6 @@
 		if (!$errors) {
 			return null;
 		}
-
 
 		let startTime = $errors[`${day.toLowerCase()}Start` as keyof typeof $errors] as Record<string, string[]> | undefined;
 		if (startTime) {

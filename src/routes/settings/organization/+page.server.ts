@@ -4,7 +4,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 
 import type { PageServerLoad, RequestEvent } from './$types';
 
-import { getAccount, getToken } from '$lib/server/session';
+import { getAccount, getToken } from '$lib/server/auth/session';
 import { ApiClient } from '$lib/server/apiClient';
 import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { type Organization, OrganizationSchema } from '$lib/shared/models/organization';

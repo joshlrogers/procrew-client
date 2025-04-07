@@ -1,10 +1,10 @@
 import type {RequestEvent} from "@sveltejs/kit";
-import {confidentialClientApp, cryptoProvider} from "$lib/server/oauth";
+import {confidentialClientApp, cryptoProvider} from "$lib/server/auth/oauth";
 import type { AuthenticationResult, AuthorizationCodeRequest } from '@azure/msal-node';
 import {AZURE_REDIRECT_URI, AZURE_SCOPES} from "$env/static/private";
 import {ApiClient} from "$lib/server/apiClient";
 import type {Account} from "$lib/shared/models/account";
-import { setAccountCookie, setSessionCookie } from '$lib/server/session';
+import { setAccountCookie, setSessionCookie } from '$lib/server/auth/session';
 
 export async function GET(event: RequestEvent): Promise<Response> {
     const requestCode = event.url.searchParams.get("code");

@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { env } from '$env/dynamic/public';
 	import { browser } from '$app/environment';
-	import { TextInput } from '$lib/components/inputs';
+	import { MaskedTextInput, TextInput } from '$lib/components/inputs';
 	import { SelectList } from '$lib/components/selectList';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import type { SuperFormData, SuperFormErrors } from 'sveltekit-superforms/client';
@@ -31,7 +31,10 @@
 
 	let availableCountries = $derived(countries.map(country => ({ value: country.shortCode, label: country.name })));
 
-	let availableStates = $derived(states.map(state => ({ value: state.abbreviation, label: state.name })));
+	let availableStates = $derived(states.filter(s => s.country == $formData.address.country).map(state => ({
+		value: state.abbreviation,
+		label: state.name
+	})));
 
 	let addressAutofill: any;
 
@@ -68,25 +71,23 @@
 		$formData.address.state = selectedProperties.address_level1;
 		$formData.address.postalCode = selectedProperties.postcode;
 		$formData.address.country = countries[countries.findIndex(c => c.shortCode == selectedProperties.country_code.toUpperCase())].abbreviation;
-
-		$inspect(formData);
-	}
+	};
 
 	const setCountry = (country: any) => {
-		if(country) {
+		if (country) {
 			$formData.address.country = countries[countries.findIndex(c => c.shortCode == country.toUpperCase())].abbreviation;
 		} else {
 			$formData.address.country = undefined;
 		}
-	}
+	};
 
 	const getCountry = (countryAbbreviation: any) => {
-		if(countryAbbreviation) {
+		if (countryAbbreviation) {
 			return countries[countries.findIndex(c => c.abbreviation == countryAbbreviation.toUpperCase())].shortCode;
 		} else {
 			return undefined;
 		}
-	}
+	};
 
 </script>
 
@@ -141,16 +142,17 @@
 							tabindex={startingTabIndex ? startingTabIndex + 2 : undefined}
 							wrapperClass="lg:w-[10rem] w-full" />
 
-	<TextInput label="Zip code"
-						 name="postalCode"
-						 maxlength={10}
-						 wrapperClass="lg:w-[10rem] w-full"
-						 required={true}
-						 autocomplete="address-postalCode"
-						 constraints={$formConstraints.address?.postalCode}
-						 errors={$formErrors.address?.postalCode}
-						 tabindex={startingTabIndex ? startingTabIndex + 3 : undefined}
-						 bind:value={$formData.address.postalCode} />
+	<MaskedTextInput label="Zip code"
+									 name="postalCode"
+									 maskType="PostalCode"
+									 maxlength={10}
+									 wrapperClass="lg:w-[10rem] w-full"
+									 required={true}
+									 autocomplete="address-postalCode"
+									 constraints={$formConstraints.address?.postalCode}
+									 errors={$formErrors.address?.postalCode}
+									 tabindex={startingTabIndex ? startingTabIndex + 3 : undefined}
+									 bind:value={$formData.address.postalCode} />
 
 	<SelectList items={availableCountries}
 							name="country"

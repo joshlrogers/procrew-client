@@ -5,12 +5,8 @@
 	import { MaterialIcon } from '$lib/components/icon';
 	import { cn } from '$lib/utils';
 	import type { HTMLAttributes } from 'svelte/elements';
+	import type { SelectListOption } from '$lib/shared/models/options';
 
-	interface SelectListOption {
-		icon?: MaterialIcon;
-		label: string;
-		value: string | number;
-	}
 
 	interface SelectListProps extends HTMLAttributes<HTMLButtonElement> {
 		emptyText?: string;
@@ -81,7 +77,7 @@
 
 <div class={wrapperClass}>
 	{#if labelText}
-		<label for={id} class={extLabelClass} use:melt={$label}>{labelText}</label>
+		<label for={id} class={extLabelClass} use:melt={$label}><span class="label-text">{labelText}</span></label>
 	{/if}
 
 	<button class={buttonClass}

@@ -9,6 +9,7 @@
 	import { CompanySelectList } from '$lib/components/selectList';
 	import { IconButton } from '$lib/components/buttons/iconButton';
 	import { Toaster } from 'svelte-french-toast';
+	import { afterNavigate } from '$app/navigation';
 
 	let { children, data } = $props();
 	let sidebarOpen = $state(false);
@@ -21,7 +22,6 @@
 
 	$effect(() => {
 		if (currentPath !== page.url.pathname) {
-			sidebarOpen = !sidebarOpen;
 			currentPath = page.url.pathname;
 		}
 	});
@@ -37,6 +37,10 @@
 			fetch('/api/current/company', { method: 'POST', body: $ActiveCompany })
 				.then(res => res.json());
 		}
+	});
+
+	afterNavigate(() => {
+		sidebarOpen = false;
 	});
 </script>
 

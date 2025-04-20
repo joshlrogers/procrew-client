@@ -2,7 +2,8 @@
 	import { Panel } from '$lib/components/panel';
 	import { IconButton } from '$lib/components/buttons/iconButton';
 	import { MaterialIcon } from '$lib/components/icon';
-	import { CreateEmployeeModal } from './modals/index.js';
+	import type { PageProps } from './$types';
+	import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
 
 	let {
 		data
@@ -13,46 +14,51 @@
 	<Panel class="w-[75%]">
 		{#snippet content()}
 			{#await data.employees}
-			{:then employees}
-				<div class="w-full px-4 py-2 shadow-md bg-surface-300-700 rounded-t-lg">
-					<CreateEmployeeModal>
-						{#snippet trigger()}
-							<IconButton
-								icon={MaterialIcon.ADD}
-								flat={true}
-								tooltip="Add a new department" />
-						{/snippet}
-					</CreateEmployeeModal>
+				<div class="flex flex-row justify-center items-center gap-2">
+					<ProgressRing value={null} size="size-14" meterStroke="stroke-tertiary-600-400"
+												trackStroke="stroke-tertiary-50-950" />
 				</div>
-				<table class="table">
-					<thead>
-					<tr>
-						<th>Last name</th>
-						<th>First name</th>
-						<th>Phone number</th>
-						<th></th>
-					</tr>
-					</thead>
-					<tbody>
-					{#if employees.length === 0}
+			{:then employees}
+				<div class="w-full pl-1 shadow-md bg-surface-300-700 rounded-t-lg">
+					<a href="/employees/create" class="text-primary-500">
+						<IconButton
+							icon={MaterialIcon.ADD}
+							flat={true}
+							isRounded={true}
+							tooltip="Add a new employee" />
+					</a>
+				</div>
+				<div class="p-2">
+					<table class="table">
+						<thead>
 						<tr>
-							<td colspan="4">No employees found...</td>
+							<th>Last name</th>
+							<th>First name</th>
+							<th>Phone number</th>
+							<th></th>
 						</tr>
-					{:else}
-						{#each employees as employee}
+						</thead>
+						<tbody>
+						{#if employees.length === 0}
 							<tr>
-								<td>{employee.lastName}</td>
-								<td>{employee.firstName}</td>
-								<td>{employee.phoneNumber}</td>
-								<td>
-									<IconButton icon={MaterialIcon.EDIT} />
-									<IconButton icon={MaterialIcon.DELETE} />
-								</td>
+								<td colspan="4">No employees found...</td>
 							</tr>
-						{/each}
-					{/if}
-					</tbody>
-				</table>
+						{:else}
+							{#each employees as employee}
+								<tr>
+									<td>{employee.lastName}</td>
+									<td>{employee.firstName}</td>
+									<td>{employee.phoneNumber}</td>
+									<td>
+										<IconButton icon={MaterialIcon.EDIT} />
+										<IconButton icon={MaterialIcon.DELETE} />
+									</td>
+								</tr>
+							{/each}
+						{/if}
+						</tbody>
+					</table>
+				</div>
 			{/await}
 
 		{/snippet}

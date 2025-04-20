@@ -4,7 +4,7 @@
 	import { MaterialIcon } from '$lib/components/icon';
 
 	const { Story } = defineMeta({
-		title: 'lib/components/buttons/iconButton',
+		title: 'Components/Buttons/Icon Button',
 		component: IconButton,
 		decorators: [],
 		parameters: {}

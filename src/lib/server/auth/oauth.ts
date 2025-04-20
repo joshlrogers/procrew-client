@@ -4,7 +4,7 @@ import {
     AZURE_AUTHORITY,
     AZURE_AUTHORITY_DOMAIN
 } from "$env/static/private";
-import type {Configuration, SilentFlowRequest} from "@azure/msal-node";
+import type {Configuration} from "@azure/msal-node";
 
 
 const confidentialClientConfig:Configuration = {

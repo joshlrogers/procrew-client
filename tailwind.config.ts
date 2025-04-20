@@ -118,7 +118,7 @@ const config = {
 			transitionProperty: {
 				marginLeft: 'margin-left',
 				width: 'width'
-			}
+			},
 		}
 	}
 };

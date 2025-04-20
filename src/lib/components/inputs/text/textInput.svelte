@@ -53,7 +53,7 @@
 		!leadAdornment && !tailAdornment ? 'rounded-md focus-visible:outline-none' : undefined,
 		casing === 'Upper' ? 'text-uppercase' : casing === 'Lower' ? 'text-lowercase' : 'text-default',
 		extClass));
-	let extLabelClass = $derived(cn('block', 'mb-2', 'text-sm', 'font-medium', 'label', labelClass));
+	let extLabelClass = $derived(cn('block', 'mb-2', 'label', labelClass));
 </script>
 
 <div class={wrapperClass}>

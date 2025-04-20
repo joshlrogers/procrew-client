@@ -3,7 +3,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'lib/components/inputs/checkbox',
+		title: 'Components/Inputs/Checkbox',
 		component: Checkbox,
 		decorators: [],
 		parameters: {}

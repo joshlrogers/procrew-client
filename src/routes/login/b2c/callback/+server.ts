@@ -46,7 +46,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
             return new Response(null, {status: 401});
         }
 
-        const account = await getUser(event, tokenResponse);
+        const account = await getUser(tokenResponse);
         if(!account?.idpId) {
             return new Response("User not found", {status: 404});
         }
@@ -70,8 +70,7 @@ export async function GET(event: RequestEvent): Promise<Response> {
     }
 }
 
-async function getUser(event: RequestEvent, authenticationResult: AuthenticationResult) {
-    event.locals.token = authenticationResult.accessToken;
-    const result = await ApiClient.get<Account>(event.fetch, "account/me");
+async function getUser(authenticationResult: AuthenticationResult) {
+    const result = await ApiClient.rawGet<Account>("account/me", authenticationResult.accessToken);
     return result.isOk ? result.value : null;
 }

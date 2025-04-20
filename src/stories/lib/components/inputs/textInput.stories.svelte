@@ -3,7 +3,7 @@
 	import { defineMeta } from '@storybook/addon-svelte-csf';
 
 	const { Story } = defineMeta({
-		title: 'lib/components/inputs/textInput',
+		title: 'Components/Inputs/Text/Text Input',
 		component: TextInput,
 		decorators: [],
 		parameters: {}

@@ -2,7 +2,12 @@
 	import { EmployeeSchema } from '$lib/shared/models/employee';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { DateUtils } from '$lib/utils';
-	import { EthnicityOptions, GenderOptions, MaritalStatusOptions } from '$lib/shared/models/options';
+	import {
+		EthnicityOptions,
+		GenderOptions,
+		MaritalStatusOptions,
+		type SelectListOption
+	} from '$lib/shared/models/options';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
 	import { DateInput, MaskedTextInput, TextInput } from '$lib/components/inputs';
 	import { Section } from '$lib/components/section';
@@ -14,6 +19,11 @@
 	let {
 		data
 	} = $props();
+
+	let departmentOptions: SelectListOption[] = $derived(data.departments?.map(d => ({
+		label: d.name,
+		value: d.id
+	})) ?? []);
 
 	const {
 		form,
@@ -87,6 +97,15 @@
 													 errors={$errors.hireDate}
 													 onDateChange={(val) => $form.hireDate = DateUtils.toDate(val) }
 								/>
+							</div>
+							<div class="w-1/2">
+								<SelectList label="Department"
+														placeholder="Department"
+														required={true}
+														tabindex={14}
+														value={departmentOptions.filter(d => d.value === $form.departmentId)?.[0]?.value}
+														onchanged={(val) => $form.departmentId = departmentOptions.filter(d=>d.value === val)?.[0]?.value}
+														items={departmentOptions} />
 							</div>
 						</div>
 

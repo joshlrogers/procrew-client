@@ -12,7 +12,7 @@ const demographicsSchema = z.object({
 const emergencyContactSchema = z.object({
 	firstName: z.string().min(1, 'First name is required.').max(250, 'First name is too long.'),
 	lastName: z.string().min(1, 'Last name is required.').max(250, 'Last name is too long.'),
-	emailAddress: z.string().email().max(250, 'Email is too long.').optional().nullish(),
+	emailAddress: z.string().email().min(5, 'Email is invalid.').max(250, 'Email is too long.').optional().nullish(),
 	isPrimary: z.boolean().default(false),
 	phoneNumber: z.string().optional().nullish(),
 	relation: z.string()
@@ -24,9 +24,10 @@ const employeeSchema = z
 		address: AddressSchema,
 		firstName: z.string().min(2, 'First name is required.'),
 		lastName: z.string().min(2, 'Last name is required.'),
-		emailAddress: z.string().email().optional().nullish(),
+		emailAddress: z.string().email().min(5, 'Email is invalid.').max(250, 'Email is too long.').optional().nullish(),
 		emergencyContacts: z.array(emergencyContactSchema).optional().nullish(),
 		demographics: demographicsSchema,
+		departmentId: z.string().uuid(),
 		hireDate: z.date().nullish(),
 		phoneNumber: z.string().optional().nullish(),
 		sequence: z.number().optional().nullish(),

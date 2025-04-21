@@ -5,6 +5,9 @@ import { EmployeeSchema } from '$lib/shared/models/employee';
 import { ApiClient } from '$lib/server/apiClient';
 import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
+import type { Department } from '$lib/shared/models/department';
+
+
 
 const createEmployee = async ({ fetch, request }: RequestEvent) => {
 	const form = await superValidate(await request.formData(), zod(EmployeeSchema));
@@ -32,8 +35,6 @@ const createEmployee = async ({ fetch, request }: RequestEvent) => {
 		return v;
 	});
 
-	console.log(content);
-
 	const result = await ApiClient.postRaw(fetch, '/organization/company/employee', content);
 	if(result.isOk && result.value) {
 		return redirect(302, '/employees');
@@ -45,20 +46,21 @@ const createEmployee = async ({ fetch, request }: RequestEvent) => {
 	}
 };
 
-export const load: PageServerLoad = async ({ fetch }) => {
-	const form = await superValidate(zod(EmployeeSchema));
-
-	return {
-		form,
-		countries: fetchCountries(fetch),
-		states: fetchStates(fetch)
-	};
-};
 
 const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
 	let response = await ApiClient.get<CountrySelectOption[]>(
 		fetch,
 		'/utility/lookup/address/countries'
+	);
+	if (response.isOk && response.value) {
+		return response.value;
+	}
+};
+
+const fetchDepartments = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
+	let response = await ApiClient.get<Department[]>(
+		fetch,
+		'/organization/company/departments'
 	);
 	if (response.isOk && response.value) {
 		return response.value;
@@ -72,6 +74,20 @@ const fetchStates = async (fetch: (input: string, init?: RequestInit) => Promise
 	}
 };
 
+
 export const actions = {
 	createEmployee
 };
+
+export const load: PageServerLoad = async ({ fetch }) => {
+	const form = await superValidate(zod(EmployeeSchema));
+
+	return {
+		form,
+		countries: fetchCountries(fetch),
+		states: fetchStates(fetch),
+		departments: await fetchDepartments(fetch)
+	};
+};
+
+

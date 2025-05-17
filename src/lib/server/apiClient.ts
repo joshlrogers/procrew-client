@@ -44,6 +44,14 @@ export class ApiClient {
 		return await this.fetchRoute<T>(fetch, 'PUT', route, JSON.stringify(content));
 	}
 
+	static async putRaw(
+		fetch: (input: string, init?: RequestInit) => Promise<Response>,
+		route: string,
+		content: string
+	): Promise<Result<string>> {
+		return await this.fetchRoute<string>(fetch, 'PUT', route, content);
+	}
+
 	private static buildRoute(route: string) {
 		const root = INTERNAL_API_URL.endsWith('/') ? `${INTERNAL_API_URL}` : `${INTERNAL_API_URL}/`;
 		return `${root}${route.startsWith('/') ? route.slice(1) : route}`;

@@ -3,6 +3,7 @@ import type { HTMLAttributes } from 'svelte/elements';
 
 interface IconProps extends HTMLAttributes<HTMLElement> {
 	icon: MaterialIcon;
+	iconSize?: 'default' | 'small' | 'medium' | 'large';
 }
 
 enum MaterialIcon {
@@ -10,6 +11,8 @@ enum MaterialIcon {
 	ARROW_DROP_DOWN = 'arrow_drop_down',
 	ARROW_DROP_UP = 'arrow_drop_up',
 	ARROW_LEFT = 'arrow_left',
+	ARROW_FORWARD_IOS = 'arrow_forward_ios',
+	ARROW_RIGHT = 'arrow_right',
 	BADGE = 'badge',
 	BOLT = 'bolt',
 	BUSINESS = 'business',

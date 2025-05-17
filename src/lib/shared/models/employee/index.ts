@@ -1,12 +1,13 @@
 import { z } from 'zod';
 import { AddressSchema } from '$lib/shared/models/address';
+import { parse } from 'date-fns';
 
 const demographicsSchema = z.object({
-	gender: z.string().optional().nullish(),
-	race: z.string().optional().nullish(),
-	ethnicity: z.string().optional().nullish(),
-	maritalStatus: z.string().optional().nullish(),
-	dateOfBirth: z.date().nullish(),
+	gender: z.number().optional().nullish(),
+	race: z.number().optional().nullish(),
+	ethnicity: z.number().optional().nullish(),
+	maritalStatus: z. number().optional().nullish(),
+	dateOfBirth: z.string().transform(val => parse(val, 'yyyy-MM-dd', new Date())).nullish(),
 });
 
 const emergencyContactSchema = z.object({
@@ -28,7 +29,11 @@ const employeeSchema = z
 		emergencyContacts: z.array(emergencyContactSchema).optional().nullish(),
 		demographics: demographicsSchema,
 		departmentId: z.string().uuid(),
-		hireDate: z.date().nullish(),
+		// hireDate: z.string().or(z.date()).transform(val => {
+		// 	const localDate = new Date(val);
+		// 	return new Date(localDate.getUTCFullYear(), localDate.getUTCMonth(), localDate.getUTCDate());
+		// }).nullish(),
+		hireDate: z.string().transform(val => parse(val, 'yyyy-MM-dd', new Date())).nullish(),
 		phoneNumber: z.string().optional().nullish(),
 		sequence: z.number().optional().nullish(),
 		title: z.string().optional().nullish()

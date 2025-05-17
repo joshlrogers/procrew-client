@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import {
 	type AnyCalendarDate,
+	CalendarDate,
 	fromDate,
 	getLocalTimeZone,
 	type ZonedDateTime
@@ -22,5 +23,13 @@ export class DateUtils {
 		if(date) {
 			return new Date(date.year, date.month, date.day)
 		}
+	}
+
+	public static toCalendarDate(date?: Date | null): CalendarDate | undefined {
+		if(!date) return undefined
+
+		console.log(date);
+
+		return new CalendarDate(date.getFullYear(), date.getMonth() + 1, date.getDate())
 	}
 }

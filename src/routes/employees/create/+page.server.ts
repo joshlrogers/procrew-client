@@ -7,8 +7,6 @@ import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/
 import { redirect, type RequestEvent } from '@sveltejs/kit';
 import type { Department } from '$lib/shared/models/department';
 
-
-
 const createEmployee = async ({ fetch, request }: RequestEvent) => {
 	const form = await superValidate(await request.formData(), zod(EmployeeSchema));
 	if (!form.valid) {
@@ -46,7 +44,6 @@ const createEmployee = async ({ fetch, request }: RequestEvent) => {
 	}
 };
 
-
 const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
 	let response = await ApiClient.get<CountrySelectOption[]>(
 		fetch,
@@ -73,7 +70,6 @@ const fetchStates = async (fetch: (input: string, init?: RequestInit) => Promise
 		return response.value;
 	}
 };
-
 
 export const actions = {
 	createEmployee

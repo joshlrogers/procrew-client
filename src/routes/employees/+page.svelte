@@ -50,7 +50,10 @@
 									<td>{employee.firstName}</td>
 									<td>{employee.phoneNumber?.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}</td>
 									<td class="flex flex-row gap">
-										<IconButton flat={true} icon={MaterialIcon.EDIT} />
+										<a href={`/employees/${employee.sequence}`}>
+											<IconButton flat={true}
+																	icon={MaterialIcon.EDIT} />
+										</a>
 										<IconButton flat={true} icon={MaterialIcon.DELETE} />
 									</td>
 								</tr>

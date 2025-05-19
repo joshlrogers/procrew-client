@@ -1,0 +1,7 @@
+---
+description: 
+globs: *.ts,*.svelte
+alwaysApply: false
+---
+- All log, result, and error messages should end with a period.
+- HTML element arguments should align vertically with their first character aligned.

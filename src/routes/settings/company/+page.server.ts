@@ -17,12 +17,14 @@ import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/
 import { type Department, DepartmentSchema } from '$lib/shared/models/department';
 import type { Result } from '$lib/shared/models/result';
 
-export const load: PageServerLoad = async ({ fetch, locals }) => {
+export const load: PageServerLoad = async ({ fetch, locals, depends }) => {
 	if (!locals.company) {
 		return fail(400, {
 			data: 'Unable to retrieve company.'
 		});
 	}
+
+	depends("app:company");
 
 	return {
 		countries: fetchCountries(fetch),
@@ -31,7 +33,7 @@ export const load: PageServerLoad = async ({ fetch, locals }) => {
 		federalHolidays: fetchFederalHolidays(fetch),
 		holidays: fetchCompanyHolidays(fetch),
 		companyTypes: fetchCompanyTypes(fetch),
-		company: await getCurrentCompany(fetch, locals.company)
+		company: getCurrentCompany(fetch, locals.company)
 	};
 };
 
@@ -163,6 +165,7 @@ const getCurrentCompany = async (
 	fetch: (input: string, init?: RequestInit) => Promise<Response>,
 	companyId: string
 ) => {
+	console.log(companyId);
 	let response = await ApiClient.get<Company>(fetch, `/organization/company/${companyId}`);
 	if (response.isOk && response.value) {
 		return response.value;

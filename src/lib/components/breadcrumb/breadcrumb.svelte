@@ -40,11 +40,11 @@
 {/snippet}
 
 {#snippet separatorRenderer(iconName: MaterialIcon)}
-	<Icon icon={iconName} class="text-primary-200-800" />
+	<Icon iconSize="medium" icon={iconName} class="text-primary-200-800" />
 {/snippet}
 
 <nav aria-label="breadcrumb" class="py-2">
-	<ol class="flex items-center space-x-1 sm:space-x-1.5">
+	<ol class="flex items-center space-x-1 sm:space-x-1.5 text-sm">
 		{#each items as item, i (item.url)}
 			<li>
 				{@render itemRenderer(item)}

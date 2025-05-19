@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { navigating } from '$app/state';
 	import { Modal } from '@skeletonlabs/skeleton-svelte';
 
 	interface NavMenuProps {
@@ -13,6 +14,11 @@
 		onOpenChanged = undefined
 	}: NavMenuProps = $props();
 
+	$effect(()=> {
+		if(navigating.to){
+			isOpen = false;
+		}
+	});
 
 </script>
 <Modal

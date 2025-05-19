@@ -16,7 +16,7 @@
 	} from '$lib/shared/models/options';
 	import { AddressForm } from '$lib/components/addressForm';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
-	import { Breadcrumb } from '$lib/components/breadcrumbs';
+	import { Breadcrumb } from '$lib/components/breadcrumb';
 
 	let {
 		data
@@ -43,10 +43,6 @@
 		validators: zod(EmployeeSchema),
 		validationMethod: 'onsubmit',
 		clearOnSubmit: 'errors-and-message'
-	});
-
-	$effect(() => {
-		$inspect($form);
 	});
 
 </script>

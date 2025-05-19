@@ -10,6 +10,8 @@
 	import { IconButton } from '$lib/components/buttons/iconButton';
 	import { Toaster } from 'svelte-french-toast';
 	import { afterNavigate } from '$app/navigation';
+	import { ChangeDetails } from 'imask';
+	import { onMount } from 'svelte';
 
 	let { children, data } = $props();
 	let sidebarOpen = $state(false);
@@ -26,22 +28,29 @@
 		}
 	});
 
-	$effect(() => {
-		if (!$ActiveCompany) {
+	onMount(() => {
+		changeActiveCompany();
+	});
+
+	afterNavigate(() => {
+		sidebarOpen = false;
+	});
+
+	function changeActiveCompany(companyId?: string) {
+		if (!companyId) {
 			fetch('/api/current/company', { method: 'GET' })
 				.then(res => res.json())
 				.then(json => {
 					$ActiveCompany = json;
 				});
 		} else {
-			fetch('/api/current/company', { method: 'POST', body: $ActiveCompany })
-				.then(res => res.json());
+			fetch('/api/current/company', { method: 'POST', body: companyId })
+				.then(res => res.json())
+				.then(() => {
+					$ActiveCompany = companyId;
+				});
 		}
-	});
-
-	afterNavigate(() => {
-		sidebarOpen = false;
-	});
+	}
 </script>
 
 <div class="grid grid-cols-1">
@@ -60,7 +69,7 @@
 						{#await data.companies}
 							<Loader />
 						{:then companies}
-							<CompanySelectList {companies} bind:value={$ActiveCompany} />
+							<CompanySelectList {companies} value={$ActiveCompany} oncompanychanged={changeActiveCompany}  />
 						{/await}
 					</div>
 				{/snippet}

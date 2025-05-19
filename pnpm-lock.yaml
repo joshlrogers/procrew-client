@@ -99,6 +99,9 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
+      crossenv:
+        specifier: 0.0.2-security
+        version: 0.0.2-security
       prettier:
         specifier: 3.5.3
         version: 3.5.3
@@ -1545,6 +1548,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  crossenv@0.0.2-security:
+    resolution: {integrity: sha512-Zet/ldwzo70I+vUnjM9yHCWo2iqK/RM2s2VnZDNPE/fN062UXYXGqu9Hd7HlhNVhnYGclPcjNoySWhug5lctHw==}
 
   css.escape@1.5.1:
     resolution: {integrity: sha512-YUifsXXuknHlUsmlgyY0PKzgPOr7/FjCePfHNt0jxm83wHZi44VDMQ7/fGNkjY3/jV1MC+1CmZbaHzugyeRtpg==}
@@ -4392,6 +4398,8 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  crossenv@0.0.2-security: {}
 
   css.escape@1.5.1: {}
 

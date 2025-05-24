@@ -10,32 +10,24 @@
 	import { Icon, MaterialIcon } from '$lib/components/icon';
 	import { Loader } from '$lib/components/loader';
 	import { ActiveCompany } from '$lib/shared/stores';
-	import { OrganizationSchema } from '$lib/shared/models/organization';
+	import { OrganizationSchema, type Organization } from '$lib/shared/models/organization';
 	import toast from 'svelte-french-toast';
 	import CompanyCreationDialog from './companyCreationDialog/companyCreationDialog.svelte';
 
 	import type { PageProps } from './$types';
+	import OrganizationPanel from './organizationPanel/organizationPanel.svelte';
+	import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
 
 	let { data }: PageProps = $props();
 	let companyCreationDialogOpen = $state(false);
 
-	const { form, enhance, constraints, errors, tainted, isTainted, submitting } = superForm(data.form, {
-		dataType: 'json',
-		validationMethod: 'oninput',
-		clearOnSubmit: 'errors-and-message',
-		multipleSubmits: 'prevent',
-		validators: zod(OrganizationSchema),
-		resetForm: false,
-		onUpdated: (event) => {
-			if (event.form.valid) {
-				toast.success(`Organization updated!`);
-			}
-		}
-	});
-
 	const onAddCompanyClicked = () => {
 		companyCreationDialogOpen = true;
 	};
+
+	const onOrganizationUpdated = (organization: Organization) => {
+		toast.success(`Organization updated!`);
+	}
 </script>
 
 <div class="flex flex-col gap-4 items-center">
@@ -50,49 +42,26 @@
 		{/snippet}
 
 		{#snippet content()}
-			<form method="POST" action="?/updateOrganization" use:enhance>
-				<div class="flex flex-col gap-2">
-					<input name="id" type="hidden" bind:value={$form.id} />
-					<TextInput id="name"
-										 name="name"
-										 bind:value={$form.name}
-										 label="Organization"
-										 maxlength={120}
-										 wrapperClass='mb-5'
-										 required={true}
-										 autofocus={true}
-										 tabindex={1}
-										 autocomplete="off"
-										 errors={$errors.name}
-										 constraints={$constraints.name} />
-
-					{#await data.countries}
-						<Loader />
-					{:then countries}
-						{#await data.states}
-							<Loader />
-
-						{:then states}
-							<AddressForm name="address"
-													 {countries}
-													 {states}
-													 formConstraints={constraints}
-													 formData={form}
-													 startingTabIndex={2}
-													 formErrors={errors} />
-						{/await}
-					{/await}
-
-
-					<div class="flex flex-row justify-end gap-2">
-						<Button disabled={!isTainted($tainted) || $submitting}
-										text="Save"
-										tabindex={7}
-										buttonStyle={ButtonStyle.PRIMARY}
-										type="submit" />
-					</div>
+			{#await data.countries}
+			<div class="flex flex-row justify-center items-center gap-2">
+				<ProgressRing value={null} size="size-14" meterStroke="stroke-tertiary-600-400"
+											trackStroke="stroke-tertiary-50-950" />
+			</div>
+			{:then countries}
+				{#await data.states}
+				<div class="flex flex-row justify-center items-center gap-2">
+					<ProgressRing value={null} size="size-14" meterStroke="stroke-tertiary-600-400"
+												trackStroke="stroke-tertiary-50-950" />
 				</div>
-			</form>
+				{:then states}
+					<OrganizationPanel 
+						organizationForm={data.form} 
+						countries={countries} 
+						states={states} 
+						action="?/updateOrganization"
+						onUpdated={onOrganizationUpdated} />
+				{/await}
+			{/await}
 		{/snippet}
 	</Panel>
 

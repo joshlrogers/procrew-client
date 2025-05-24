@@ -148,7 +148,7 @@
 		{/if}
 	</div>
 	{#if errors}
-		<div class="uppercase text-xs leading-1 tracking-tighter text-coral-red-700 px-1">
+		<div class="uppercase text-xs leading-none tracking-tighter text-error-300-700 px-1">
 			{errors}
 		</div>
 	{/if}

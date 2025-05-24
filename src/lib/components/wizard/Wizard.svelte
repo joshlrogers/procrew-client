@@ -45,7 +45,7 @@
         }
     }
 
-    let stepWrapperClass = $derived(cn('relative text-center', orientation === 'horizontal' ? 'top-6 max-w-16 mx-10' : 'left-11 my-10'));
+    let stepWrapperClass = $derived(cn('relative text-center', orientation === 'horizontal' ? 'top-3 max-w-16 mx-10' : 'left-11 my-10'));
 </script>
 
 <div class={wizardClass} {...otherProps} data-orientation={orientation}>

@@ -1,4 +1,4 @@
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad, RequestEvent } from './$types';
 import { ApiClient } from '$lib/server/apiClient';
 import {
 	type BusinessHours,
@@ -38,7 +38,7 @@ export const load: PageServerLoad = async ({ fetch, locals, depends }) => {
 };
 
 export const actions = {
-	updateBusinessHours: async (event) => {
+	updateBusinessHours: async (event: RequestEvent) => {
 		const form = await superValidate<BusinessHours>(
 			await event.request.formData(),
 			zod(BusinessHoursSchema)
@@ -68,7 +68,7 @@ export const actions = {
 			{ status: 500 }
 		);
 	},
-	updateCompany: async (event) => {
+	updateCompany: async (event: RequestEvent) => {
 		const form = await superValidate<Company>(await event.request.formData(), zod(CompanySchema));
 
 		if (!form.valid) {
@@ -90,7 +90,7 @@ export const actions = {
 			{ status: 500 }
 		);
 	},
-	updateDepartment: async (event) => {
+	updateDepartment: async (event: RequestEvent) => {
 		const form = await superValidate<Department>(
 			await event.request.formData(),
 			zod(DepartmentSchema)
@@ -129,7 +129,7 @@ export const actions = {
 			{ status: 500 }
 		);
 	},
-	updateHolidays: async (event) => {
+	updateHolidays: async (event: RequestEvent) => {
 		const form = await superValidate<Holidays>(
 			await event.request.formData(),
 			zod(CompanyHolidaysSchema)
@@ -165,7 +165,6 @@ const getCurrentCompany = async (
 	fetch: (input: string, init?: RequestInit) => Promise<Response>,
 	companyId: string
 ) => {
-	console.log(companyId);
 	let response = await ApiClient.get<Company>(fetch, `/organization/company/${companyId}`);
 	if (response.isOk && response.value) {
 		return response.value;

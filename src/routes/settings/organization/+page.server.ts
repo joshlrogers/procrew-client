@@ -31,7 +31,7 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 };
 
 export const actions = {
-	createCompany: async (event) => {
+	createCompany: async (event: RequestEvent) => {
 		let company = (await event.request.formData()) as unknown as Company;
 		const form = await superValidate<Company>(company, zod(CompanySchema));
 
@@ -54,7 +54,7 @@ export const actions = {
 			{ status: 500 }
 		);
 	},
-	updateOrganization: async (event) => {
+	updateOrganization: async (event: RequestEvent) => {
 		const form = await superValidate<Organization>(
 			await event.request.formData(),
 			zod(OrganizationSchema)

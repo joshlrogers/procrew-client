@@ -25,6 +25,7 @@ enum MaterialIcon {
 	EVENT = 'event',
 	GRASS = 'grass',
 	GROUPS = 'groups',
+	HOW_TO_REG = 'how_to_reg',
 	KEYBOARD_DOUBLE_ARROW_LEFT = 'keyboard_double_arrow_left',
 	KEYBOARD_DOUBLE_ARROW_RIGHT = 'keyboard_double_arrow_right',
 	LIST = 'list',

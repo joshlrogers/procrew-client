@@ -37,7 +37,7 @@
             break;
     }
 
-    let buttonClass = cn(baseClass, innerButtonStyle, backgroundColor, height, width, extClass);
+    let buttonClass = $derived(cn(baseClass, innerButtonStyle, backgroundColor, height, width, extClass));
 </script>
 
 <button {...otherProps}

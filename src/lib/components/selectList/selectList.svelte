@@ -77,7 +77,14 @@
 
 <div class={wrapperClass}>
 	{#if labelText}
-		<label for={id} class={extLabelClass} use:melt={$label}><span class="label-text">{labelText}</span></label>
+		<label for={id} class={extLabelClass} use:melt={$label}>
+			<span class="label-text">
+				{labelText}
+				{#if required}
+					<span class="text-error-200-800 ml-1">*</span>
+				{/if}
+			</span>
+		</label>
 	{/if}
 
 	<button class={buttonClass}

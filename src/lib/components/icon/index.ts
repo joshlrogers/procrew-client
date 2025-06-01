@@ -30,6 +30,7 @@ enum MaterialIcon {
 	KEYBOARD_DOUBLE_ARROW_RIGHT = 'keyboard_double_arrow_right',
 	LIST = 'list',
 	MENU = 'menu',
+	PERSON = 'person',
 	RESTART = 'restart_alt',
 	SETTINGS = 'settings'
 }

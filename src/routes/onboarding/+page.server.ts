@@ -6,6 +6,7 @@ import { zod } from 'sveltekit-superforms/adapters';
 import { ApiClient } from '$lib/server/apiClient';
 import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { OrganizationSchema, type Organization } from '$lib/shared/models/organization';
+import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async (event: RequestEvent) => {
 	const account = getAccount(event);
@@ -14,6 +15,10 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 		account,
 		zod(AccountSchema)
 	);
+
+	// if(account?.isRegistered) {
+	// 	return redirect(302, '/');
+	// }
 
 	const organizationForm = await superValidate(zod(OrganizationSchema));
 
@@ -76,6 +81,13 @@ const fetchStates = async (event: RequestEvent) => {
 		event.fetch,
 		'/utility/lookup/address/states'
 	);
+	if (response.isOk && response.value) {
+		return response.value;
+	}
+};
+
+const fetchOrganization = async (event: RequestEvent, organizationId: string) => {
+	let response = await ApiClient.get<Organization>(event.fetch, `/organization/${organizationId}`);
 	if (response.isOk && response.value) {
 		return response.value;
 	}

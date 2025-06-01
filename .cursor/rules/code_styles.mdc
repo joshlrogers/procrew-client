@@ -1,7 +1,9 @@
 ---
 description: 
-globs: *.ts,*.svelte
+globs: *.svelte,*.server.ts
 alwaysApply: false
 ---
 - All log, result, and error messages should end with a period.
+
+### For *.svelte files only
 - HTML element arguments should align vertically with their first character aligned.

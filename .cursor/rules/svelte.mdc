@@ -4,7 +4,7 @@ globs: *.svelte
 alwaysApply: false
 ---
 - Use the latest version of Svelte and SvelteKit
-    - Refer to the latest documentation for Svelte and SvelteKit in the /llm folder
 - Use the Skeleton UI and MeltUI for component creation
     - Refer to the latest documentation for Skeleton in the /llm folder
-- Ue the latest version of Tailwind.
+- Use the latest version of Tailwind CSS.
+- Use SuperForms in combination with zod for forms and validation

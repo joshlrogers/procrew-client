@@ -1,16 +1,10 @@
 <script lang="ts">
-	import { superForm } from 'sveltekit-superforms';
-	import { zod } from 'sveltekit-superforms/adapters';
 
 	import { Panel } from '$lib/components/panel';
-	import { TextInput } from '$lib/components/inputs';
-	import { AddressForm } from '$lib/components/addressForm';
-	import { Button, ButtonStyle } from '$lib/components/buttons/button';
 	import { IconButton } from '$lib/components/buttons/iconButton';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
-	import { Loader } from '$lib/components/loader';
 	import { ActiveCompany } from '$lib/shared/stores';
-	import { OrganizationSchema, type Organization } from '$lib/shared/models/organization';
+	import { type Organization } from '$lib/shared/models/organization';
 	import toast from 'svelte-french-toast';
 	import CompanyCreationDialog from './companyCreationDialog/companyCreationDialog.svelte';
 

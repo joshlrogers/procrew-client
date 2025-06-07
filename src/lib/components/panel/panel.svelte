@@ -9,6 +9,7 @@
 		contentClass?: string;
 		header?: Snippet;
 		headerClass?: string;
+		extHeaderClass?: string;
 		content?: Snippet;
 		footer?: Snippet;
 	}
@@ -22,6 +23,7 @@
 		footer = undefined,
 		header = undefined,
 		headerClass = 'p-2 preset-filled-surface-300-700 rounded-t-[var(--radius-container)]',
+		extHeaderClass = undefined,
 		...otherProps
 	}: PanelProps = $props();
 
@@ -30,7 +32,7 @@
 
 <div class={panelClasses} {...otherProps}>
 	{#if header}
-		<header class={headerClass}>
+		<header class={cn(headerClass, extHeaderClass)}>
 			{@render header()}
 		</header>
 	{/if}

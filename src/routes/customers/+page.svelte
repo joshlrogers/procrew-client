@@ -1,17 +1,32 @@
 <script lang="ts">
+	import { invalidate } from '$app/navigation';
 	import { Button } from '$lib/components/buttons/button';
 	import { ButtonStyle } from '$lib/components/buttons/button';
+	import { Panel } from '$lib/components/panel';
 	import { QuickAddCustomerModal } from '$lib/components/quickAddCustomerModal';
 	import type { QuickAddCustomer } from '$lib/shared/models/customer';
-
+	import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
+	import type { PageProps } from './$types';
+	import toast from 'svelte-french-toast';
+	import Tooltip from '$lib/components/tooltip/Tooltip.svelte';
+	let {
+		data
+	}: PageProps = $props();
+	
 	let showQuickAddModal = $state(false);
 
 	const handleAddCustomer = () => {
 		showQuickAddModal = true;
 	};
 
-	const handleCloseModal = () => {
+	const handleCloseModal = (success?: boolean) => {
 		showQuickAddModal = false;
+		if(success) {
+			toast.success("Customer added successfully");	
+			invalidate("customers");
+		} else if(success === false) {
+			toast.error("Failed to add customer");
+		}
 	};
 
 	const handleSaveCustomer = async (customer: QuickAddCustomer): Promise<string | null> => {
@@ -23,36 +38,71 @@
 	<title>Customer Dashboard</title>
 </svelte:head>
 
-<div class="container mx-auto p-6">
-	<div class="flex justify-between items-center mb-8">
-		<h1 class="text-3xl font-bold text-gray-900">Customer Dashboard</h1>
-		<Button
-			text="Add New Customer"
-			buttonStyle={ButtonStyle.PRIMARY}
-			onclick={handleAddCustomer}
-			width="w-auto"
-			class="px-6"
-		/>
-	</div>
-
-	<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-		<div class="text-center">
-			<div class="mb-4">
-				<svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-				</svg>
+<div class="flex flex-col gap-4 items-center">
+	<Panel class="w-[75%]">
+		{#snippet header()}
+		<div class="flex flex-row justify-between">	
+			<div>
+				<h1 class="text-2xl font-bold">Customer Dashboard</h1>
 			</div>
-			<h3 class="text-lg font-medium text-gray-900 mb-2">No customers yet</h3>
-			<p class="text-gray-500 mb-6">Get started by adding your first customer.</p>
-			<Button
-				text="Add Your First Customer"
-				buttonStyle={ButtonStyle.PRIMARY}
-				onclick={handleAddCustomer}
-				width="w-auto"
-				class="px-6"
-			/>
+			<div>
+				<Tooltip text="Quick add a new customer." 
+					arrow={true}
+					size="md"
+					position="bottom"
+				>
+					<Button
+						text="Quick Add"
+						buttonStyle={ButtonStyle.TERTIARY}
+						onclick={handleAddCustomer}
+						width="w-24"
+						height="h-8"
+					/>
+				</Tooltip>
+			</div>
 		</div>
-	</div>
+		{/snippet}
+		{#snippet content()}
+		{#await data.customers}
+			<div class="flex flex-row justify-center items-center gap-2">
+				<ProgressRing value={null} size="size-14" meterStroke="stroke-tertiary-600-400"
+											trackStroke="stroke-tertiary-50-950" />
+			</div>
+		{:then customers}
+			<div class="flex flex-col justify-between items-center mb-8">
+				{#if customers.length === 0}
+					<h3 class="text-lg font-medium text-primary-400-600 mb-2">No customers yet</h3>
+					<Button
+						text="Add Your First Customer"
+						buttonStyle={ButtonStyle.SECONDARY}
+						onclick={handleAddCustomer}
+						width="w-auto"
+						class="px-6"
+						/>
+				{:else}
+					<table class='table'>
+						<thead class="table-header-group">
+							<tr class="table-header-row">
+								<th class="table-header-cell">First Name</th>
+								<th class="table-header-cell">Last Name</th>
+								<th class="table-header-cell">Email</th>
+							</tr>
+						</thead>
+						<tbody class="table-row-group">
+							{#each customers as customer}
+							<tr class="table-row">
+								<td class="table-cell">{customer.firstName}</td>
+								<td class="table-cell">{customer.lastName}</td>
+								<td class="table-cell">{customer.primaryEmailAddress}</td>
+							</tr>
+							{/each}
+						</tbody>
+					</table>
+				{/if}
+			</div>
+		{/await}
+		{/snippet}
+	</Panel>
 </div>
 
 <QuickAddCustomerModal

@@ -28,10 +28,8 @@
 		resetForm: false,
 		validators: zod(CustomerSchema),
 		validationMethod: 'onsubmit',
-		clearOnSubmit: 'errors-and-message'
+		clearOnSubmit: 'errors-and-message',
 	});	
-
-	let isSaving = $state(false);
 
 	const handleCustomerTypeChange = (type: CustomerType) => {
 		$form.customerType = type;
@@ -54,16 +52,19 @@
 <div class="flex flex-col gap-4 items-center">
 	<div class="w-[75%] flex content-start mb-[-1rem] pl-4	">
 		<Breadcrumb items={[
-		{ label: 'Home', url: '/' },
-		{ label: 'Customers', url: '/customers' },
-		{ label: customerDisplayName, url: `${$form.id}` }
-	]} />
+			{ label: 'Home', url: '/' },
+			{ label: 'Customers', url: '/customers' },
+			{ label: customerDisplayName, url: `${$form.id}` }
+		]} />
 	</div>
 	<Panel class="w-[75%]">
+
 		{#snippet header()}
 			Edit Customer {customerDisplayName}
 		{/snippet}
 		{#snippet content()}
+		<form method="post" action='?/updateCustomer' use:enhance>
+
 		{#await data.countries then countries}
 		{#await data.states}
 			<div class="container mx-auto p-6">
@@ -72,7 +73,6 @@
 				</div>
 			</div>
 		{:then states}
-			<form method="post" action='?/updateCustomer' use:enhance>
 				<div class="mb-6">
 					<div class="block mb-2 label">
 						<span class="label-text">Customer Type</span>
@@ -85,7 +85,7 @@
 								value={CustomerType.RESIDENTIAL}
 								checked={$form.customerType === CustomerType.RESIDENTIAL}
 								onchange={() => handleCustomerTypeChange(CustomerType.RESIDENTIAL)}
-								disabled={isSaving}
+								disabled={$submitting}
 								class="radio radio-primary mr-2"
 							/>
 							<span class="text-sm">Residential</span>
@@ -97,7 +97,7 @@
 								value={CustomerType.COMMERCIAL}
 								checked={$form.customerType === CustomerType.COMMERCIAL}
 								onchange={() => handleCustomerTypeChange(CustomerType.COMMERCIAL)}
-								disabled={isSaving}
+								disabled={$submitting}
 								class="radio radio-primary mr-2"
 							/>
 							<span class="text-sm">Commercial</span>
@@ -113,7 +113,7 @@
 							bind:value={$form.firstName}
 							constraints={$constraints.firstName}
 							errors={$errors.firstName}
-							disabled={isSaving}
+							disabled={$submitting}
 						/>
 						<TextInput
 							label="Last Name"
@@ -121,7 +121,7 @@
 							bind:value={$form.lastName}
 							constraints={$constraints.lastName}
 							errors={$errors.lastName}
-							disabled={isSaving}
+							disabled={$submitting}
 						/>
 					</div>
 				{:else if $form.customerType === CustomerType.COMMERCIAL}
@@ -132,7 +132,7 @@
 							bind:value={$form.companyName}
 							constraints={$constraints.companyName}
 							errors={$errors.companyName}
-							disabled={isSaving}
+							disabled={$submitting}
 						/>
 					</div>
 				{/if}
@@ -146,7 +146,7 @@
 							bind:value={$form.phoneNumber}
 							constraints={$constraints.phoneNumber}
 							errors={$errors.phoneNumber}
-							disabled={isSaving}
+							disabled={$submitting}
 						/>
 						<TextInput
 							label="Email Address"
@@ -154,7 +154,7 @@
 							bind:value={$form.email}
 							constraints={$constraints.email}
 							errors={$errors.email}
-							disabled={isSaving}
+							disabled={$submitting}
 						/>
 					</div>
 				</div>
@@ -171,25 +171,25 @@
 							<Button
 								text="Cancel"
 								buttonStyle={ButtonStyle.SECONDARY}
-								disabled={isSaving}
+								disabled={$submitting}
 								onclick={() => history.back()}
 								width="w-auto"
 								class="px-6"
 							/>
 							<Button
-								text={isSaving ? "Saving..." : "Save Changes"}
+								text={$submitting ? "Saving..." : "Save Changes"}
 								buttonStyle={ButtonStyle.PRIMARY}
-								disabled={isSaving}
+								disabled={!isTainted($tainted) || $submitting}
 								type="submit"
 								width="w-auto"
 								class="px-6"
 							/>
 						</div>
-					</form>
 
 				{/await}
 			{/await}
-		{/snippet}
+		</form>
+		{/snippet}		
 	</Panel>
 </div>
 

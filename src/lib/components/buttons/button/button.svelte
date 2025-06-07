@@ -33,7 +33,10 @@
             innerButtonStyle = 'preset-filled-primary-500';
             break;
         case ButtonStyle.SECONDARY:
-            innerButtonStyle = 'preset-tonal-secondary';
+            innerButtonStyle = 'preset-filled-secondary-500';
+            break;
+        case ButtonStyle.TERTIARY:
+            innerButtonStyle = 'preset-filled-tertiary-500';
             break;
     }
 

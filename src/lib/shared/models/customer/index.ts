@@ -12,29 +12,50 @@ const quickAddCustomerSchema = z.object({
     lastName: z.string().optional(),
     companyName: z.string().optional(),
     phoneNumber: z.string().optional(),
-    email: z.string().email('Invalid email address.').optional(),
-}).refine(
-    (data) => {
-        // For residential customers, first name and last name are required
-        if (data.customerType === CustomerType.RESIDENTIAL) {
-            return data.firstName && data.firstName.trim().length > 0 && 
-                   data.lastName && data.lastName.trim().length > 0;
+    primaryEmailAddress: z.string().email('Invalid email address.').optional(),
+}).superRefine(
+    (val, ctx) => {
+        if (val.customerType === CustomerType.RESIDENTIAL) {
+
+            if (!val.firstName) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'First name is required for residential customers.',
+                    path: ['firstName']
+                });
+            }
+
+            if (!val.lastName) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Last name is required for residential customers.',
+                    path: ['lastName']
+                });
+            }
         }
-        // For commercial customers, company name is required
-        if (data.customerType === CustomerType.COMMERCIAL) {
-            return data.companyName && data.companyName.trim().length > 0;
+        if (val.customerType === CustomerType.COMMERCIAL) {
+            if (!val.companyName) {
+                ctx.addIssue({
+                    code: z.ZodIssueCode.custom,
+                    message: 'Company name is required for commercial customers.',
+                    path: ['companyName']
+                });
+            }
         }
-        return false;
-    },
-    {
-        message: "Required fields must be provided based on customer type.",
-        path: ["firstName"], // This will show the error on the first name field for residential
-    }
-).refine(
-    (data) => data.phoneNumber || data.email,
-    {
-        message: "Either phone number or email address must be provided.",
-        path: ["phoneNumber"],
+
+        if (!val.phoneNumber && !val.primaryEmailAddress) {
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Phone number or email address must be provided.',
+                path: ['phoneNumber']
+            });
+
+            ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                message: 'Email address or phone number must be provided.',
+                path: ['primaryEmailAddress']
+            });
+        }
     }
 );
 
@@ -45,7 +66,7 @@ const customerSchema = z.object({
     lastName: z.string().optional(),
     companyName: z.string().optional(),
     phoneNumber: z.string().optional(),
-    email: z.string().email('Invalid email address.').optional(),
+    primaryEmailAddress: z.string().email('Invalid email address.').optional(),
     address: AddressSchema.optional().default({
         addressLine1: '',
         addressLine2: '',

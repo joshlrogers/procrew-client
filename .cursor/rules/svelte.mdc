@@ -5,6 +5,5 @@ alwaysApply: false
 ---
 - Use the latest version of Svelte and SvelteKit
 - Use the Skeleton UI and MeltUI for component creation
-    - Refer to the latest documentation for Skeleton in the /llm folder
 - Use the latest version of Tailwind CSS.
 - Use SuperForms in combination with zod for forms and validation

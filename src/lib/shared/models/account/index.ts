@@ -15,7 +15,8 @@ const accountSchema = z.object({
     idpId: z.string().min(1).nullable(),
     firstName: z.string().min(1).max(125),
     lastName: z.string().min(1).max(125),
-    isRegistered: z.boolean(),
+    isOnboarded: z.boolean().default(false),
+    isRegistered: z.boolean().default(false),
     permissions: z.array(permissionSchema),
 });
 

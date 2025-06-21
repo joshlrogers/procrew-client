@@ -32,6 +32,7 @@ enum MaterialIcon {
 	MENU = 'menu',
 	PERSON = 'person',
 	RESTART = 'restart_alt',
+	SELL = 'sell',
 	SETTINGS = 'settings'
 }
 

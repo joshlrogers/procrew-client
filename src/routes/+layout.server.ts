@@ -20,8 +20,12 @@ export const load: LayoutServerLoad = async (event) => {
 };
 
 const fetchCompanies = async (event: RequestEvent) => {
-	let companiesResponse = await ApiClient.get<Company[]>(event.fetch, '/organization/company');
-	if (companiesResponse.isOk && companiesResponse.value) {
-		return companiesResponse.value;
+	if(event.locals.account?.isRegistered) {
+		let companiesResponse = await ApiClient.get<Company[]>(event.fetch, '/organization/company');
+		if (companiesResponse.isOk && companiesResponse.value) {
+			return companiesResponse.value;
+		}
 	}
+
+	return [];
 };

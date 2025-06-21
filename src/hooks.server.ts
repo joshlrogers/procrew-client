@@ -23,6 +23,10 @@ export const handle: Handle = async ({ event, resolve }) => {
     event.locals.token = token;
     event.locals.company = getCompany(event.cookies);
 
+    if(!account.isOnboarded && event.url.pathname !== '/on-boarding') {
+        return redirect(302, '/on-boarding');
+    }
+
     return resolve(event);
 };
 

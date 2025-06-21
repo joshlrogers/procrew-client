@@ -1,5 +1,5 @@
 import type { Actions, PageServerLoad, RequestEvent } from './$types';
-import { getAccount, setAccountCookie } from '$lib/server/auth/session';
+import { setAccountCookie } from '$lib/server/auth/session';
 import { type Account, AccountSchema } from '$lib/shared/models/account/index';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -7,24 +7,27 @@ import { ApiClient } from '$lib/server/apiClient';
 import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { OrganizationSchema, type Organization } from '$lib/shared/models/organization';
 import { redirect } from '@sveltejs/kit';
+import { CompanySchema } from '$lib/shared/models/company';
 
 export const load: PageServerLoad = async (event: RequestEvent) => {
-	const account = getAccount(event);
+	const account = event.locals.account;
 
 	const form = await superValidate(
 		account,
 		zod(AccountSchema)
 	);
 
-	// if(account?.isRegistered) {
-	// 	return redirect(302, '/');
-	// }
+	if(account?.isRegistered) {
+		return redirect(302, '/');
+	}
 
 	const organizationForm = await superValidate(zod(OrganizationSchema));
+	const companyForm = await superValidate(zod(CompanySchema));
 
 	return {
 		form,
 		organizationForm,
+		companyForm,
 		countries: fetchCountries(event),
 		states: fetchStates(event)
 	};
@@ -81,13 +84,6 @@ const fetchStates = async (event: RequestEvent) => {
 		event.fetch,
 		'/utility/lookup/address/states'
 	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-};
-
-const fetchOrganization = async (event: RequestEvent, organizationId: string) => {
-	let response = await ApiClient.get<Organization>(event.fetch, `/organization/${organizationId}`);
 	if (response.isOk && response.value) {
 		return response.value;
 	}

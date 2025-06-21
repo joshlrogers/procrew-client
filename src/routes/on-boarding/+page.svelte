@@ -33,7 +33,6 @@
 		validationMethod: 'onsubmit',
 		clearOnSubmit: 'errors-and-message',
 		onUpdated: async (event) => {
-			console.log(event);
 			if (event.form.valid) {
 				onboardingContext.isRegistered = true;
 				onboardingContext.currentStep = 1;
@@ -51,13 +50,32 @@
 			icon: MaterialIcon.BUSINESS_CENTER,
 			label: 'Organization',
 			description: 'Add your organization information'
+		},
+		{
+			icon: MaterialIcon.BUSINESS,
+			label: 'Company',
+			description: 'Add your company information'
 		}
 	];
 
+	const determineCurrentStep = () => {
+		if(!$form.isRegistered) {
+			return 0;
+		}
+		if(!$form.defaultOrganizationId) {
+			return 1;
+		}
+		if(!$form.defaultCompanyId) {
+			return 2;
+		}
+		return 3;
+	}
+
 	let onboardingContext = $state({
-		currentStep: $form.isRegistered ? 1 : 0,
+		currentStep: -1,
 		orientation: 'horizontal' as 'horizontal' | 'vertical',
 		isRegistered: $form.isRegistered,
+		companyCreated: $form.defaultCompanyId !== null,
 		organizationCreated: $form.defaultOrganizationId !== null
 	});
 
@@ -71,17 +89,16 @@
 	};
 
 	onMount(() => {
-		if(onboardingContext.isRegistered && onboardingContext.organizationCreated) 
-		{
-			//return goto('/settings/organization');
-		}
+		onboardingContext.currentStep = determineCurrentStep();
 	});
 
 	const onOrganizationUpdated = (organization: Organization) => {
-		console.log('Organization updated');
 		goto('/settings/organization');
 	}
 
+	$effect(() => {
+		$inspect(onboardingContext);
+	})
 </script>
 
 
@@ -151,7 +168,7 @@
 			{/snippet}
 
 		</Panel>
-	{:else}
+	{:else if onboardingContext.currentStep === 1}
 		<Panel class="w-[75%]">
 			{#snippet header()}
 				<div class="flex flex-row items-center">
@@ -181,6 +198,15 @@
 						/>
 					{/await}
 				{/await}
+			{/snippet}
+		</Panel>
+	{:else if onboardingContext.currentStep === 2}
+		<Panel class="w-[75%]">
+			{#snippet header()}
+				<div class="flex flex-row items-center">
+					<Icon icon={MaterialIcon.BUSINESS} class="mr-2" />
+					Company
+				</div>
 			{/snippet}
 		</Panel>
 	{/if}

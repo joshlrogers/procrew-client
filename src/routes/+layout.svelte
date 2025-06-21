@@ -92,7 +92,7 @@
 <NavMenu isOpen={sidebarOpen} onOpenChanged={(e) => sidebarOpen = e}>
 	<NavMenuGroup>
 		<NavMenuItem text="Customers" icon={MaterialIcon.PERSON} href="/customers" />
-		<NavMenuItem text="Company" icon={MaterialIcon.LIST} href="/company" />
+		<NavMenuItem text="Sales" icon={MaterialIcon.SELL} href="/sales" />
 		<NavMenuItem text="Employees" icon={MaterialIcon.BADGE} href="/employees" />
 		<NavMenuDropdown leadingIcon={MaterialIcon.SETTINGS} title="Settings">
 			<NavMenuItem text="Company" icon={MaterialIcon.BUSINESS} href="/settings/company" />

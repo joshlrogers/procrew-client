@@ -3,4 +3,6 @@ description:
 globs: 
 alwaysApply: true
 ---
-- Should add all individual components to the src/lib/components folder.
+- Should add all individual shared components to the src/lib/components folder.
+
+- Components that are not shared but are specific to a feature should be placed in the sub folder of the associated route.

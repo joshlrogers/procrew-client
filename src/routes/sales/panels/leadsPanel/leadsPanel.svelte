@@ -94,6 +94,7 @@
                     icon={MaterialIcon.ADD}
                     flat={true}
                     isRounded={true}
+                    textColor="text-primary-500"
                     tooltip="Add a new lead"
                 />
             </div>

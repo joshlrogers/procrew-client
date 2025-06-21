@@ -10,6 +10,7 @@
 		onclick = undefined,
 		isRounded = false,
 		class: className = undefined,
+		textColor = 'text-primary-500',
 		width = 2.5,
 		flat = false,
 		tooltip = undefined,
@@ -21,6 +22,7 @@
 		'chip place-items-center p-2',
 		flat ? '' : 'shadow-md shadow-surface-50/35',
 		`w-[${width}rem] h-[${width}rem]`,
+		textColor,
 		isRounded ? 'rounded-full' : '', className));
 	const iconClasses = cn('text-2xl');
 </script>

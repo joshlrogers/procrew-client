@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { cn } from '$lib/utils';
 	import WizardStep from './WizardStep.svelte';
-	import type { WizardStep as WizardStepType } from './index';
+	import type { WizardStepData } from './index';
 
 	interface WizardProps {
-		steps: WizardStepType[];
+		steps: WizardStepData[];
 		currentStep?: number;
 		orientation?: 'horizontal' | 'vertical';
 		shape?: 'circle' | 'square';

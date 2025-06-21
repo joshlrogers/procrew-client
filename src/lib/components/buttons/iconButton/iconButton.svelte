@@ -26,8 +26,10 @@
 </script>
 
 {#if tooltip && tooltip.length > 0}
-	<Tooltip openDelay={200} onclick={onclick} text={tooltip} triggerClasses={buttonClasses}>
+	<Tooltip openDelay={200} text={tooltip} triggerClass={buttonClasses}>
+		<button {type} {onclick} {disabled} {...otherProps}>
 			<Icon {icon} class={iconClasses} />
+		</button>
 	</Tooltip>
 {:else}
 	<button class={buttonClasses}

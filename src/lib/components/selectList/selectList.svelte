@@ -70,6 +70,8 @@
 
 	let extLabelClass = cn('block', 'mb-2', 'text-sm', 'font-medium', 'label', labelClass);
 
+	let selectedItem = $derived(value ? items.find(i => i.value === value) : undefined);
+
 	$effect(() => {
 		$selected = value ? items[items.findIndex(i => i.value === value)] : undefined;
 	});
@@ -90,8 +92,8 @@
 	<button class={buttonClass}
 					use:melt={$trigger}
 					{...otherProps}>
-		{#if $selected?.icon}
-			<Icon icon={$selected.icon} class="mr-2" />
+		{#if selectedItem?.icon}
+			<Icon icon={selectedItem.icon} class="mr-2" />
 		{/if}
 		{ $selectedLabel }
 		<Icon icon={MaterialIcon.ARROW_DROP_DOWN} class="ml-auto mr-0" />

@@ -2,7 +2,7 @@
 
 	import { superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { EmployeeSchema } from '$lib/shared/models/employee';
+	import { EmployeeFormSchema } from '$lib/shared/models/employee';
 	import { DateInput, MaskedTextInput, TextInput } from '$lib/components/inputs';
 	import { Panel } from '$lib/components/panel';
 	import { Section } from '$lib/components/section';
@@ -17,6 +17,7 @@
 	import { AddressForm } from '$lib/components/addressForm';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
 	import { Breadcrumb } from '$lib/components/breadcrumb';
+	import toast from 'svelte-french-toast';
 
 	let {
 		data
@@ -40,9 +41,16 @@
 		invalidateAll: false,
 		multipleSubmits: 'prevent',
 		resetForm: false,
-		validators: zod(EmployeeSchema),
+		validators: zod(EmployeeFormSchema),
 		validationMethod: 'onsubmit',
-		clearOnSubmit: 'errors-and-message'
+		clearOnSubmit: 'errors-and-message',
+		onUpdated: (event) => {
+			if (event.form.valid) {
+				toast.success(`Updated employee ${event.form.data.firstName} ${event.form.data.lastName}.`);
+			} else {
+				toast.error('Failed to update employee.');
+			}
+		}
 	});
 
 </script>
@@ -103,9 +111,12 @@
 												 label="Hire date"
 												 required={true}
 												 startingTabIndex={5}
-												 dateValue={DateUtils.toCalendarDate($form.hireDate)}
+												 dateValue={DateUtils.toCalendarDate($form.hireDate ? new Date($form.hireDate + 'T00:00:00') : null)}
 												 errors={$errors.hireDate}
-												 onDateChange={(val) => $form.hireDate = DateUtils.toDate(val) } />
+												 onDateChange={(val) => {
+													 const newValue = val ? DateUtils.toDate(val)?.toISOString().split('T')[0] : null;
+													 $form.hireDate = newValue;
+												 }} />
 
 							<SelectList wrapperClass="w-1/2"
 													label="Department"
@@ -139,9 +150,12 @@
 								<DateInput label="Date of birth"
 													 required={true}
 													 startingTabIndex={13}
-													 dateValue={DateUtils.toCalendarDate($form.demographics.dateOfBirth)}
+													 dateValue={DateUtils.toCalendarDate($form.demographics.dateOfBirth ? new Date($form.demographics.dateOfBirth + 'T00:00:00') : null)}
 													 errors={$errors.demographics?.dateOfBirth}
-													 onDateChange={(val) => $form.demographics.dateOfBirth = DateUtils.toDate(val) }
+													 onDateChange={(val) => {
+														 const newValue = val ? DateUtils.toDate(val)?.toISOString().split('T')[0] : null;
+														 $form.demographics.dateOfBirth = newValue;
+													 }}
 								/>
 							</div>
 							<div class="w-1/2">

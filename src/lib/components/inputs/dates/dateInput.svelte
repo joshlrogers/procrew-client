@@ -2,6 +2,7 @@
 	import { createDatePicker, melt } from '@melt-ui/svelte';
 	import {
 		type AnyCalendarDate,
+		CalendarDate,
 		ZonedDateTime
 	} from '@internationalized/date';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
@@ -55,10 +56,6 @@
 			return next;
 		}
 	});
-
-	function getTabIndex(part: string) {
-		return startingTabIndex && part !== 'literal' ? startingTabIndex + (part === 'month' ? 0 : part === 'day' ? 1 : 2) : undefined;
-	}
 </script>
 
 <style lang="postcss">
@@ -78,7 +75,7 @@
 			{/if}
 			<div use:melt={$field}>
 				{#each $segmentContents as seg, i}
-					<div use:melt={$segment(seg.part)} tabindex={getTabIndex(seg.part)}>
+					<div use:melt={$segment(seg.part)}>
 						{seg.value}
 					</div>
 				{/each}

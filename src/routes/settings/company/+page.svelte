@@ -21,8 +21,6 @@
 	let currentCompany = $state($ActiveCompany);
 
 	$effect(() => {
-		console.log("Current company: ", currentCompany);
-		console.log("Active company: ", $ActiveCompany);
 		if(currentCompany && $ActiveCompany) {
 			if(currentCompany !== $ActiveCompany) {
 				invalidate("app:company");

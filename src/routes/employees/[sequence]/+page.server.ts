@@ -1,11 +1,23 @@
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { type Employee, EmployeeSchema } from '$lib/shared/models/employee';
+import { type Employee, EmployeeFormSchema } from '$lib/shared/models/employee';
 import { ApiClient } from '$lib/server/apiClient';
 import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import type { Department } from '$lib/shared/models/department';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
+import { dateToString } from '$lib/utils';
+
+const transformEmployeeForForm = (employee: Employee) => {
+	return {
+		...employee,
+		hireDate: dateToString(employee.hireDate),
+		demographics: employee.demographics ? {
+			...employee.demographics,
+			dateOfBirth: dateToString(employee.demographics.dateOfBirth)
+		} : undefined
+	};
+};
 
 const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
 	let response = await ApiClient.get<CountrySelectOption[]>(
@@ -42,40 +54,19 @@ const fetchStates = async (fetch: (input: string, init?: RequestInit) => Promise
 };
 
 const updateEmployee = async ({ fetch, request }: RequestEvent) => {
-	const form = await superValidate(await request.formData(), zod(EmployeeSchema));
+	const form = await superValidate(await request.formData(), zod(EmployeeFormSchema));
 	if (!form.valid) {
-		return form;
+		return { form };
 	}
 
-	let content = JSON.stringify(form.data, (k,v) => {
-		if(k === 'dateOfBirth') {
-			if(v) {
-				const date = new Date();
-				date.setTime(Date.parse(v));
-				return `${date.getFullYear()}-${date.getMonth() < 10 ? '0' + date.getMonth(): date.getMonth()}-${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}`;
-			}
-		}
-
-		if(k === 'hireDate') {
-			if(v) {
-				const date = new Date();
-				date.setTime(Date.parse(v));
-				return `${date.getFullYear()}-${date.getMonth() < 10 ? '0' + date.getMonth(): date.getMonth()}-${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}`;
-			}
-		}
-
-		return v;
-	});
-
-	const result = await ApiClient.putRaw(fetch, '/organization/company/employee', content);
+	const result = await ApiClient.put<Employee>(fetch, '/organization/company/employee', form.data);
 	if(result.isOk && result.value) {
-		return redirect(302, '/employees');
+		const transformedEmployee = transformEmployeeForForm(result.value);
+		const updatedForm = await superValidate(transformedEmployee, zod(EmployeeFormSchema));
+		return { form: updatedForm, success: true };
 	}
 
-	return {
-		...form,
-		errors: result.error
-	}
+	return { form, success: false };
 };
 
 export const actions = {
@@ -87,8 +78,10 @@ export const load: PageServerLoad = async ({ fetch, params }: RequestEvent) => {
 		return redirect(302, '/employees');
 	}
 
-	let employee = await fetchEmployee(fetch, params.sequence)
-	const form = await superValidate(employee, zod(EmployeeSchema));
+	let employee = await fetchEmployee(fetch, params.sequence);
+	const transformedEmployee = employee ? transformEmployeeForForm(employee) : undefined;
+	
+	const form = await superValidate(transformedEmployee, zod(EmployeeFormSchema));
 
 	return {
 		form,

@@ -2,7 +2,7 @@ import WizardRoot from './Wizard.svelte';
 import WizardStepComponent from './WizardStep.svelte';
 import type { MaterialIcon } from '$lib/components/icon';
 
-export interface WizardStep {
+export interface WizardStepData {
 	icon: MaterialIcon;
 	label: string;
 	description?: string;

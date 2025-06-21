@@ -3,7 +3,7 @@
 	import { Button } from '$lib/components/buttons/button';
 	import { ButtonStyle } from '$lib/components/buttons/button';
 	import { Panel } from '$lib/components/panel';
-	import { QuickAddCustomerModal } from '$lib/components/quickAddCustomerModal';
+	import { QuickAddCustomerModal } from './modals';
 	import type { QuickAddCustomer } from '$lib/shared/models/customer';
 	import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
 	import type { PageProps } from './$types';

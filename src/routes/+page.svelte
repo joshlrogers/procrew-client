@@ -2,11 +2,6 @@
 	import { page } from "$app/state";
 	import { enhance } from "$app/forms";
 
-	var { data } = $props();
-
-	$effect(() => {
-		console.log(page);
-	});
 </script>
 
 {#if !page.data.account}

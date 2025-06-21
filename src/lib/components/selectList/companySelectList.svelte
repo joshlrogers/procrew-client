@@ -37,7 +37,9 @@
 	};
 
 	let availableCompanyOptions = $derived(availableCompanies.map(company => {
-		let icon = getIcon(company.companyType?.name);
+		// Note: companyType property doesn't exist on Company type, only companyTypeId
+		// Icon will be undefined for now until companyType data is available
+		let icon = getIcon(undefined);
 		return {
 			value: company.id!,
 			label: company.name,

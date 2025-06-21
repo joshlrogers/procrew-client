@@ -35,7 +35,8 @@
 			default:
 				icon = undefined;
 		}
-		return { value: ct.id!, label: ct.name, icon };
+		// Convert string ID to number for consistency with companyTypeId
+		return { value: parseInt(ct.id!), label: ct.name, icon };
 	}));
 	let currentCompanyType = $derived(companyTypeOptions[companyTypeOptions.findIndex(ct => ct.value === value)]);
 </script>

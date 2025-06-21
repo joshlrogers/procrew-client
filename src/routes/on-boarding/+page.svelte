@@ -95,10 +95,6 @@
 	const onOrganizationUpdated = (organization: Organization) => {
 		goto('/settings/organization');
 	}
-
-	$effect(() => {
-		$inspect(onboardingContext);
-	})
 </script>
 
 

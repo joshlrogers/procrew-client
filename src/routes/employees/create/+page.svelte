@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { EmployeeSchema } from '$lib/shared/models/employee';
+	import { EmployeeFormSchema } from '$lib/shared/models/employee';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { DateUtils } from '$lib/utils';
 	import {
@@ -38,7 +38,7 @@
 		invalidateAll: false,
 		multipleSubmits: 'prevent',
 		resetForm: false,
-		validators: zod(EmployeeSchema),
+		validators: zod(EmployeeFormSchema),
 		validationMethod: 'onsubmit',
 		clearOnSubmit: 'errors-and-message'
 	});
@@ -93,9 +93,12 @@
 								<DateInput label="Hire date"
 													 required={true}
 													 startingTabIndex={5}
-													 dateValue={DateUtils.toDateTime($form.hireDate)}
+													 dateValue={DateUtils.toCalendarDate($form.hireDate ? new Date($form.hireDate + 'T00:00:00') : null)}
 													 errors={$errors.hireDate}
-													 onDateChange={(val) => $form.hireDate = DateUtils.toDate(val) }
+													 onDateChange={(val) => {
+														 const newValue = val ? DateUtils.toDate(val)?.toISOString().split('T')[0] : null;
+														 $form.hireDate = newValue;
+													 }}
 								/>
 							</div>
 							<div class="w-1/2">
@@ -130,9 +133,12 @@
 								<DateInput label="Date of birth"
 													 required={true}
 													 startingTabIndex={13}
-													 dateValue={DateUtils.toDateTime($form.demographics.dateOfBirth)}
+													 dateValue={DateUtils.toCalendarDate($form.demographics.dateOfBirth ? new Date($form.demographics.dateOfBirth + 'T00:00:00') : null)}
 													 errors={$errors.demographics?.dateOfBirth}
-													 onDateChange={(val) => $form.demographics.dateOfBirth = DateUtils.toDate(val) }
+													 onDateChange={(val) => {
+														 const newValue = val ? DateUtils.toDate(val)?.toISOString().split('T')[0] : null;
+														 $form.demographics.dateOfBirth = newValue;
+													 }}
 								/>
 							</div>
 							<div class="w-1/2">

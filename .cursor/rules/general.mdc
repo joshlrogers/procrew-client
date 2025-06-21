@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+- Always use PowerShell for terminal actions and use proper PowerShell syntax.
+- Always assume you're running in a Windows environment. Use windows path conventions.
+
+- When running shell commands requiring the package manager, use pnpm in lieu of npm.

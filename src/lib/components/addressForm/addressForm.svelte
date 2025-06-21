@@ -101,24 +101,24 @@
 						 wrapperClass="w-full"
 						 required={true}
 						 tabindex={startingTabIndex ? startingTabIndex : undefined}
-						 constraints={$formConstraints.address?.addressLine1}
-						 errors={$formErrors.address?.addressLine1}
+						 constraints={($formConstraints as any).address?.addressLine1}
+						 errors={($formErrors as any).address?.addressLine1}
 						 bind:value={$formData.address.addressLine1} />
 
 	<TextInput maxlength={240}
 						 name="addressLine2"
 						 wrapperClass="w-full"
 						 autocomplete="address-line2"
-						 constraints={$formConstraints.address?.addressLine2}
-						 errors={$formErrors.address?.addressLine2}
+						 constraints={($formConstraints as any).address?.addressLine2}
+						 errors={($formErrors as any).address?.addressLine2}
 						 bind:value={$formData.address.addressLine2} />
 
 	<TextInput maxlength={240}
 						 name="addressLine3"
 						 wrapperClass='w-full'
 						 autocomplete="address-line3"
-						 constraints={$formConstraints.address?.addressLine3}
-						 errors={$formErrors.address?.addressLine3}
+						 constraints={($formConstraints as any).address?.addressLine3}
+						 errors={($formErrors as any).address?.addressLine3}
 						 bind:value={$formData.address.addressLine3} />
 
 </div>
@@ -129,8 +129,8 @@
 						 wrapperClass="lg:w-[12rem] w-full"
 						 required={true}
 						 tabindex={startingTabIndex ? startingTabIndex + 1 : undefined}
-						 constraints={$formConstraints.address?.city}
-						 errors={$formErrors.address?.city}
+						 constraints={($formConstraints as any).address?.city}
+						 errors={($formErrors as any).address?.city}
 						 bind:value={$formData.address.city} />
 
 	<SelectList items={availableStates}
@@ -148,9 +148,9 @@
 									 maxlength={10}
 									 wrapperClass="lg:w-[10rem] w-full"
 									 required={true}
-									 autocomplete="address-postalCode"
-									 constraints={$formConstraints.address?.postalCode}
-									 errors={$formErrors.address?.postalCode}
+									 autocomplete="postal-code"
+									 constraints={($formConstraints as any).address?.postalCode}
+									 errors={($formErrors as any).address?.postalCode}
 									 tabindex={startingTabIndex ? startingTabIndex + 3 : undefined}
 									 bind:value={$formData.address.postalCode} />
 

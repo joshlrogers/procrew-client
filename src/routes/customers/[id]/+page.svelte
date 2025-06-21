@@ -151,9 +151,9 @@
 						<TextInput
 							label="Email Address"
 							type="email"
-							bind:value={$form.email}
-							constraints={$constraints.email}
-							errors={$errors.email}
+							bind:value={$form.primaryEmailAddress}
+							constraints={$constraints.primaryEmailAddress}
+							errors={$errors.primaryEmailAddress}
 							disabled={$submitting}
 						/>
 					</div>

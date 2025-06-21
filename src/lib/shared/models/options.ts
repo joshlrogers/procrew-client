@@ -7,20 +7,20 @@ interface SelectListOption {
 }
 
 let ethnicityOptions: SelectListOption[] = [
-	{ value: 'caucasian', label: 'Caucasian' },
-	{ value: 'black', label: 'Black' },
-	{ value: 'other', label: 'Other' },
+	{ value: 1, label: 'Caucasian' },
+	{ value: 2, label: 'Black' },
+	{ value: 3, label: 'Other' },
 ]
 
 let genderOptions: SelectListOption[] = [
-	{ value: 'male', label: 'Male' },
-	{ value: 'female', label: 'Female' },
-	{ value: 'unspecified', label: 'Unspecified' },
+	{ value: 1, label: 'Male' },
+	{ value: 2, label: 'Female' },
+	{ value: 3, label: 'Unspecified' },
 ]
 
 let maritalStatusOptions: SelectListOption[] = [
-	{ value: 'single', label: 'Single' },
-	{ value: 'married', label: 'Married' },
+	{ value: 1, label: 'Single' },
+	{ value: 2, label: 'Married' },
 ]
 
 export {

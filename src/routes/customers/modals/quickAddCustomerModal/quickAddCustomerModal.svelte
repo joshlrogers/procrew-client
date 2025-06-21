@@ -7,7 +7,7 @@
 	import { cn } from '$lib/utils';
 	import type { QuickAddCustomer } from '$lib/shared/models/customer';
 	import { CustomerType, QuickAddCustomerSchema } from '$lib/shared/models/customer';
-	import { Panel } from '../panel';
+	import { Panel } from '$lib/components/panel';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 

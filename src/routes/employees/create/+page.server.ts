@@ -1,37 +1,19 @@
 import type { PageServerLoad } from './$types';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import { EmployeeSchema } from '$lib/shared/models/employee';
+import { EmployeeFormSchema } from '$lib/shared/models/employee';
 import { ApiClient } from '$lib/server/apiClient';
 import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
 import type { Department } from '$lib/shared/models/department';
 
 const createEmployee = async ({ fetch, request }: RequestEvent) => {
-	const form = await superValidate(await request.formData(), zod(EmployeeSchema));
+	const form = await superValidate(await request.formData(), zod(EmployeeFormSchema));
 	if (!form.valid) {
 		return form;
 	}
 
-	let content = JSON.stringify(form.data, (k,v) => {
-		if(k === 'dateOfBirth') {
-			if(v) {
-				const date = new Date();
-				date.setTime(Date.parse(v));
-				return `${date.getFullYear()}-${date.getMonth() < 10 ? '0' + date.getMonth(): date.getMonth()}-${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}`;
-			}
-		}
-
-		if(k === 'hireDate') {
-			if(v) {
-				const date = new Date();
-				date.setTime(Date.parse(v));
-				return `${date.getFullYear()}-${date.getMonth() < 10 ? '0' + date.getMonth(): date.getMonth()}-${date.getDate() < 10 ? '0' + date.getDate() : date.getDate()}`;
-			}
-		}
-
-		return v;
-	});
+	let content = JSON.stringify(form.data);
 
 	const result = await ApiClient.postRaw(fetch, '/organization/company/employee', content);
 	if(result.isOk && result.value) {
@@ -76,7 +58,7 @@ export const actions = {
 };
 
 export const load: PageServerLoad = async ({ fetch }) => {
-	const form = await superValidate(zod(EmployeeSchema));
+	const form = await superValidate(zod(EmployeeFormSchema));
 
 	return {
 		form,

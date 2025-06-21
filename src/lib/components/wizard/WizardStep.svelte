@@ -62,7 +62,7 @@
     aria-current={status === 'current'}>
 
 	{#if description}
-		<Tooltip {baseClass} text={description} cursor={status === 'current' ? 'default' : 'pointer'}>
+		<Tooltip text={description} cursor={status === 'current' ? 'default' : 'pointer'} triggerClass={baseClass}>
             <div class={stepClass}>
                 <Icon icon={icon} />
             </div>

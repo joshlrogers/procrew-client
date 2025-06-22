@@ -1,4 +1,22 @@
 import { z } from 'zod';
+import { AddressSchema, type Address } from '../address';
+
+export const LeadStatus = { 
+    New: 'New',
+    Contacted: 'Contacted',
+    Qualified: 'Qualified',
+    Closed: 'Closed'
+} as const;
+
+export type LeadStatusType = typeof LeadStatus[keyof typeof LeadStatus];
+
+export const LeadPriority = {
+    Low: 'Low',
+    Medium: 'Medium',
+    High: 'High'
+} as const;
+
+export type LeadPriorityType = typeof LeadPriority[keyof typeof LeadPriority];
 
 const leadSchema = z.object({
     id: z.string().uuid().optional().nullable(),
@@ -8,7 +26,12 @@ const leadSchema = z.object({
     lastName: z.string().max(250, 'Last name is too long.').optional().nullable(),
     emailAddress: z.string().email('Invalid email address.').max(250, 'Email is too long.').optional().nullable(),
     phoneNumber: z.string().max(15, 'Phone number is too long.').optional().nullable(),
-    notes: z.string().max(1000, 'Notes are too long.').optional().nullable()
+    notes: z.string().max(1000, 'Notes are too long.').optional().nullable(),
+    status: z.nativeEnum(LeadStatus).default(LeadStatus.New),
+    assignedToId: z.string().uuid().optional().nullable(),
+    priority: z.nativeEnum(LeadPriority).optional().nullable(),
+    estimatedValue: z.number().min(0, 'Estimated value cannot be negative.').max(999999.99, 'Estimated value cannot exceed $999,999.99').optional().nullable(),
+    address: AddressSchema.partial().optional().nullable()
 }).refine((data) => {
     const hasCompanyName = data.companyName && data.companyName.trim().length > 0;
     const hasFirstName = data.firstName && data.firstName.trim().length > 0;

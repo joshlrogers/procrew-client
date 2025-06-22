@@ -7,6 +7,7 @@
     import { Pagination } from '@skeletonlabs/skeleton-svelte';
     import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
     import type { Lead } from '$lib/shared/models/lead';
+    import { LeadStatus, LeadPriority } from '$lib/shared/models/lead';
 
     interface LeadsPanelProps {
         leadsData: Promise<{
@@ -80,6 +81,52 @@
         const lastName = lead.lastName || '';
         return `${firstName} ${lastName}`.trim() || 'Unknown';
     };
+
+    const getStatusBadgeClass = (status: string) => {
+        switch (status) {
+            case LeadStatus.New:
+                return 'badge-surface-200-700';
+            case LeadStatus.Contacted:
+                return 'badge-primary-200-700';
+            case LeadStatus.Qualified:
+                return 'badge-success-200-700';
+            case LeadStatus.Closed:
+                return 'badge-tertiary-200-700';
+            default:
+                return 'badge-surface-200-700';
+        }
+    };
+
+    const getPriorityBadgeClass = (priority: string | null | undefined) => {
+        switch (priority) {
+            case LeadPriority.High:
+                return 'badge-error-200-700';
+            case LeadPriority.Medium:
+                return 'badge-warning-200-700';
+            case LeadPriority.Low:
+                return 'badge-surface-200-700';
+            default:
+                return '';
+        }
+    };
+
+    const formatCurrency = (value: number | null | undefined) => {
+        if (value == null) return '';
+        return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(value);
+    };
+
+    const formatAddress = (address: any) => {
+        if (!address) return '';
+        const parts = [];
+        if (address.city) parts.push(address.city);
+        if (address.state) parts.push(address.state);
+        return parts.join(', ');
+    };
 </script>
 
 <Panel class="w-full">
@@ -137,6 +184,25 @@
                                             <Icon icon={getSortIcon('phoneNumber')} />
                                         </div>
                                     </th>
+                                    <th class="cursor-pointer hover:bg-surface-200-800" onclick={() => handleSort('status')}>
+                                        <div class="flex items-center justify-between">
+                                            Status
+                                            <Icon icon={getSortIcon('status')} />
+                                        </div>
+                                    </th>
+                                    <th class="cursor-pointer hover:bg-surface-200-800" onclick={() => handleSort('priority')}>
+                                        <div class="flex items-center justify-between">
+                                            Priority
+                                            <Icon icon={getSortIcon('priority')} />
+                                        </div>
+                                    </th>
+                                    <th class="cursor-pointer hover:bg-surface-200-800" onclick={() => handleSort('estimatedValue')}>
+                                        <div class="flex items-center justify-between">
+                                            Est. Value
+                                            <Icon icon={getSortIcon('estimatedValue')} />
+                                        </div>
+                                    </th>
+                                    <th>Address</th>
                                     <th>Notes</th>
                                     <th class="w-24">Actions</th>
                                 </tr>
@@ -144,7 +210,7 @@
                             <tbody class="[&>tr]:hover:preset-tonal-primary">
                                 {#if data.value.length === 0}
                                     <tr>
-                                        <td colspan="5" class="text-center py-8 text-surface-500">
+                                        <td colspan="9" class="text-center py-8 text-surface-500">
                                             No leads found.
                                         </td>
                                     </tr>
@@ -159,6 +225,24 @@
                                             </td>
                                             <td>{lead.emailAddress || ''}</td>
                                             <td>{formatPhoneNumber(lead.phoneNumber)}</td>
+                                            <td>
+                                                <span class="badge {getStatusBadgeClass(lead.status)} text-xs">
+                                                    {lead.status}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                {#if lead.priority}
+                                                    <span class="badge {getPriorityBadgeClass(lead.priority)} text-xs">
+                                                        {lead.priority}
+                                                    </span>
+                                                {/if}
+                                            </td>
+                                            <td class="text-right font-mono">
+                                                {formatCurrency(lead.estimatedValue)}
+                                            </td>
+                                            <td class="max-w-xs truncate text-sm text-surface-600">
+                                                {formatAddress(lead.address)}
+                                            </td>
                                             <td class="max-w-xs truncate">
                                                 {lead.notes || ''}
                                             </td>

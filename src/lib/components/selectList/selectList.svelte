@@ -6,7 +6,7 @@
 	import { cn } from '$lib/utils';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import type { SelectListOption } from '$lib/shared/models/options';
-
+	import type { InputConstraint } from 'sveltekit-superforms';
 
 	interface SelectListProps extends HTMLAttributes<HTMLButtonElement> {
 		emptyText?: string;
@@ -14,7 +14,8 @@
 		labelClass?: string;
 		label?: string;
 		name?: string;
-		required: boolean;
+		required?: boolean;
+		constraints?: InputConstraint;
 		minWidth?: string;
 		textColor?: string;
 		items: SelectListOption[];
@@ -33,13 +34,26 @@
 		maxListHeight = 'max-h-48',
 		name = undefined,
 		items,
-		required = false,
+		required = undefined,
+		constraints = undefined,
 		textColor = undefined,
 		wrapperClass = undefined,
 		value = undefined,
 		onchanged = undefined,
 		...otherProps
 	}: SelectListProps = $props();
+
+	// Validate that required and constraints are mutually exclusive
+	if (required !== undefined && constraints !== undefined) {
+		throw new Error('SelectList: Cannot provide both "required" and "constraints" props. They are mutually exclusive.');
+	}
+
+	// Derive required state from constraints if not explicitly provided
+	let isRequired = $derived(
+		required !== undefined 
+			? required 
+			: constraints?.required === true
+	);
 
 	const {
 		elements: { trigger, menu, label, option },
@@ -82,7 +96,7 @@
 		<label for={id} class={extLabelClass} use:melt={$label}>
 			<span class="label-text">
 				{labelText}
-				{#if required}
+				{#if isRequired}
 					<span class="text-error-200-800 ml-1">*</span>
 				{/if}
 			</span>

@@ -34,9 +34,21 @@
 		value = $bindable<string>(),
 		maskType = undefined,
 		wrapperClass = undefined,
-		required = false,
+		required = undefined,
 		...otherProps
 	}: MaskedTextInputProps = $props();
+
+	// Validate that required and constraints are mutually exclusive
+	if (required !== undefined && constraints !== undefined) {
+		throw new Error('MaskedTextInput: Cannot provide both "required" and "constraints" props. They are mutually exclusive.');
+	}
+
+	// Derive required state from constraints if not explicitly provided
+	let isRequired = $derived(
+		required !== undefined 
+			? required 
+			: constraints?.required === true
+	);
 
 	let _element = $state();
 	let _mask = $state<any>();
@@ -117,7 +129,7 @@
 					 class={extLabelClass}>
 			<span class="label-text">
 				{label}
-				{#if required}
+				{#if isRequired}
 					<span class="text-error-200-800 ml-1">*</span>
 				{/if}
 			</span>

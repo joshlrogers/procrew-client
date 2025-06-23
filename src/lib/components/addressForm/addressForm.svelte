@@ -28,10 +28,9 @@
 		startingTabIndex = undefined
 	}: AddressFormProps = $props();
 
-
 	let availableCountries = $derived(countries.map(country => ({ value: country.shortCode, label: country.name })));
 
-	let availableStates = $derived(states.filter(s => s.country == $formData.address.country).map(state => ({
+	let availableStates = $derived(states.filter(s => s.country == $formData.address?.country).map(state => ({
 		value: state.abbreviation,
 		label: state.name
 	})));
@@ -64,6 +63,10 @@
 	const onInternalAddressChanged = (event: any) => {
 		let selectedProperties = event.detail.features[0].properties;
 
+		if (!$formData.address) {
+			$formData.address = {};
+		}
+
 		$formData.address.addressLine1 = selectedProperties.address_line1;
 		$formData.address.addressLine2 = selectedProperties.address_line2;
 		$formData.address.addressLine3 = selectedProperties.address_line3;
@@ -74,6 +77,10 @@
 	};
 
 	const setCountry = (country: any) => {
+		if (!$formData.address) {
+			$formData.address = {};
+		}
+
 		if (country) {
 			$formData.address.country = countries[countries.findIndex(c => c.shortCode == country.toUpperCase())].abbreviation;
 		} else {
@@ -82,28 +89,45 @@
 	};
 
 	const getCountry = (countryAbbreviation: any) => {
-		if (countryAbbreviation) {
-			return countries[countries.findIndex(c => c.abbreviation == countryAbbreviation.toUpperCase())].shortCode;
+		if (countryAbbreviation && countries.length > 0) {
+			const countryIndex = countries.findIndex(c => c.abbreviation == countryAbbreviation.toUpperCase());
+			return countryIndex >= 0 ? countries[countryIndex].shortCode : undefined;
 		} else {
 			return undefined;
 		}
 	};
+
+	// Helper function to safely get address field values
+	const getAddressField = (field: string) => {
+		return $formData.address?.[field] || '';
+	};
+
+	// Helper function to safely set address field values
+	const setAddressField = (field: string, value: any) => {
+		if (!$formData.address) {
+			$formData.address = {};
+		}
+		$formData.address[field] = value;
+	};
+
+
 
 </script>
 
 <div class="flex flex-col gap-2">
 	<input type="hidden"
 				 autocomplete="address-line1"
-				 bind:value={$formData.address.addressLine1} />
+				 value={getAddressField('addressLine1')}
+				 oninput={(e) => setAddressField('addressLine1', (e.target as HTMLInputElement)?.value)} />
 	<TextInput label="Address"
 						 autocomplete="street-address"
 						 maxlength={240}
 						 wrapperClass="w-full"
-						 required={true}
 						 tabindex={startingTabIndex ? startingTabIndex : undefined}
 						 constraints={($formConstraints as any).address?.addressLine1}
 						 errors={($formErrors as any).address?.addressLine1}
-						 bind:value={$formData.address.addressLine1} />
+						 value={getAddressField('addressLine1')}
+						 onchange={(val) => setAddressField('addressLine1', val)} />
 
 	<TextInput maxlength={240}
 						 name="addressLine2"
@@ -111,7 +135,8 @@
 						 autocomplete="address-line2"
 						 constraints={($formConstraints as any).address?.addressLine2}
 						 errors={($formErrors as any).address?.addressLine2}
-						 bind:value={$formData.address.addressLine2} />
+						 value={getAddressField('addressLine2')}
+						 onchange={(val) => setAddressField('addressLine2', val)} />
 
 	<TextInput maxlength={240}
 						 name="addressLine3"
@@ -119,7 +144,8 @@
 						 autocomplete="address-line3"
 						 constraints={($formConstraints as any).address?.addressLine3}
 						 errors={($formErrors as any).address?.addressLine3}
-						 bind:value={$formData.address.addressLine3} />
+						 value={getAddressField('addressLine3')}
+						 onchange={(val) => setAddressField('addressLine3', val)} />
 
 </div>
 
@@ -127,18 +153,18 @@
 	<TextInput label="City"
 						 maxlength={120}
 						 wrapperClass="lg:w-[12rem] w-full"
-						 required={true}
 						 tabindex={startingTabIndex ? startingTabIndex + 1 : undefined}
 						 constraints={($formConstraints as any).address?.city}
 						 errors={($formErrors as any).address?.city}
-						 bind:value={$formData.address.city} />
+						 value={getAddressField('city')}
+						 onchange={(val) => setAddressField('city', val)} />
 
 	<SelectList items={availableStates}
-							name="state"
+						name="state"
 							label="State"
-							required={true}
-							value={$formData.address.state}
-							onchanged={(val) => $formData.address.state = val}
+							constraints={($formConstraints as any).address?.state}
+							value={getAddressField('state')}
+							onchanged={(val) => setAddressField('state', val)}
 							tabindex={startingTabIndex ? startingTabIndex + 2 : undefined}
 							wrapperClass="lg:w-[10rem] w-full" />
 
@@ -147,18 +173,18 @@
 									 maskType="PostalCode"
 									 maxlength={10}
 									 wrapperClass="lg:w-[10rem] w-full"
-									 required={true}
 									 autocomplete="postal-code"
 									 constraints={($formConstraints as any).address?.postalCode}
 									 errors={($formErrors as any).address?.postalCode}
 									 tabindex={startingTabIndex ? startingTabIndex + 3 : undefined}
-									 bind:value={$formData.address.postalCode} />
+									 value={getAddressField('postalCode')}
+									 onchange={(val) => setAddressField('postalCode', val)} />
 
 	<SelectList items={availableCountries}
-							name="country"
+						name="country"
 							label="Country"
-							required={true}
-							value={getCountry($formData.address.country)}
+							constraints={($formConstraints as any).address?.country}
+							value={getCountry(getAddressField('country'))}
 							onchanged={setCountry}
 							tabindex={startingTabIndex ? startingTabIndex + 4 : undefined}
 							wrapperClass="lg:w-[15rem] w-full" />

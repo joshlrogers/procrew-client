@@ -12,7 +12,8 @@
 		labelClass?: string,
 		leadAdornment?: Snippet,
 		tailAdornment?: Snippet,
-		casing?: 'Upper' | 'Lower' | 'Default'
+		casing?: 'Upper' | 'Lower' | 'Default',
+		required?: boolean;
 	}
 
 	let {
@@ -26,11 +27,23 @@
 		labelClass = undefined,
 		leadAdornment = undefined,
 		placeholder = undefined,
-		required = false,
+		required = undefined,
 		tailAdornment = undefined,
 		value = $bindable<string>(),
 		...otherProps
 	}: TextInputProps = $props();
+
+	// Validate that required and constraints are mutually exclusive
+	if (required !== undefined && constraints !== undefined) {
+		throw new Error('TextInput: Cannot provide both "required" and "constraints" props. They are mutually exclusive.');
+	}
+
+	// Derive required state from constraints if not explicitly provided
+	let isRequired = $derived(
+		required !== undefined 
+			? required 
+			: constraints?.required === true
+	);
 
 	let textInput: HTMLInputElement;
 
@@ -62,7 +75,7 @@
 					 class={extLabelClass}>
 			<span class="label-text">
 				{label}
-				{#if required}
+				{#if isRequired}
 					<span class="text-error-200-800 ml-1">*</span>
 				{/if}
 			</span>
@@ -83,7 +96,7 @@
 					 class={inputClass}
 					 aria-invalid={errors ? true : undefined }
 					 aria-placeholder={placeholder}
-					 aria-required={required ? 'true' : 'false'}
+					 aria-required={isRequired ? 'true' : 'false'}
 					 {placeholder}
 					 {...constraints}
 					 {...otherProps}

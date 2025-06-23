@@ -11,6 +11,10 @@
 
 <div class="flex flex-col gap-4 items-center">
     <div class="w-[90%]">
-        <LeadsPanel leadsData={data.leads} />
+        <LeadsPanel 
+            leadsData={data.leads} 
+            countries={data.countries}
+            states={data.states}
+        />
     </div>
 </div>

@@ -8,6 +8,11 @@
     import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
     import type { Lead } from '$lib/shared/models/lead';
     import { LeadStatus, LeadPriority } from '$lib/shared/models/lead';
+    import { LeadStatusOptions, LeadPriorityOptions } from '$lib/shared/models/options';
+    import { Badge } from '$lib/components/badge';
+    import { NewLeadModal } from '../../modals';
+    import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
+    import { invalidate } from '$app/navigation';
 
     interface LeadsPanelProps {
         leadsData: Promise<{
@@ -17,14 +22,17 @@
             count: number;
             isOk: boolean;
         }>;
+        countries?: CountrySelectOption[];
+        states?: StateSelectOption[];
     }
 
-    let { leadsData }: LeadsPanelProps = $props();
+    let { leadsData, countries = [], states = [] }: LeadsPanelProps = $props();
 
     let currentPage = $state(1);
     let pageSize = $state(10);
     let sortBy = $state('lastName');
     let sortDirection = $state('asc');
+    let showNewLeadModal = $state(false);
 
     // Update URL with new parameters
     const updateUrl = (newPage?: number, newPageSize?: number, newSortBy?: string, newSortDirection?: string) => {
@@ -82,31 +90,42 @@
         return `${firstName} ${lastName}`.trim() || 'Unknown';
     };
 
-    const getStatusBadgeClass = (status: string) => {
+    const getStatusLabel = (status: number) => {
+        const statusOption = LeadStatusOptions.find(option => option.value === status);
+        return statusOption ? statusOption.label : 'Unknown';
+    };
+
+    const getPriorityLabel = (priority: number | null | undefined) => {
+        if (priority === null || priority === undefined) return '';
+        const priorityOption = LeadPriorityOptions.find(option => option.value === priority);
+        return priorityOption ? priorityOption.label : '';
+    };
+
+    const getStatusBadgeProps = (status: number) => {
         switch (status) {
             case LeadStatus.New:
-                return 'badge-surface-200-700';
+                return { variant: 'tonal' as const, color: 'surface' as const };
             case LeadStatus.Contacted:
-                return 'badge-primary-200-700';
+                return { variant: 'tonal' as const, color: 'primary' as const };
             case LeadStatus.Qualified:
-                return 'badge-success-200-700';
+                return { variant: 'tonal' as const, color: 'success' as const };
             case LeadStatus.Closed:
-                return 'badge-tertiary-200-700';
+                return { variant: 'tonal' as const, color: 'tertiary' as const };
             default:
-                return 'badge-surface-200-700';
+                return { variant: 'tonal' as const, color: 'surface' as const };
         }
     };
 
-    const getPriorityBadgeClass = (priority: string | null | undefined) => {
+    const getPriorityBadgeProps = (priority: number | null | undefined) => {
         switch (priority) {
             case LeadPriority.High:
-                return 'badge-error-200-700';
+                return { variant: 'tonal' as const, color: 'error' as const };
             case LeadPriority.Medium:
-                return 'badge-warning-200-700';
+                return { variant: 'tonal' as const, color: 'warning' as const };
             case LeadPriority.Low:
-                return 'badge-surface-200-700';
+                return { variant: 'tonal' as const, color: 'surface' as const };
             default:
-                return '';
+                return null;
         }
     };
 
@@ -127,6 +146,20 @@
         if (address.state) parts.push(address.state);
         return parts.join(', ');
     };
+
+    const handleNewLead = () => {
+        showNewLeadModal = true;
+    };
+
+    const handleModalClose = async (success?: boolean) => {
+        showNewLeadModal = false;
+        if (success) {
+            // Refresh only the leads data by invalidating the specific dependency
+            await invalidate('leads:list');
+        }
+    };
+
+
 </script>
 
 <Panel class="w-full">
@@ -143,6 +176,7 @@
                     isRounded={true}
                     textColor="text-primary-500"
                     tooltip="Add a new lead"
+                    onclick={handleNewLead}
                 />
             </div>
         </div>
@@ -226,15 +260,20 @@
                                             <td>{lead.emailAddress || ''}</td>
                                             <td>{formatPhoneNumber(lead.phoneNumber)}</td>
                                             <td>
-                                                <span class="badge {getStatusBadgeClass(lead.status)} text-xs">
-                                                    {lead.status}
-                                                </span>
+                                                <Badge 
+                                                    text={getStatusLabel(lead.status)}
+                                                    {...getStatusBadgeProps(lead.status)}
+                                                />
                                             </td>
                                             <td>
-                                                {#if lead.priority}
-                                                    <span class="badge {getPriorityBadgeClass(lead.priority)} text-xs">
-                                                        {lead.priority}
-                                                    </span>
+                                                {#if lead.priority !== null && lead.priority !== undefined}
+                                                    {@const priorityProps = getPriorityBadgeProps(lead.priority)}
+                                                    {#if priorityProps}
+                                                        <Badge 
+                                                            text={getPriorityLabel(lead.priority)}
+                                                            {...priorityProps}
+                                                        />
+                                                    {/if}
                                                 {/if}
                                             </td>
                                             <td class="text-right font-mono">
@@ -307,4 +346,11 @@
             </div>
         {/await}
     {/snippet}
-</Panel> 
+</Panel>
+
+<NewLeadModal 
+    open={showNewLeadModal}
+    {countries}
+    {states}
+    onClose={handleModalClose}
+/> 

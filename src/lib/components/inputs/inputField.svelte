@@ -36,14 +36,22 @@
 		'focus:border-bg-300',
 		'text-black',
 		'shadow',
-		extClass);
-	let extLabelClass = cn('block', 'mb-2', 'text-sm', 'font-medium', 'text-text', 'label', labelClass);
-
+		extClass
+	);
+	let extLabelClass = cn(
+		'block',
+		'mb-2',
+		'text-sm',
+		'font-medium',
+		'text-text',
+		'label',
+		labelClass
+	);
 </script>
+
 <div class={wrapperClass}>
 	{#if label}
-		<label for={id}
-					 class={extLabelClass}>
+		<label for={id} class={extLabelClass}>
 			{label}
 		</label>
 	{/if}
@@ -55,10 +63,11 @@
 		bind:value
 		{type}
 		{...constraints}
-		{...otherProps} />
+		{...otherProps}
+	/>
 
 	{#if errors}
-		<div class="uppercase text-xs leading-1 tracking-tighter text-coral-red-700 px-1">
+		<div class="text-coral-red-700 px-1 text-xs leading-1 tracking-tighter uppercase">
 			{errors}
 		</div>
 	{/if}

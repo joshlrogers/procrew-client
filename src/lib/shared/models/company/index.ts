@@ -77,7 +77,7 @@ const holidaySchema = z.object({
 	month: z.number().min(1).max(12),
 	name: z.string(),
 	region: z.string().max(3).optional().nullish(),
-	week: z.number().min(1).max(4).optional().nullish(),
+	week: z.number().min(1).max(4).optional().nullish()
 });
 
 const companyHolidaysSchema = z.object({

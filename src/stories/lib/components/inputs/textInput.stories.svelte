@@ -8,11 +8,10 @@
 		decorators: [],
 		parameters: {}
 	});
-
 </script>
 
 <Story name="Default" />
 
-<Story name="With Label" args="{{label: 'With Label'}}" />
+<Story name="With Label" args={{ label: 'With Label' }} />
 
-<Story name="With Value" args="{{label: 'With Value', value: 'Test Value'}}" />
+<Story name="With Value" args={{ label: 'With Value', value: 'Test Value' }} />

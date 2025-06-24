@@ -1,7 +1,6 @@
 <script lang="ts">
-	import { page } from "$app/state";
-	import { enhance } from "$app/forms";
-
+	import { page } from '$app/state';
+	import { enhance } from '$app/forms';
 </script>
 
 {#if !page.data.account}

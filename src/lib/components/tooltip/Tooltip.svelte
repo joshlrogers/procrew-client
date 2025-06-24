@@ -62,7 +62,7 @@
 	// Arrow styles based on variant and position
 	const getArrowStyles = (variant: TooltipVariant, position: TooltipPosition) => {
 		const baseArrow = 'absolute w-0 h-0';
-		
+
 		// Define all possible color combinations to ensure Tailwind includes them
 		const arrowClasses = {
 			default: {
@@ -132,20 +132,15 @@
 		)
 	);
 
-	const arrowBaseClass = $derived(
-		cn(
-			getArrowStyles(variant, position),
-			arrowClass
-		)
-	);
+	const arrowBaseClass = $derived(cn(getArrowStyles(variant, position), arrowClass));
 
 	function showTooltip() {
 		if (disabled || !text.trim()) return;
-		
+
 		if (timeoutId) {
 			clearTimeout(timeoutId);
 		}
-		
+
 		timeoutId = window.setTimeout(() => {
 			isVisible = true;
 			positionTooltip();
@@ -166,36 +161,36 @@
 		const triggerRect = triggerElement.getBoundingClientRect();
 		const tooltipRect = tooltipElement.getBoundingClientRect();
 		const gap = arrow ? 10 : 4;
-		
+
 		let left = 0;
 		let top = 0;
-		
+
 		switch (position) {
 			case 'top':
-				left = triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2);
+				left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
 				top = triggerRect.top - tooltipRect.height - gap;
 				break;
 			case 'bottom':
-				left = triggerRect.left + (triggerRect.width / 2) - (tooltipRect.width / 2);
+				left = triggerRect.left + triggerRect.width / 2 - tooltipRect.width / 2;
 				top = triggerRect.bottom + gap;
 				break;
 			case 'left':
 				left = triggerRect.left - tooltipRect.width - gap;
-				top = triggerRect.top + (triggerRect.height / 2) - (tooltipRect.height / 2);
+				top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
 				break;
 			case 'right':
 				left = triggerRect.right + gap;
-				top = triggerRect.top + (triggerRect.height / 2) - (tooltipRect.height / 2);
+				top = triggerRect.top + triggerRect.height / 2 - tooltipRect.height / 2;
 				break;
 		}
-		
+
 		// Ensure tooltip stays within viewport bounds
 		left = Math.max(8, Math.min(left, window.innerWidth - tooltipRect.width - 8));
 		top = Math.max(8, Math.min(top, window.innerHeight - tooltipRect.height - 8));
-		
+
 		tooltipElement.style.left = `${left}px`;
 		tooltipElement.style.top = `${top}px`;
-		
+
 		// Position arrow
 		if (arrow) {
 			const arrowElement = tooltipElement.querySelector('.tooltip-arrow') as HTMLElement;
@@ -208,26 +203,26 @@
 	function positionArrow(arrowElement: HTMLElement, tooltipRect: DOMRect, triggerRect: DOMRect) {
 		switch (position) {
 			case 'top':
-				arrowElement.style.left = `${(tooltipRect.width / 2) - 6}px`;
+				arrowElement.style.left = `${tooltipRect.width / 2 - 6}px`;
 				arrowElement.style.top = `${tooltipRect.height}px`;
 				arrowElement.style.bottom = 'auto';
 				arrowElement.style.right = 'auto';
 				break;
 			case 'bottom':
-				arrowElement.style.left = `${(tooltipRect.width / 2) - 6}px`;
+				arrowElement.style.left = `${tooltipRect.width / 2 - 6}px`;
 				arrowElement.style.top = `-6px`;
 				arrowElement.style.bottom = 'auto';
 				arrowElement.style.right = 'auto';
 				break;
 			case 'left':
 				arrowElement.style.left = `${tooltipRect.width}px`;
-				arrowElement.style.top = `${(tooltipRect.height / 2) - 6}px`;
+				arrowElement.style.top = `${tooltipRect.height / 2 - 6}px`;
 				arrowElement.style.bottom = 'auto';
 				arrowElement.style.right = 'auto';
 				break;
 			case 'right':
 				arrowElement.style.left = `-6px`;
-				arrowElement.style.top = `${(tooltipRect.height / 2) - 6}px`;
+				arrowElement.style.top = `${tooltipRect.height / 2 - 6}px`;
 				arrowElement.style.bottom = 'auto';
 				arrowElement.style.right = 'auto';
 				break;
@@ -238,7 +233,7 @@
 	const shouldRender = $derived(!disabled && text.trim().length > 0);
 </script>
 
-<span 
+<span
 	class={triggerBaseClass}
 	bind:this={triggerElement}
 	onmouseenter={showTooltip}
@@ -253,7 +248,7 @@
 </span>
 
 {#if shouldRender}
-	<div 
+	<div
 		class={tooltipBaseClass}
 		bind:this={tooltipElement}
 		role="tooltip"
@@ -266,9 +261,3 @@
 		{/if}
 	</div>
 {/if}
-
-
-
-
-
-

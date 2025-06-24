@@ -2,129 +2,129 @@
 @reference "tailwindcss";
 
 header {
-    @apply flex items-center justify-between pb-2;
+	@apply flex items-center justify-between pb-2;
 }
 
 header + div {
-    @apply flex items-center gap-6;
+	@apply flex items-center gap-6;
 }
 
 [data-melt-datefield-label] {
-    @apply label-text block mb-2 select-none;
+	@apply label-text mb-2 block select-none;
 }
 
 [data-melt-datefield-label][data-invalid] {
-    @apply text-error-500;
+	@apply text-error-500;
 }
 
 [data-melt-popover-content] {
-    @apply z-10 min-w-[16rem] rounded-lg bg-white shadow-sm;
+	@apply z-10 min-w-[16rem] rounded-lg bg-white shadow-sm;
 }
 
 [data-melt-popover-trigger] {
-    @apply rounded-md bg-primary-700 p-1 text-white transition-all hover:bg-primary-700/90;
+	@apply bg-primary-700 hover:bg-primary-700/90 rounded-md p-1 text-white transition-all;
 }
 
 [data-melt-datefield-field] {
-    @apply flex h-10 w-full ps-2.5 px-0 shadow-sm items-center input;
+	@apply input flex h-10 w-full items-center px-0 ps-2.5 shadow-sm;
 }
 
 [data-melt-datefield-field] span {
-    @apply pl-2;
+	@apply pl-2;
 }
 
 [data-melt-datefield-field] div:last-of-type {
-    @apply flex w-full items-center justify-end;
+	@apply flex w-full items-center justify-end;
 }
 
 [data-melt-datefield-field] button {
-    @apply flex items-center justify-center w-8 h-8 rounded-md bg-primary-600 p-1 text-white transition-all hover:bg-primary-600/90 mr-2;
+	@apply bg-primary-600 hover:bg-primary-600/90 mr-2 flex h-8 w-8 items-center justify-center rounded-md p-1 text-white transition-all;
 }
 
 [data-melt-datefield-field][data-invalid] {
-    @apply border-2 border-error-600;
+	@apply border-error-600 border-2;
 }
 
 [data-melt-datefield-field][data-invalid] {
-    @apply text-error-600;
+	@apply text-error-600;
 }
 
 [data-melt-datefield-segment]:not([data-segment='literal']) {
-    @apply px-0.75;
+	@apply px-0.75;
 }
 
 [data-melt-datefield-validation] {
-    @apply self-start text-error-500;
+	@apply text-error-500 self-start;
 }
 
 [data-melt-calendar] {
-    @apply w-full rounded-lg bg-white text-primary-800 p-3 shadow-sm;
+	@apply text-primary-800 w-full rounded-lg bg-white p-3 shadow-sm;
 }
 
 [data-melt-calendar-prevbutton] {
-    @apply flex items-center justify-center w-12 rounded-lg p-1 transition-all hover:bg-primary-500/20;
+	@apply hover:bg-primary-500/20 flex w-12 items-center justify-center rounded-lg p-1 transition-all;
 }
 
 [data-melt-calendar-nextbutton] {
-    @apply flex items-center justify-center w-12 rounded-lg p-1 transition-all hover:bg-primary-500/20;
+	@apply hover:bg-primary-500/20 flex w-12 items-center justify-center rounded-lg p-1 transition-all;
 }
 
 [data-melt-calendar-prevbutton][data-disabled] {
-    @apply pointer-events-none rounded-lg p-1 opacity-40;
+	@apply pointer-events-none rounded-lg p-1 opacity-40;
 }
 
 [data-melt-calendar-nextbutton][data-disabled] {
-    @apply pointer-events-none rounded-lg p-1 opacity-40;
+	@apply pointer-events-none rounded-lg p-1 opacity-40;
 }
 
 [data-melt-calendar-heading] {
-    @apply font-semibold;
+	@apply font-semibold;
 }
 
 [data-melt-calendar-grid] {
-    @apply w-full;
+	@apply w-full;
 }
 
 [data-melt-calendar-grid] div {
-    @apply m-auto;
+	@apply m-auto;
 }
 
 th {
-    @apply text-sm font-semibold;
+	@apply text-sm font-semibold;
 
-    & div {
-        @apply flex h-6 w-6 items-center justify-center p-4;
-    }
+	& div {
+		@apply flex h-6 w-6 items-center justify-center p-4;
+	}
 }
 
 [data-melt-calendar-cell] {
-    @apply flex h-6 w-6 cursor-pointer select-none items-center justify-center p-4 hover:bg-primary-200 rounded-sm  hover:text-primary-900 hover:font-bold;
+	@apply hover:bg-primary-200 hover:text-primary-900 flex h-6 w-6 cursor-pointer items-center justify-center rounded-sm p-4 select-none hover:font-bold;
 }
 
 [data-melt-calendar-cell][data-highlighted] {
-    @apply bg-primary-200;
+	@apply bg-primary-200;
 }
 
 [data-melt-calendar-cell][data-range-highlighted] {
-    @apply bg-primary-200;
+	@apply bg-primary-200;
 }
 
 [data-melt-calendar-cell][data-disabled] {
-    @apply pointer-events-none opacity-40;
+	@apply pointer-events-none opacity-40;
 }
 
 [data-melt-calendar-cell][data-unavailable] {
-    @apply pointer-events-none text-error-400 line-through;
+	@apply text-error-400 pointer-events-none line-through;
 }
 
 [data-melt-calendar-cell][data-selected] {
-    @apply bg-primary-300;
+	@apply bg-primary-300;
 }
 
 [data-melt-calendar-cell][data-outside-visible-months] {
-    @apply pointer-events-none cursor-default opacity-40 hover:bg-transparent;
+	@apply pointer-events-none cursor-default opacity-40 hover:bg-transparent;
 }
 
 [data-melt-calendar-cell][data-outside-month] {
-    @apply pointer-events-none cursor-default opacity-0 hover:bg-transparent;
+	@apply pointer-events-none cursor-default opacity-0 hover:bg-transparent;
 }

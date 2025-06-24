@@ -45,22 +45,20 @@
 
 	// Validate that required and constraints are mutually exclusive
 	if (required !== undefined && constraints !== undefined) {
-		throw new Error('SelectList: Cannot provide both "required" and "constraints" props. They are mutually exclusive.');
+		throw new Error(
+			'SelectList: Cannot provide both "required" and "constraints" props. They are mutually exclusive.'
+		);
 	}
 
 	// Derive required state from constraints if not explicitly provided
-	let isRequired = $derived(
-		required !== undefined 
-			? required 
-			: constraints?.required === true
-	);
+	let isRequired = $derived(required !== undefined ? required : constraints?.required === true);
 
 	const {
 		elements: { trigger, menu, label, option },
 		states: { open, selectedLabel, selected }
 	} = createSelect<string | number>({
 		required: required,
-		defaultSelected: value ? items[items.findIndex(i => i.value === value)] : undefined,
+		defaultSelected: value ? items[items.findIndex((i) => i.value === value)] : undefined,
 		forceVisible: true,
 		onSelectedChange: ({ curr, next }) => {
 			if (curr?.value !== next?.value) {
@@ -76,18 +74,29 @@
 		}
 	});
 
-	let buttonClass = cn('select-list input', 'flex items-center justify-between rounded-lg px-3 py-2 shadow', textColor, height);
-	let listClass = cn('select-list-contents z-100 flex flex-col overflow-y-auto rounded-lg p-1 shadow focus:!ring-0', maxListHeight, textColor);
-	let listItemClass = cn('relative cursor-pointer rounded-lg py-1 pl-4 pr-4 focus:z-100 ' +
-		'data-[highlighted]:bg-primary-500 data-[highlighted]:font-bold data-[disabled]:opacity-50 ' +
-		'flex flex-row gap-2 justify-items-center');
+	let buttonClass = cn(
+		'select-list input',
+		'flex items-center justify-between rounded-lg px-3 py-2 shadow',
+		textColor,
+		height
+	);
+	let listClass = cn(
+		'select-list-contents z-100 flex flex-col overflow-y-auto rounded-lg p-1 shadow focus:!ring-0',
+		maxListHeight,
+		textColor
+	);
+	let listItemClass = cn(
+		'relative cursor-pointer rounded-lg py-1 pl-4 pr-4 focus:z-100 ' +
+			'data-[highlighted]:bg-primary-500 data-[highlighted]:font-bold data-[disabled]:opacity-50 ' +
+			'flex flex-row gap-2 justify-items-center'
+	);
 
 	let extLabelClass = cn('block', 'mb-2', 'text-sm', 'font-medium', 'label', labelClass);
 
-	let selectedItem = $derived(value ? items.find(i => i.value === value) : undefined);
+	let selectedItem = $derived(value ? items.find((i) => i.value === value) : undefined);
 
 	$effect(() => {
-		$selected = value ? items[items.findIndex(i => i.value === value)] : undefined;
+		$selected = value ? items[items.findIndex((i) => i.value === value)] : undefined;
 	});
 </script>
 
@@ -103,25 +112,19 @@
 		</label>
 	{/if}
 
-	<button class={buttonClass}
-					use:melt={$trigger}
-					{...otherProps}>
+	<button class={buttonClass} use:melt={$trigger} {...otherProps}>
 		{#if selectedItem?.icon}
 			<Icon icon={selectedItem.icon} class="mr-2" />
 		{/if}
-		{ $selectedLabel }
-		<Icon icon={MaterialIcon.ARROW_DROP_DOWN} class="ml-auto mr-0" />
+		{$selectedLabel}
+		<Icon icon={MaterialIcon.ARROW_DROP_DOWN} class="mr-0 ml-auto" />
 	</button>
 
 	{#if $open}
-		<div class={listClass}
-				 use:melt={$menu}
-				 transition:fade={{ duration: 150 }}>
-
+		<div class={listClass} use:melt={$menu} transition:fade={{ duration: 150 }}>
 			{#if items?.length > 0}
 				{#each items as item}
-					<div class={listItemClass}
-							 use:melt={$option(item)}>
+					<div class={listItemClass} use:melt={$option(item)}>
 						{#if item.icon}
 							<Icon icon={item.icon} />
 						{/if}
@@ -133,9 +136,6 @@
 					{emptyText}
 				</div>
 			{/if}
-
 		</div>
 	{/if}
-
 </div>
-

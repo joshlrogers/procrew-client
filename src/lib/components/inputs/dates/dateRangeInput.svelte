@@ -10,7 +10,7 @@
 		label?: string;
 		labelClass?: string;
 		rangeValue?: DateRange;
-		onRangeChange?: ((value: DateRange) => void);
+		onRangeChange?: (value: DateRange) => void;
 	}
 
 	let {
@@ -47,10 +47,6 @@
 		}
 	});
 </script>
-
-<style lang="postcss">
-    @import './dateStyles.css';
-</style>
 
 <div class="flex w-full flex-col items-center gap-3">
 	<div>
@@ -94,27 +90,29 @@
 				{#each $months as month}
 					<table use:melt={$grid}>
 						<thead aria-hidden="true">
-						<tr>
-							{#each $weekdays as day}
-								<th>
-									{day}
-								</th>
-							{/each}
-						</tr>
-						</thead>
-						<tbody>
-						{#each month.weeks as days}
 							<tr>
-								{#each days as date}
-									<td role="gridcell"
-											aria-disabled={$isDateDisabled(date) || $isDateUnavailable(date)}>
-										<div use:melt={$cell(date, month.value)}>
-											{date.day}
-										</div>
-									</td>
+								{#each $weekdays as day}
+									<th>
+										{day}
+									</th>
 								{/each}
 							</tr>
-						{/each}
+						</thead>
+						<tbody>
+							{#each month.weeks as days}
+								<tr>
+									{#each days as date}
+										<td
+											role="gridcell"
+											aria-disabled={$isDateDisabled(date) || $isDateUnavailable(date)}
+										>
+											<div use:melt={$cell(date, month.value)}>
+												{date.day}
+											</div>
+										</td>
+									{/each}
+								</tr>
+							{/each}
 						</tbody>
 					</table>
 				{/each}
@@ -122,3 +120,7 @@
 		</div>
 	{/if}
 </div>
+
+<style lang="postcss">
+	@import './dateStyles.css';
+</style>

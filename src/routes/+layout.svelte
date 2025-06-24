@@ -1,7 +1,12 @@
 <script lang="ts">
 	import '../app.css';
 	import { MaterialIcon } from '$lib/components/icon';
-	import { NavMenu, NavMenuDropdown, NavMenuGroup, NavMenuItem } from '$lib/components/navMenu/index.js';
+	import {
+		NavMenu,
+		NavMenuDropdown,
+		NavMenuGroup,
+		NavMenuItem
+	} from '$lib/components/navMenu/index.js';
 	import { page } from '$app/state';
 	import { ActiveCompany } from '$lib/shared/stores';
 	import { AppBar } from '@skeletonlabs/skeleton-svelte';
@@ -39,13 +44,13 @@
 	function changeActiveCompany(companyId?: string) {
 		if (!companyId) {
 			fetch('/api/current/company', { method: 'GET' })
-				.then(res => res.json())
-				.then(json => {
+				.then((res) => res.json())
+				.then((json) => {
 					$ActiveCompany = json;
 				});
 		} else {
 			fetch('/api/current/company', { method: 'POST', body: companyId })
-				.then(res => res.json())
+				.then((res) => res.json())
 				.then(() => {
 					$ActiveCompany = companyId;
 				});
@@ -59,9 +64,7 @@
 			<AppBar background="bg-surface-900/80" classes="backdrop-blur-sm">
 				{#snippet lead()}
 					<div>
-						<IconButton flat={true}
-												icon={MaterialIcon.MENU}
-												onclick={toggleSidebar} />
+						<IconButton flat={true} icon={MaterialIcon.MENU} onclick={toggleSidebar} />
 					</div>
 				{/snippet}
 				{#snippet trail()}
@@ -69,7 +72,11 @@
 						{#await data.companies}
 							<Loader />
 						{:then companies}
-							<CompanySelectList {companies} value={$ActiveCompany} oncompanychanged={changeActiveCompany}  />
+							<CompanySelectList
+								{companies}
+								value={$ActiveCompany}
+								oncompanychanged={changeActiveCompany}
+							/>
 						{/await}
 					</div>
 				{/snippet}
@@ -77,7 +84,7 @@
 		</header>
 
 		<div class="grid grid-cols-1">
-			<main class="p-4 space-y-4">
+			<main class="space-y-4 p-4">
 				<Toaster />
 
 				{@render children?.()}
@@ -89,16 +96,20 @@
 </div>
 
 <span style="display:none;">
-<NavMenu isOpen={sidebarOpen} onOpenChanged={(e) => sidebarOpen = e}>
-	<NavMenuGroup>
-		<NavMenuItem text="Customers" icon={MaterialIcon.PERSON} href="/customers" />
-		<NavMenuItem text="Sales" icon={MaterialIcon.SELL} href="/sales" />
-		<NavMenuItem text="Employees" icon={MaterialIcon.BADGE} href="/employees" />
-		<NavMenuDropdown leadingIcon={MaterialIcon.SETTINGS} title="Settings">
-			<NavMenuItem text="Company" icon={MaterialIcon.BUSINESS} href="/settings/company" />
-			<NavMenuItem text="Organization" icon={MaterialIcon.BUSINESS_CENTER} href="/settings/organization" />
-			<NavMenuItem text="Accounts" icon={MaterialIcon.GROUPS} href="/settings/accounts" />
-		</NavMenuDropdown>
-	</NavMenuGroup>
-</NavMenu>
+	<NavMenu isOpen={sidebarOpen} onOpenChanged={(e) => (sidebarOpen = e)}>
+		<NavMenuGroup>
+			<NavMenuItem text="Customers" icon={MaterialIcon.PERSON} href="/customers" />
+			<NavMenuItem text="Sales" icon={MaterialIcon.SELL} href="/sales" />
+			<NavMenuItem text="Employees" icon={MaterialIcon.BADGE} href="/employees" />
+			<NavMenuDropdown leadingIcon={MaterialIcon.SETTINGS} title="Settings">
+				<NavMenuItem text="Company" icon={MaterialIcon.BUSINESS} href="/settings/company" />
+				<NavMenuItem
+					text="Organization"
+					icon={MaterialIcon.BUSINESS_CENTER}
+					href="/settings/organization"
+				/>
+				<NavMenuItem text="Accounts" icon={MaterialIcon.GROUPS} href="/settings/accounts" />
+			</NavMenuDropdown>
+		</NavMenuGroup>
+	</NavMenu>
 </span>

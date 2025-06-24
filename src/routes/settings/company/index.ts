@@ -5,6 +5,4 @@ enum TabOptions {
 	Holidays
 }
 
-export {
-	TabOptions
-}
+export { TabOptions };

@@ -12,12 +12,9 @@ import { CompanySchema } from '$lib/shared/models/company';
 export const load: PageServerLoad = async (event: RequestEvent) => {
 	const account = event.locals.account;
 
-	const form = await superValidate(
-		account,
-		zod(AccountSchema)
-	);
+	const form = await superValidate(account, zod(AccountSchema));
 
-	if(account?.isRegistered) {
+	if (account?.isRegistered) {
 		return redirect(302, '/');
 	}
 
@@ -42,10 +39,18 @@ export const actions: Actions = {
 			return form;
 		}
 
-		var registrationResponse = await ApiClient.post<Account>(event.fetch, '/account/register', form.data);
+		var registrationResponse = await ApiClient.post<Account>(
+			event.fetch,
+			'/account/register',
+			form.data
+		);
 
 		if (registrationResponse.isOk && registrationResponse.value) {
-			setAccountCookie(event, registrationResponse.value, new Date(Date.now() + 1000 * 60 * 60 * 24 * 30));
+			setAccountCookie(
+				event,
+				registrationResponse.value,
+				new Date(Date.now() + 1000 * 60 * 60 * 24 * 30)
+			);
 			return message(form, { text: 'Registration successful!', type: 'success' });
 		}
 
@@ -59,7 +64,11 @@ export const actions: Actions = {
 			return form;
 		}
 
-		var organizationResponse = await ApiClient.post<Organization>(event.fetch, '/organization', form.data);
+		var organizationResponse = await ApiClient.post<Organization>(
+			event.fetch,
+			'/organization',
+			form.data
+		);
 
 		if (organizationResponse.isOk && organizationResponse.value) {
 			return message(form, { text: 'Organization created!', type: 'success' });

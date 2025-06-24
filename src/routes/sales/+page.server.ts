@@ -12,13 +12,15 @@ export const load: PageServerLoad = async ({ fetch, url, depends }) => {
     const pageSize = Number(url.searchParams.get('pageSize')) || 10;
     const sortBy = url.searchParams.get('sortBy') || 'lastName';
     const sortDirection = url.searchParams.get('sortDirection') || 'asc';
+    const searchTerm = url.searchParams.get('search') || '';
 
     depends('leads:list');
 
     return {
         countries: await fetchCountries({ fetch }),
         states: await fetchStates({ fetch }),
-        leads: fetchLeads({ fetch, pageNumber, pageSize, sortBy, sortDirection })
+        leads: fetchLeads({ fetch, pageNumber, pageSize, sortBy, sortDirection, searchTerm }),
+        searchTerm // Pass the search term back to the component
     };
 };
 
@@ -28,9 +30,17 @@ interface FetchLeadsParams {
     pageSize: number;
     sortBy: string;
     sortDirection: string;
+    searchTerm: string;
 }
 
-const fetchLeads = async ({ fetch, pageNumber, pageSize, sortBy, sortDirection }: FetchLeadsParams) => {
+interface LeadsApiResponse {
+    items: Lead[];
+    totalCount: number;
+    pageNumber: number;
+    pageSize: number;
+}
+
+const fetchLeads = async ({ fetch, pageNumber, pageSize, sortBy, sortDirection, searchTerm }: FetchLeadsParams) => {
     const params = new URLSearchParams({
         pageNumber: pageNumber.toString(),
         pageSize: pageSize.toString(),
@@ -38,14 +48,18 @@ const fetchLeads = async ({ fetch, pageNumber, pageSize, sortBy, sortDirection }
         sortDirection
     });
 
-    const response = await ApiClient.get<Lead[]>(fetch, `/leads?${params.toString()}`);
+    if (searchTerm.trim()) {
+        params.set('search', searchTerm.trim());
+    }
+
+    const response = await ApiClient.get<LeadsApiResponse>(fetch, `/leads?${params.toString()}`);
 
     if (response.isOk && response.value) {
         return {
-            value: response.value,
-            page: pageNumber,
-            total: response.value.length, // This would normally come from the API
-            count: response.value.length,
+            value: response.value.items || response.value, // Handle both formats
+            page: response.value.pageNumber || pageNumber,
+            total: response.value.totalCount || (Array.isArray(response.value) ? response.value.length : 0),
+            count: response.value.items?.length || (Array.isArray(response.value) ? response.value.length : 0),
             isOk: true
         };
     }
@@ -113,6 +127,38 @@ export const actions = {
             return fail(500, {
                 form,
                 error: 'Internal server error'
+            });
+        }
+    },
+
+    search: async ({ request, fetch }) => {
+        const formData = await request.formData();
+        const searchTerm = formData.get('search')?.toString() || '';
+        const pageNumber = Number(formData.get('pageNumber')) || 1;
+        const pageSize = Number(formData.get('pageSize')) || 10;
+        const sortBy = formData.get('sortBy')?.toString() || 'lastName';
+        const sortDirection = formData.get('sortDirection')?.toString() || 'asc';
+
+        try {
+            const searchResults = await fetchLeads({ 
+                fetch, 
+                pageNumber, 
+                pageSize, 
+                sortBy, 
+                sortDirection, 
+                searchTerm 
+            });
+            
+            return {
+                searchResults,
+                searchTerm,
+                success: true
+            };
+        } catch (error) {
+            console.error('Search error:', error);
+            return fail(500, {
+                error: 'Search failed',
+                searchTerm
             });
         }
     }

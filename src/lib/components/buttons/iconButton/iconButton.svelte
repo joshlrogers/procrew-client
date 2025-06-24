@@ -18,12 +18,16 @@
 		...otherProps
 	}: IconButtonProps = $props();
 
-	const buttonClasses = $derived(cn(
-		'chip place-items-center p-2',
-		flat ? '' : 'shadow-md shadow-surface-50/35',
-		`w-[${width}rem] h-[${width}rem]`,
-		textColor,
-		isRounded ? 'rounded-full' : '', className));
+	const buttonClasses = $derived(
+		cn(
+			'chip place-items-center p-2',
+			flat ? '' : 'shadow-md shadow-surface-50/35',
+			`w-[${width}rem] h-[${width}rem]`,
+			textColor,
+			isRounded ? 'rounded-full' : '',
+			className
+		)
+	);
 	const iconClasses = cn('text-2xl');
 </script>
 
@@ -34,12 +38,7 @@
 		</button>
 	</Tooltip>
 {:else}
-	<button class={buttonClasses}
-					{type}
-					{onclick}
-					{disabled}
-					{...otherProps}>
+	<button class={buttonClasses} {type} {onclick} {disabled} {...otherProps}>
 		<Icon {icon} class={iconClasses} />
 	</button>
 {/if}
-

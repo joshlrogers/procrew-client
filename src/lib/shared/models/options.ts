@@ -10,19 +10,19 @@ interface SelectListOption {
 let ethnicityOptions: SelectListOption[] = [
 	{ value: 1, label: 'Caucasian' },
 	{ value: 2, label: 'Black' },
-	{ value: 3, label: 'Other' },
-]
+	{ value: 3, label: 'Other' }
+];
 
 let genderOptions: SelectListOption[] = [
 	{ value: 1, label: 'Male' },
 	{ value: 2, label: 'Female' },
-	{ value: 3, label: 'Unspecified' },
-]
+	{ value: 3, label: 'Unspecified' }
+];
 
 let maritalStatusOptions: SelectListOption[] = [
 	{ value: 1, label: 'Single' },
-	{ value: 2, label: 'Married' },
-]
+	{ value: 2, label: 'Married' }
+];
 
 let salutationOptions: SelectListOption[] = [
 	{ value: 'Mr.', label: 'Mr.' },
@@ -31,21 +31,21 @@ let salutationOptions: SelectListOption[] = [
 	{ value: 'Miss', label: 'Miss' },
 	{ value: 'Dr.', label: 'Dr.' },
 	{ value: 'Prof.', label: 'Prof.' },
-	{ value: 'Rev.', label: 'Rev.' },
-]
+	{ value: 'Rev.', label: 'Rev.' }
+];
 
 let leadPriorityOptions: SelectListOption[] = [
 	{ value: LeadPriority.Low, label: 'Low' },
 	{ value: LeadPriority.Medium, label: 'Medium' },
-	{ value: LeadPriority.High, label: 'High' },
-]
+	{ value: LeadPriority.High, label: 'High' }
+];
 
 let leadStatusOptions: SelectListOption[] = [
 	{ value: LeadStatus.New, label: 'New' },
 	{ value: LeadStatus.Contacted, label: 'Contacted' },
 	{ value: LeadStatus.Qualified, label: 'Qualified' },
-	{ value: LeadStatus.Closed, label: 'Closed' },
-]
+	{ value: LeadStatus.Closed, label: 'Closed' }
+];
 
 export {
 	ethnicityOptions as EthnicityOptions,
@@ -55,4 +55,4 @@ export {
 	leadPriorityOptions as LeadPriorityOptions,
 	leadStatusOptions as LeadStatusOptions,
 	type SelectListOption
-}
+};

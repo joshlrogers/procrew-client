@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ fetch, locals, depends }) => {
 		});
 	}
 
-	depends("app:company");
+	depends('app:company');
 
 	return {
 		countries: fetchCountries(fetch),

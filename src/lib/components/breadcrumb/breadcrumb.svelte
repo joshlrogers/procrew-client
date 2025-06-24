@@ -28,12 +28,9 @@
 {#snippet itemRenderer(item: BreadcrumbItem)}
 	<div class="flex">
 		{#if item.icon}
-			<Icon icon={item.icon} class="mr-1.5 sm:mr-2 text-primary-700-300" />
+			<Icon icon={item.icon} class="text-primary-700-300 mr-1.5 sm:mr-2" />
 		{/if}
-		<a
-			href={item.url}
-			class="font-medium text-primary-700-300 hover:text-primary-500"
-		>
+		<a href={item.url} class="text-primary-700-300 hover:text-primary-500 font-medium">
 			{item.label}
 		</a>
 	</div>
@@ -44,7 +41,7 @@
 {/snippet}
 
 <nav aria-label="breadcrumb" class="py-2">
-	<ol class="flex items-center space-x-1 sm:space-x-1.5 text-sm">
+	<ol class="flex items-center space-x-1 text-sm sm:space-x-1.5">
 		{#each items as item, i (item.url)}
 			<li>
 				{@render itemRenderer(item)}

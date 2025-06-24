@@ -8,7 +8,6 @@
 		decorators: [],
 		parameters: {}
 	});
-
 </script>
 
-<Story name="Default" args="{{text: 'With Text'}}" />
+<Story name="Default" args={{ text: 'With Text' }} />

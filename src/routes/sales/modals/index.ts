@@ -1,1 +1,1 @@
-export { NewLeadModal } from './newLeadModal'; 
+export { NewLeadModal } from './newLeadModal';

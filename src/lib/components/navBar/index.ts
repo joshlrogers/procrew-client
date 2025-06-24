@@ -1,5 +1,3 @@
 import Root from './navBar.svelte';
 
-export {
-    Root as NavBar,
-}
+export { Root as NavBar };

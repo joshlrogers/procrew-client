@@ -9,17 +9,14 @@
 		decorators: [],
 		parameters: {}
 	});
-
 </script>
 
+<Story name="Default" args={{ icon: MaterialIcon.BADGE }} />
 
-<Story name="Default" args="{{icon: MaterialIcon.BADGE}}" />
+<Story name="Flat" args={{ icon: MaterialIcon.BADGE, flat: true }} />
 
-<Story name="Flat" args="{{icon: MaterialIcon.BADGE, flat: true}}" />
+<Story name="Flat & Rounded" args={{ icon: MaterialIcon.BADGE, flat: true, isRounded: true }} />
 
-<Story name="Flat & Rounded" args="{{icon: MaterialIcon.BADGE, flat: true, isRounded: true}}" />
+<Story name="Raised & Rounded" args={{ icon: MaterialIcon.BADGE, flat: false, isRounded: true }} />
 
-<Story name="Raised & Rounded" args="{{icon: MaterialIcon.BADGE, flat: false, isRounded: true}}" />
-
-<Story name="With Tooltip" args="{{icon: MaterialIcon.BADGE, tooltip: 'Tooltip'}}" />
-
+<Story name="With Tooltip" args={{ icon: MaterialIcon.BADGE, tooltip: 'Tooltip' }} />

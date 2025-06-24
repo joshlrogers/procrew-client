@@ -9,74 +9,68 @@
 
 	const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-	let {
-		company
-	} = $props();
+	let { company } = $props();
 
-	let {
-		form,
-		errors,
-		enhance,
-		reset,
-		submitting,
-		tainted,
-		isTainted
-	} = superForm<BusinessHours>(defaults(company.businessHours, zod(BusinessHoursSchema)), {
-		dataType: 'json',
-		clearOnSubmit: 'errors-and-message',
-		multipleSubmits: 'prevent',
-		resetForm: false,
-		validationMethod: 'oninput',
-		validators: zod(BusinessHoursSchema),
-		invalidateAll: false,
-		onUpdated: (event) => {
-			if (event.form.valid) {
-				reset({ data: event.form.data, newState: event.form.data });
-
-				toast.success(`Updated company's business hours.`);
-			}
-		}
-	});
-
-	let operationalDays: Record<string, { enabled: boolean, start?: string | null, end?: string | null }> = $state(
+	let { form, errors, enhance, reset, submitting, tainted, isTainted } = superForm<BusinessHours>(
+		defaults(company.businessHours, zod(BusinessHoursSchema)),
 		{
-			'Sunday': {
-				'enabled': Boolean($form.sundayStart) || Boolean($form.sundayEnd),
-				'start': $form.sundayStart,
-				'end': $form.sundayEnd
-			},
-			'Monday': {
-				'enabled': Boolean($form.mondayStart) || Boolean($form.mondayEnd),
-				'start': $form.mondayStart,
-				'end': $form.mondayEnd
-			},
-			'Tuesday': {
-				'enabled': Boolean($form.tuesdayStart) || Boolean($form.tuesdayEnd),
-				'start': $form.tuesdayStart,
-				'end': $form.tuesdayEnd
-			},
-			'Wednesday': {
-				'enabled': Boolean($form.wednesdayStart) || Boolean($form.wednesdayEnd),
-				'start': $form.wednesdayStart,
-				'end': $form.wednesdayEnd
-			},
-			'Thursday': {
-				'enabled': Boolean($form.thursdayStart) || Boolean($form.thursdayEnd),
-				'start': $form.thursdayStart,
-				'end': $form.thursdayEnd
-			},
-			'Friday': {
-				'enabled': Boolean($form.fridayStart) || Boolean($form.fridayEnd),
-				'start': $form.fridayStart,
-				'end': $form.fridayEnd
-			},
-			'Saturday': {
-				'enabled': Boolean($form.saturdayStart) || Boolean($form.saturdayEnd),
-				'start': $form.saturdayStart,
-				'end': $form.saturdayEnd
+			dataType: 'json',
+			clearOnSubmit: 'errors-and-message',
+			multipleSubmits: 'prevent',
+			resetForm: false,
+			validationMethod: 'oninput',
+			validators: zod(BusinessHoursSchema),
+			invalidateAll: false,
+			onUpdated: (event) => {
+				if (event.form.valid) {
+					reset({ data: event.form.data, newState: event.form.data });
+
+					toast.success(`Updated company's business hours.`);
+				}
 			}
 		}
 	);
+
+	let operationalDays: Record<
+		string,
+		{ enabled: boolean; start?: string | null; end?: string | null }
+	> = $state({
+		Sunday: {
+			enabled: Boolean($form.sundayStart) || Boolean($form.sundayEnd),
+			start: $form.sundayStart,
+			end: $form.sundayEnd
+		},
+		Monday: {
+			enabled: Boolean($form.mondayStart) || Boolean($form.mondayEnd),
+			start: $form.mondayStart,
+			end: $form.mondayEnd
+		},
+		Tuesday: {
+			enabled: Boolean($form.tuesdayStart) || Boolean($form.tuesdayEnd),
+			start: $form.tuesdayStart,
+			end: $form.tuesdayEnd
+		},
+		Wednesday: {
+			enabled: Boolean($form.wednesdayStart) || Boolean($form.wednesdayEnd),
+			start: $form.wednesdayStart,
+			end: $form.wednesdayEnd
+		},
+		Thursday: {
+			enabled: Boolean($form.thursdayStart) || Boolean($form.thursdayEnd),
+			start: $form.thursdayStart,
+			end: $form.thursdayEnd
+		},
+		Friday: {
+			enabled: Boolean($form.fridayStart) || Boolean($form.fridayEnd),
+			start: $form.fridayStart,
+			end: $form.fridayEnd
+		},
+		Saturday: {
+			enabled: Boolean($form.saturdayStart) || Boolean($form.saturdayEnd),
+			start: $form.saturdayStart,
+			end: $form.saturdayEnd
+		}
+	});
 
 	const setTime = (day: string, start?: string | null, end?: string | null) => {
 		switch (day) {
@@ -116,37 +110,38 @@
 			return null;
 		}
 
-		let startTime = $errors[`${day.toLowerCase()}Start` as keyof typeof $errors] as Record<string, string[]> | undefined;
+		let startTime = $errors[`${day.toLowerCase()}Start` as keyof typeof $errors] as
+			| Record<string, string[]>
+			| undefined;
 		if (startTime) {
 			return startTime?.[0];
 		}
 
-		let endTime = $errors[`${day.toLowerCase()}End` as keyof typeof $errors] as Record<string, string[]> | undefined;
+		let endTime = $errors[`${day.toLowerCase()}End` as keyof typeof $errors] as
+			| Record<string, string[]>
+			| undefined;
 		if (endTime) {
 			return endTime?.[0];
 		}
 	};
-
 </script>
 
 <div class="flex flex-col items-center gap-4">
-
 	<form method="POST" action="?/updateBusinessHours" use:enhance>
-		<div class="flex flex-col gap-2 p-4 items-center">
+		<div class="flex flex-col items-center gap-2 p-4">
 			{#each days as day}
-				<BusinessHoursRow start={operationalDays[day].start}
-													end={operationalDays[day].end}
-													onBusinessHoursChange={setTime}
-													errors={getError(day)}
-													{day} />
+				<BusinessHoursRow
+					start={operationalDays[day].start}
+					end={operationalDays[day].end}
+					onBusinessHoursChange={setTime}
+					errors={getError(day)}
+					{day}
+				/>
 			{/each}
 		</div>
 
 		<div class="mt-4 flex justify-end">
-			<Button
-				disabled={!isTainted($tainted) || $submitting}
-				text="Save"
-				type="submit" />
+			<Button disabled={!isTainted($tainted) || $submitting} text="Save" type="submit" />
 		</div>
 	</form>
 </div>

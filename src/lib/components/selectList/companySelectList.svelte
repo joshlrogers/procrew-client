@@ -36,25 +36,29 @@
 		return icon;
 	};
 
-	let availableCompanyOptions = $derived(availableCompanies.map(company => {
-		// Note: companyType property doesn't exist on Company type, only companyTypeId
-		// Icon will be undefined for now until companyType data is available
-		let icon = getIcon(undefined);
-		return {
-			value: company.id!,
-			label: company.name,
-			icon
-		};
-	}));
+	let availableCompanyOptions = $derived(
+		availableCompanies.map((company) => {
+			// Note: companyType property doesn't exist on Company type, only companyTypeId
+			// Icon will be undefined for now until companyType data is available
+			let icon = getIcon(undefined);
+			return {
+				value: company.id!,
+				label: company.name,
+				icon
+			};
+		})
+	);
 </script>
 
-<SelectList items={availableCompanyOptions}
-						required={true}
-						{value}
-						wrapperClass="min-w-64"
-						onchanged={(val) => {
-							if(typeof val === 'string')  {
-								value=val;
-								oncompanychanged?.(val)
-							}
-						}} />
+<SelectList
+	items={availableCompanyOptions}
+	required={true}
+	{value}
+	wrapperClass="min-w-64"
+	onchanged={(val) => {
+		if (typeof val === 'string') {
+			value = val;
+			oncompanychanged?.(val);
+		}
+	}}
+/>

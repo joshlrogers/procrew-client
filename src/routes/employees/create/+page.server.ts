@@ -16,14 +16,14 @@ const createEmployee = async ({ fetch, request }: RequestEvent) => {
 	let content = JSON.stringify(form.data);
 
 	const result = await ApiClient.postRaw(fetch, '/organization/company/employee', content);
-	if(result.isOk && result.value) {
+	if (result.isOk && result.value) {
 		return redirect(302, '/employees');
 	}
 
 	return {
 		...form,
 		errors: result.error
-	}
+	};
 };
 
 const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
@@ -36,11 +36,10 @@ const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Prom
 	}
 };
 
-const fetchDepartments = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	let response = await ApiClient.get<Department[]>(
-		fetch,
-		'/organization/company/departments'
-	);
+const fetchDepartments = async (
+	fetch: (input: string, init?: RequestInit) => Promise<Response>
+) => {
+	let response = await ApiClient.get<Department[]>(fetch, '/organization/company/departments');
 	if (response.isOk && response.value) {
 		return response.value;
 	}
@@ -67,5 +66,3 @@ export const load: PageServerLoad = async ({ fetch }) => {
 		departments: await fetchDepartments(fetch)
 	};
 };
-
-

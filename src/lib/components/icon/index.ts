@@ -18,6 +18,7 @@ enum MaterialIcon {
 	BUSINESS = 'business',
 	BUSINESS_CENTER = 'business_center',
 	CLEANING_SERVICES = 'cleaning_services',
+	CLOSE = 'close',
 	DATE_RANGE = 'date_range',
 	DELETE = 'delete',
 	EDIT = 'edit',
@@ -32,6 +33,7 @@ enum MaterialIcon {
 	MENU = 'menu',
 	PERSON = 'person',
 	RESTART = 'restart_alt',
+	SEARCH = 'search',
 	SELL = 'sell',
 	SETTINGS = 'settings'
 }

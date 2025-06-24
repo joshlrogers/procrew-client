@@ -1,10 +1,6 @@
 <script lang="ts">
 	import { createDatePicker, melt } from '@melt-ui/svelte';
-	import {
-		type AnyCalendarDate,
-		CalendarDate,
-		ZonedDateTime
-	} from '@internationalized/date';
+	import { type AnyCalendarDate, CalendarDate, ZonedDateTime } from '@internationalized/date';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
 
 	interface DateInputProps {
@@ -24,7 +20,7 @@
 		onDateChange = undefined,
 		required = false,
 		startingTabIndex = undefined,
-		wrapperClass:extWrapperClass = undefined
+		wrapperClass: extWrapperClass = undefined
 	}: DateInputProps = $props();
 
 	let wrapperClass = $derived(extWrapperClass);
@@ -46,11 +42,9 @@
 		states: { months, headingValue, weekdays, segmentContents, open },
 		helpers: { isDateDisabled, isDateUnavailable }
 	} = createDatePicker({
-
 		forceVisible: true,
 		defaultValue: dateValue,
 		onValueChange: ({ next }) => {
-
 			onDateChange?.(next);
 			$open = false;
 			return next;
@@ -58,19 +52,17 @@
 	});
 </script>
 
-<style lang="postcss">
-    @import './dateStyles.css';
-</style>
 <div class={wrapperClass}>
 	<div class="flex w-full flex-col gap-6">
 		<div>
 			{#if labelText}
 				<label use:melt={$label} class="label">
-				<span class="block mb-2 label-text">{ labelText }
-					{#if required}
-						<span class="text-error-200-800 ml-1">*</span>
-					{/if}
-				</span>
+					<span class="label-text mb-2 block"
+						>{labelText}
+						{#if required}
+							<span class="text-error-200-800 ml-1">*</span>
+						{/if}
+					</span>
 				</label>
 			{/if}
 			<div use:melt={$field}>
@@ -87,14 +79,12 @@
 			</div>
 		</div>
 		{#if errors}
-			<div class="uppercase text-xs leading-1 tracking-tighter text-coral-red-700 px-1">
+			<div class="text-coral-red-700 px-1 text-xs leading-1 tracking-tighter uppercase">
 				{errors}
 			</div>
 		{/if}
 		{#if $open}
-			<div
-				use:melt={$content}
-			>
+			<div use:melt={$content}>
 				<div use:melt={$calendar}>
 					<header>
 						<button use:melt={$prevButton}>
@@ -111,32 +101,31 @@
 						{#each $months as month}
 							<table use:melt={$grid}>
 								<thead aria-hidden="true">
-								<tr>
-									{#each $weekdays as day}
-										<th>
-											<div>
-												{day}
-											</div>
-										</th>
-									{/each}
-								</tr>
-								</thead>
-								<tbody>
-								{#each month.weeks as weekDates}
 									<tr>
-										{#each weekDates as date}
-											<td
-												role="gridcell"
-												aria-disabled={$isDateDisabled(date) ||
-                          $isDateUnavailable(date)}
-											>
-												<div use:melt={$cell(date, month.value)}>
-													{date.day}
+										{#each $weekdays as day}
+											<th>
+												<div>
+													{day}
 												</div>
-											</td>
+											</th>
 										{/each}
 									</tr>
-								{/each}
+								</thead>
+								<tbody>
+									{#each month.weeks as weekDates}
+										<tr>
+											{#each weekDates as date}
+												<td
+													role="gridcell"
+													aria-disabled={$isDateDisabled(date) || $isDateUnavailable(date)}
+												>
+													<div use:melt={$cell(date, month.value)}>
+														{date.day}
+													</div>
+												</td>
+											{/each}
+										</tr>
+									{/each}
 								</tbody>
 							</table>
 						{/each}
@@ -146,3 +135,7 @@
 		{/if}
 	</div>
 </div>
+
+<style lang="postcss">
+	@import './dateStyles.css';
+</style>

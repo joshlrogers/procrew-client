@@ -9,12 +9,7 @@ export interface WizardStepData {
 }
 
 interface WizardContext {
-    orientation: 'horizontal' | 'vertical';
+	orientation: 'horizontal' | 'vertical';
 }
 
-
-export {
-	WizardRoot as Wizard,
-    WizardStepComponent as WizardStep,
-    type WizardContext,
-}; 
+export { WizardRoot as Wizard, WizardStepComponent as WizardStep, type WizardContext };

@@ -107,10 +107,7 @@ const fetchCountries = async (event: RequestEvent) => {
 	}
 };
 
-const fetchOrganization = async (
-	event: RequestEvent,
-	organizationId: string
-) => {
+const fetchOrganization = async (event: RequestEvent, organizationId: string) => {
 	let response = await ApiClient.get<Organization>(event.fetch, `/organization/${organizationId}`);
 	if (response.isOk && response.value) {
 		return response.value;

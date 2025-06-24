@@ -1,7 +1,7 @@
 <script lang="ts">
-    let {children} = $props();
+	let { children } = $props();
 </script>
 
 <ul>
-    {@render children?.()}
+	{@render children?.()}
 </ul>

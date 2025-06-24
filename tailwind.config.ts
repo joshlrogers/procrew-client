@@ -1,15 +1,10 @@
-import tailwindcss from "@tailwindcss/vite";
+import tailwindcss from '@tailwindcss/vite';
 import forms from '@tailwindcss/forms';
 
 const config = {
 	darkMode: ['selector', '[data-mode="dark"]'],
-	content: [
-		'./src/**/*.{html,js,svelte,ts}',
-	],
-	plugins: [
-		tailwindcss,
-		forms
-	],
+	content: ['./src/**/*.{html,js,svelte,ts}'],
+	plugins: [tailwindcss, forms],
 	theme: {
 		extend: {
 			zIndex: {
@@ -44,7 +39,7 @@ const config = {
 					'900': '#7e2710',
 					'950': '#441106'
 				},
-				'sunglow': {
+				sunglow: {
 					DEFAULT: '#ffca3a',
 					'50': '#fffaeb',
 					'100': '#fff2c6',
@@ -58,7 +53,7 @@ const config = {
 					'900': '#7a310d',
 					'950': '#461802'
 				},
-				'lochmara': {
+				lochmara: {
 					DEFAULT: '#1982c4',
 					'50': '#f2f8fd',
 					'100': '#e3f0fb',
@@ -86,7 +81,7 @@ const config = {
 					'900': '#881417',
 					'950': '#4b0406'
 				},
-				'lavender': {
+				lavender: {
 					DEFAULT: '#ad77d9',
 					'50': '#faf7fd',
 					'100': '#f4ecfb',
@@ -100,7 +95,7 @@ const config = {
 					'900': '#593073',
 					'950': '#3b1952'
 				},
-				'conifer': {
+				conifer: {
 					DEFAULT: '#9eda3d',
 					'50': '#f6fde8',
 					'100': '#ebf9ce',
@@ -118,7 +113,7 @@ const config = {
 			transitionProperty: {
 				marginLeft: 'margin-left',
 				width: 'width'
-			},
+			}
 		}
 	}
 };

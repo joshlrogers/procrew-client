@@ -7,7 +7,4 @@ enum DialogType {
 	Warn
 }
 
-export {
-	Root as Dialog,
-	DialogType
-}
+export { Root as Dialog, DialogType };

@@ -13,6 +13,7 @@
     import { NewLeadModal } from '../../modals';
     import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
     import { invalidate } from '$app/navigation';
+    import { SearchInput } from '$lib/components/inputs';
 
     interface LeadsPanelProps {
         leadsData: Promise<{
@@ -24,18 +25,24 @@
         }>;
         countries?: CountrySelectOption[];
         states?: StateSelectOption[];
+        initialSearchTerm?: string;
     }
 
-    let { leadsData, countries = [], states = [] }: LeadsPanelProps = $props();
+    let { leadsData, countries = [], states = [], initialSearchTerm = '' }: LeadsPanelProps = $props();
 
     let currentPage = $state(1);
     let pageSize = $state(10);
     let sortBy = $state('lastName');
     let sortDirection = $state('asc');
+    let searchTerm = $state(initialSearchTerm);
     let showNewLeadModal = $state(false);
+    let isSearching = $state(false);
+    
+    // Keep a separate state for the input value to prevent disruption
+    let inputSearchTerm = $state(initialSearchTerm);
 
-    // Update URL with new parameters
-    const updateUrl = (newPage?: number, newPageSize?: number, newSortBy?: string, newSortDirection?: string) => {
+    // Update URL with new parameters and trigger load function
+    const updateUrl = (newPage?: number, newPageSize?: number, newSortBy?: string, newSortDirection?: string, newSearchTerm?: string) => {
         const url = new URL($page.url);
         
         if (newPage !== undefined) {
@@ -54,8 +61,21 @@
             url.searchParams.set('sortDirection', newSortDirection);
             sortDirection = newSortDirection;
         }
+        if (newSearchTerm !== undefined) {
+            if (newSearchTerm.trim()) {
+                url.searchParams.set('search', newSearchTerm.trim());
+            } else {
+                url.searchParams.delete('search');
+            }
+            searchTerm = newSearchTerm;
+        }
         
-        goto(url.toString());
+        // Use goto to trigger load function with proper options to minimize disruption
+        goto(url.toString(), { 
+            noScroll: true,
+            keepFocus: true,
+            replaceState: true
+        });
     };
 
     const handleSort = (field: string) => {
@@ -69,6 +89,21 @@
 
     const handlePageSizeChange = (event: { pageSize: number }) => {
         updateUrl(1, event.pageSize);
+    };
+
+    const handleSearch = (newSearchTerm: string) => {
+        console.log('LeadsPanel: handleSearch called with:', newSearchTerm);
+        
+        // Update the input term immediately to preserve user input
+        inputSearchTerm = newSearchTerm;
+        
+        // Update URL which will trigger the load function
+        updateUrl(1, undefined, undefined, undefined, newSearchTerm);
+    };
+
+    const handleClearSearch = () => {
+        inputSearchTerm = '';
+        updateUrl(1, undefined, undefined, undefined, '');
     };
 
     const getSortIcon = (field: string) => {
@@ -195,6 +230,30 @@
         {:then data}
             {#if data.isOk && data.value}
                 <div class="space-y-4">
+                    <!-- Search Input -->
+                    <div class="flex items-center gap-4">
+                        {#key 'search-input'}
+                            <SearchInput
+                                placeholder="Search leads..."
+                                value={inputSearchTerm}
+                                onSearch={handleSearch}
+                                onClear={handleClearSearch}
+                                class="flex-1 max-w-md"
+                            />
+                        {/key}
+                        {#if isSearching}
+                            <div class="flex items-center gap-2 text-sm text-surface-500">
+                                <ProgressRing 
+                                    value={null} 
+                                    size="size-4" 
+                                    meterStroke="stroke-primary-500"
+                                    trackStroke="stroke-surface-200" 
+                                />
+                                Searching...
+                            </div>
+                        {/if}
+                    </div>
+
                     <!-- Table -->
                     <div class="table-wrap">
                         <table class="table caption-bottom">
@@ -245,7 +304,18 @@
                                 {#if data.value.length === 0}
                                     <tr>
                                         <td colspan="9" class="text-center py-8 text-surface-500">
-                                            No leads found.
+                                            {#if searchTerm.trim()}
+                                                No results found for "{searchTerm.trim()}".
+                                                <button
+                                                    type="button"
+                                                    onclick={handleClearSearch}
+                                                    class="text-primary-500 hover:text-primary-600 underline ml-1"
+                                                >
+                                                    Clear search
+                                                </button>
+                                            {:else}
+                                                No leads found.
+                                            {/if}
                                         </td>
                                     </tr>
                                 {:else}

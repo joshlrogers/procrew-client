@@ -1,7 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded");
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded');
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap');
 
-@import "tailwindcss";
+@import 'tailwindcss';
 @plugin "@tailwindcss/forms";
 
 @import '@skeletonlabs/skeleton';
@@ -13,25 +13,25 @@
 @source '../node_modules/@skeletonlabs/skeleton-svelte/dist';
 
 @theme {
-    --font-roboto: 'Roboto Flex', sans-serif;
+	--font-roboto: 'Roboto Flex', sans-serif;
 }
 
 @layer base {
+	html,
+	body {
+		@apply h-full;
+		font-family: var(--font-roboto);
+	}
 
-    html, body {
-        @apply h-full;
-        font-family: var(--font-roboto);
-    }
+	.select-list {
+		@apply w-full;
+	}
 
-    .select-list {
-        @apply w-full;
-    }
+	.select-list-contents {
+		@apply bg-surface-100-900;
+	}
 
-    .select-list-contents {
-        @apply bg-surface-100-900;
-    }
-
-    table > .actions {
-        @apply px-4 py-2;
-    }
+	table > .actions {
+		@apply px-4 py-2;
+	}
 }

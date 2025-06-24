@@ -1,3 +1,3 @@
 export interface AppError {
-    error: string
+	error: string;
 }

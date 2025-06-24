@@ -1,5 +1,3 @@
 import Root from './panel.svelte';
 
-export {
-    Root as Panel,
-}
+export { Root as Panel };

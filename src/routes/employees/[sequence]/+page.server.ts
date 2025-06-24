@@ -12,10 +12,12 @@ const transformEmployeeForForm = (employee: Employee) => {
 	return {
 		...employee,
 		hireDate: dateToString(employee.hireDate),
-		demographics: employee.demographics ? {
-			...employee.demographics,
-			dateOfBirth: dateToString(employee.demographics.dateOfBirth)
-		} : undefined
+		demographics: employee.demographics
+			? {
+					...employee.demographics,
+					dateOfBirth: dateToString(employee.demographics.dateOfBirth)
+				}
+			: undefined
 	};
 };
 
@@ -29,17 +31,19 @@ const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Prom
 	}
 };
 
-const fetchDepartments = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	let response = await ApiClient.get<Department[]>(
-		fetch,
-		'/organization/company/departments'
-	);
+const fetchDepartments = async (
+	fetch: (input: string, init?: RequestInit) => Promise<Response>
+) => {
+	let response = await ApiClient.get<Department[]>(fetch, '/organization/company/departments');
 	if (response.isOk && response.value) {
 		return response.value;
 	}
 };
 
-const fetchEmployee = async(fetch: (input: string, init?: RequestInit) => Promise<Response>, id: string) => {
+const fetchEmployee = async (
+	fetch: (input: string, init?: RequestInit) => Promise<Response>,
+	id: string
+) => {
 	let response = await ApiClient.get<Employee>(fetch, `/organization/company/employee/${id}`);
 	if (response.isOk && response.value) {
 		return response.value;
@@ -60,7 +64,7 @@ const updateEmployee = async ({ fetch, request }: RequestEvent) => {
 	}
 
 	const result = await ApiClient.put<Employee>(fetch, '/organization/company/employee', form.data);
-	if(result.isOk && result.value) {
+	if (result.isOk && result.value) {
 		const transformedEmployee = transformEmployeeForForm(result.value);
 		const updatedForm = await superValidate(transformedEmployee, zod(EmployeeFormSchema));
 		return { form: updatedForm, success: true };
@@ -71,16 +75,16 @@ const updateEmployee = async ({ fetch, request }: RequestEvent) => {
 
 export const actions = {
 	updateEmployee
-}
+};
 
 export const load: PageServerLoad = async ({ fetch, params }: RequestEvent) => {
-	if(!params.sequence) {
+	if (!params.sequence) {
 		return redirect(302, '/employees');
 	}
 
 	let employee = await fetchEmployee(fetch, params.sequence);
 	const transformedEmployee = employee ? transformEmployeeForForm(employee) : undefined;
-	
+
 	const form = await superValidate(transformedEmployee, zod(EmployeeFormSchema));
 
 	return {

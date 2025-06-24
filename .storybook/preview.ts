@@ -7,8 +7,8 @@ const preview: Preview = {
 	decorators: [
 		withThemeByDataAttribute({
 			themes: {
-				vintage: "vintage",
-				vox: "vox"
+				vintage: 'vintage',
+				vox: 'vox'
 			},
 			defaultTheme: 'vintage',
 			attributeName: 'data-theme',
@@ -18,20 +18,20 @@ const preview: Preview = {
 	parameters: {
 		rootAttributes: [
 			{
-				root: "body",
+				root: 'body',
 				attribute: 'data-mode',
 				defaultState: {
-					"name": "Default",
-					"value": "dark"
+					name: 'Default',
+					value: 'dark'
 				},
 				states: [
 					{
-						"name": "Dark",
-						"value": "dark"
+						name: 'Dark',
+						value: 'dark'
 					},
 					{
-						"name": "Light",
-						"value": "light"
+						name: 'Light',
+						value: 'light'
 					}
 				]
 			}

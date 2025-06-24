@@ -1,3 +1,3 @@
 import { QuickAddCustomerModal } from './quickAddCustomerModal';
 
-export { QuickAddCustomerModal }; 
+export { QuickAddCustomerModal };

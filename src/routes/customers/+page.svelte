@@ -9,10 +9,8 @@
 	import type { PageProps } from './$types';
 	import toast from 'svelte-french-toast';
 	import Tooltip from '$lib/components/tooltip/Tooltip.svelte';
-	let {
-		data
-	}: PageProps = $props();
-	
+	let { data }: PageProps = $props();
+
 	let showQuickAddModal = $state(false);
 
 	const handleAddCustomer = () => {
@@ -21,11 +19,11 @@
 
 	const handleCloseModal = (success?: boolean) => {
 		showQuickAddModal = false;
-		if(success) {
-			toast.success("Customer added successfully");	
-			invalidate("customers");
-		} else if(success === false) {
-			toast.error("Failed to add customer");
+		if (success) {
+			toast.success('Customer added successfully');
+			invalidate('customers');
+		} else if (success === false) {
+			toast.error('Failed to add customer');
 		}
 	};
 
@@ -38,69 +36,69 @@
 	<title>Customer Dashboard</title>
 </svelte:head>
 
-<div class="flex flex-col gap-4 items-center">
+<div class="flex flex-col items-center gap-4">
 	<Panel class="w-[75%]">
 		{#snippet header()}
-		<div class="flex flex-row justify-between">	
-			<div>
-				<h1 class="text-2xl font-bold">Customer Dashboard</h1>
+			<div class="flex flex-row justify-between">
+				<div>
+					<h1 class="text-2xl font-bold">Customer Dashboard</h1>
+				</div>
+				<div>
+					<Tooltip text="Quick add a new customer." arrow={true} size="md" position="bottom">
+						<Button
+							text="Quick Add"
+							buttonStyle={ButtonStyle.TERTIARY}
+							onclick={handleAddCustomer}
+							width="w-24"
+							height="h-8"
+						/>
+					</Tooltip>
+				</div>
 			</div>
-			<div>
-				<Tooltip text="Quick add a new customer." 
-					arrow={true}
-					size="md"
-					position="bottom"
-				>
-					<Button
-						text="Quick Add"
-						buttonStyle={ButtonStyle.TERTIARY}
-						onclick={handleAddCustomer}
-						width="w-24"
-						height="h-8"
-					/>
-				</Tooltip>
-			</div>
-		</div>
 		{/snippet}
 		{#snippet content()}
-		{#await data.customers}
-			<div class="flex flex-row justify-center items-center gap-2">
-				<ProgressRing value={null} size="size-14" meterStroke="stroke-tertiary-600-400"
-											trackStroke="stroke-tertiary-50-950" />
-			</div>
-		{:then customers}
-			<div class="flex flex-col justify-between items-center mb-8">
-				{#if customers.length === 0}
-					<h3 class="text-lg font-medium text-primary-400-600 mb-2">No customers yet</h3>
-					<Button
-						text="Add Your First Customer"
-						buttonStyle={ButtonStyle.SECONDARY}
-						onclick={handleAddCustomer}
-						width="w-auto"
-						class="px-6"
+			{#await data.customers}
+				<div class="flex flex-row items-center justify-center gap-2">
+					<ProgressRing
+						value={null}
+						size="size-14"
+						meterStroke="stroke-tertiary-600-400"
+						trackStroke="stroke-tertiary-50-950"
+					/>
+				</div>
+			{:then customers}
+				<div class="mb-8 flex flex-col items-center justify-between">
+					{#if customers.length === 0}
+						<h3 class="text-primary-400-600 mb-2 text-lg font-medium">No customers yet</h3>
+						<Button
+							text="Add Your First Customer"
+							buttonStyle={ButtonStyle.SECONDARY}
+							onclick={handleAddCustomer}
+							width="w-auto"
+							class="px-6"
 						/>
-				{:else}
-					<table class='table'>
-						<thead class="table-header-group">
-							<tr class="table-header-row">
-								<th class="table-header-cell">First Name</th>
-								<th class="table-header-cell">Last Name</th>
-								<th class="table-header-cell">Email</th>
-							</tr>
-						</thead>
-						<tbody class="table-row-group">
-							{#each customers as customer}
-							<tr class="table-row">
-								<td class="table-cell">{customer.firstName}</td>
-								<td class="table-cell">{customer.lastName}</td>
-								<td class="table-cell">{customer.primaryEmailAddress}</td>
-							</tr>
-							{/each}
-						</tbody>
-					</table>
-				{/if}
-			</div>
-		{/await}
+					{:else}
+						<table class="table">
+							<thead class="table-header-group">
+								<tr class="table-header-row">
+									<th class="table-header-cell">First Name</th>
+									<th class="table-header-cell">Last Name</th>
+									<th class="table-header-cell">Email</th>
+								</tr>
+							</thead>
+							<tbody class="table-row-group">
+								{#each customers as customer}
+									<tr class="table-row">
+										<td class="table-cell">{customer.firstName}</td>
+										<td class="table-cell">{customer.lastName}</td>
+										<td class="table-cell">{customer.primaryEmailAddress}</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					{/if}
+				</div>
+			{/await}
 		{/snippet}
 	</Panel>
 </div>
@@ -109,4 +107,4 @@
 	open={showQuickAddModal}
 	onClose={handleCloseModal}
 	onSave={handleSaveCustomer}
-/> 
+/>

@@ -16,29 +16,24 @@
 
 	let { data } = $props();
 
-	const {
-		form,
-		errors,
-		enhance,
-		constraints,
-		isTainted,
-		tainted,
-		submitting
-	} = superForm(data.form, {
-		dataType: 'json',
-		invalidateAll: false,
-		multipleSubmits: 'prevent',
-		resetForm: false,
-		validators: zod(AccountSchema),
-		validationMethod: 'onsubmit',
-		clearOnSubmit: 'errors-and-message',
-		onUpdated: async (event) => {
-			if (event.form.valid) {
-				onboardingContext.isRegistered = true;
-				onboardingContext.currentStep = 1;
+	const { form, errors, enhance, constraints, isTainted, tainted, submitting } = superForm(
+		data.form,
+		{
+			dataType: 'json',
+			invalidateAll: false,
+			multipleSubmits: 'prevent',
+			resetForm: false,
+			validators: zod(AccountSchema),
+			validationMethod: 'onsubmit',
+			clearOnSubmit: 'errors-and-message',
+			onUpdated: async (event) => {
+				if (event.form.valid) {
+					onboardingContext.isRegistered = true;
+					onboardingContext.currentStep = 1;
+				}
 			}
 		}
-	});
+	);
 
 	const steps = [
 		{
@@ -59,17 +54,17 @@
 	];
 
 	const determineCurrentStep = () => {
-		if(!$form.isRegistered) {
+		if (!$form.isRegistered) {
 			return 0;
 		}
-		if(!$form.defaultOrganizationId) {
+		if (!$form.defaultOrganizationId) {
 			return 1;
 		}
-		if(!$form.defaultCompanyId) {
+		if (!$form.defaultCompanyId) {
 			return 2;
 		}
 		return 3;
-	}
+	};
 
 	let onboardingContext = $state({
 		currentStep: -1,
@@ -80,7 +75,7 @@
 	});
 
 	const onStepChanged = (step?: number) => {
-		if(step === 0 && onboardingContext.isRegistered) {
+		if (step === 0 && onboardingContext.isRegistered) {
 			onboardingContext.currentStep = 1;
 			return;
 		}
@@ -94,19 +89,17 @@
 
 	const onOrganizationUpdated = (organization: Organization) => {
 		goto('/settings/organization');
-	}
+	};
 </script>
 
-
-<div class="flex flex-col gap-4 items-center">
-
-	<div class="flex flex-col items-center justify-center mt-4 mb-10">
+<div class="flex flex-col items-center gap-4">
+	<div class="mt-4 mb-10 flex flex-col items-center justify-center">
 		<Wizard
 			{steps}
 			currentStep={onboardingContext.currentStep}
 			orientation={onboardingContext.orientation}
 			allowStepChange={true}
-			onStepChanged={onStepChanged}
+			{onStepChanged}
 			shape="square"
 		/>
 	</div>
@@ -119,42 +112,45 @@
 				</div>
 			{/snippet}
 			{#snippet content()}
-				<div class="flex flex-col gap-4 items-center">
+				<div class="flex flex-col items-center gap-4">
 					{#if onboardingContext.isRegistered}
 						<p>You're already registered. Please login to continue.</p>
 					{:else}
 						<form method="POST" action="?/register" class="w-full" use:enhance>
-
-							<div class="flex flex-col gap-4 items-center">
-								<TextInput label="First Name"
-												 required={true}
-												 wrapperClass="w-1/2"
-												 bind:value={$form.firstName}
-												 constraints={$constraints.firstName}
-												 errors={$errors.firstName}
-												 autofocus={true}
+							<div class="flex flex-col items-center gap-4">
+								<TextInput
+									label="First Name"
+									required={true}
+									wrapperClass="w-1/2"
+									bind:value={$form.firstName}
+									constraints={$constraints.firstName}
+									errors={$errors.firstName}
+									autofocus={true}
 								/>
-								<TextInput label="Last Name"
-												 required={true}
-												 wrapperClass="w-1/2"
-												 bind:value={$form.lastName}
-												 constraints={$constraints.lastName}
-												 errors={$errors.lastName}
+								<TextInput
+									label="Last Name"
+									required={true}
+									wrapperClass="w-1/2"
+									bind:value={$form.lastName}
+									constraints={$constraints.lastName}
+									errors={$errors.lastName}
 								/>
-								<TextInput label="Email"
-												 wrapperClass="w-1/2"
-												 bind:value={$form.emailAddress}
-												 constraints={$constraints.emailAddress}
-												 errors={$errors.emailAddress}
-												 readonly
+								<TextInput
+									label="Email"
+									wrapperClass="w-1/2"
+									bind:value={$form.emailAddress}
+									constraints={$constraints.emailAddress}
+									errors={$errors.emailAddress}
+									readonly
 								/>
 							</div>
-							<div class="flex w-full px-4 mt-2 justify-center">
-								<div class="w-1/2 text-right mr-2">
-									<Button type="submit"
-											text="Register"
-											buttonStyle={ButtonStyle.PRIMARY}
-											disabled={!isTainted($tainted) || $submitting}
+							<div class="mt-2 flex w-full justify-center px-4">
+								<div class="mr-2 w-1/2 text-right">
+									<Button
+										type="submit"
+										text="Register"
+										buttonStyle={ButtonStyle.PRIMARY}
+										disabled={!isTainted($tainted) || $submitting}
 									/>
 								</div>
 							</div>
@@ -162,7 +158,6 @@
 					{/if}
 				</div>
 			{/snippet}
-
 		</Panel>
 	{:else if onboardingContext.currentStep === 1}
 		<Panel class="w-[75%]">
@@ -174,21 +169,29 @@
 			{/snippet}
 			{#snippet content()}
 				{#await data.countries}
-				<div class="flex flex-row justify-center items-center gap-2">
-					<ProgressRing value={null} size="size-14" meterStroke="stroke-tertiary-600-400"
-												trackStroke="stroke-tertiary-50-950" />
-				</div>
+					<div class="flex flex-row items-center justify-center gap-2">
+						<ProgressRing
+							value={null}
+							size="size-14"
+							meterStroke="stroke-tertiary-600-400"
+							trackStroke="stroke-tertiary-50-950"
+						/>
+					</div>
 				{:then countries}
 					{#await data.states}
-					<div class="flex flex-row justify-center items-center gap-2">
-						<ProgressRing value={null} size="size-14" meterStroke="stroke-tertiary-600-400"
-													trackStroke="stroke-tertiary-50-950" />
-					</div>
+						<div class="flex flex-row items-center justify-center gap-2">
+							<ProgressRing
+								value={null}
+								size="size-14"
+								meterStroke="stroke-tertiary-600-400"
+								trackStroke="stroke-tertiary-50-950"
+							/>
+						</div>
 					{:then states}
-						<OrganizationPanel 
-							organizationForm={data.organizationForm} 
-							countries={countries} 
-							states={states} 
+						<OrganizationPanel
+							organizationForm={data.organizationForm}
+							{countries}
+							{states}
 							action="?/createOrganization"
 							onUpdated={onOrganizationUpdated}
 						/>

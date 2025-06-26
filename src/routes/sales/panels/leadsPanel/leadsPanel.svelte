@@ -32,7 +32,7 @@
 
     let currentPage = $state(1);
     let pageSize = $state(10);
-    let sortBy = $state('lastName');
+    let sortBy = $state('companyName');
     let sortDirection = $state('asc');
     let searchTerm = $state(initialSearchTerm);
     let showNewLeadModal = $state(false);
@@ -99,6 +99,11 @@
     };
 
     const handleSearch = (newSearchTerm: string) => {
+        // Don't trigger search if the term hasn't actually changed from initial
+        if (newSearchTerm === initialSearchTerm && !isSearching) {
+            return;
+        }
+        
         // Update the input term immediately to preserve user input
         inputSearchTerm = newSearchTerm;
         
@@ -144,7 +149,7 @@
         }
         const firstName = lead.firstName || '';
         const lastName = lead.lastName || '';
-        return `${firstName} ${lastName}`.trim() || 'Unknown';
+        return `${lastName}, ${lead.salutation || ''} ${firstName}`.trim() || 'Unknown';
     };
 
     const getStatusLabel = (status: number) => {

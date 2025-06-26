@@ -25,7 +25,7 @@
         searchValue = value;
     });
 
-    // Trigger search immediately when searchValue changes
+    // Trigger search when searchValue changes (parent should handle preventing unnecessary calls)
     $effect(() => {
         if (onSearch) {
             onSearch(searchValue);

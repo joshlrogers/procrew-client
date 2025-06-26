@@ -37,6 +37,7 @@
     let searchTerm = $state(initialSearchTerm);
     let showNewLeadModal = $state(false);
     let isSearching = $state(false);
+    let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
     
     // Keep a separate state for the input value to prevent disruption
     let inputSearchTerm = $state(initialSearchTerm);
@@ -74,7 +75,13 @@
         goto(url.toString(), { 
             noScroll: true,
             keepFocus: true,
-            replaceState: true
+            replaceState: false
+        }).then(() => {
+            // Clear loading state once navigation completes
+            isSearching = false;
+        }).catch(() => {
+            // Also clear loading state on error
+            isSearching = false;
         });
     };
 
@@ -92,17 +99,32 @@
     };
 
     const handleSearch = (newSearchTerm: string) => {
-        console.log('LeadsPanel: handleSearch called with:', newSearchTerm);
-        
         // Update the input term immediately to preserve user input
         inputSearchTerm = newSearchTerm;
         
-        // Update URL which will trigger the load function
-        updateUrl(1, undefined, undefined, undefined, newSearchTerm);
+        // Clear any existing search timer
+        if (searchDebounceTimer) {
+            clearTimeout(searchDebounceTimer);
+        }
+        
+        // Set loading state immediately for visual feedback
+        isSearching = true;
+        
+        // Debounce the actual search to avoid too many API calls
+        searchDebounceTimer = setTimeout(() => {
+            // Update URL which will trigger the load function
+            updateUrl(1, undefined, undefined, undefined, newSearchTerm);
+        }, 300);
     };
 
     const handleClearSearch = () => {
+        // Clear any pending search timers
+        if (searchDebounceTimer) {
+            clearTimeout(searchDebounceTimer);
+        }
+        
         inputSearchTerm = '';
+        isSearching = true; // Show loading while clearing
         updateUrl(1, undefined, undefined, undefined, '');
     };
 
@@ -232,23 +254,27 @@
                 <div class="space-y-4">
                     <!-- Search Input -->
                     <div class="flex items-center gap-4">
-                        {#key 'search-input'}
+                        <div class="relative flex-1 max-w-md">
                             <SearchInput
                                 placeholder="Search leads..."
                                 value={inputSearchTerm}
                                 onSearch={handleSearch}
                                 onClear={handleClearSearch}
-                                class="flex-1 max-w-md"
+                                class="w-full"
                             />
-                        {/key}
+                            {#if isSearching}
+                                <div class="absolute right-12 top-1/2 transform -translate-y-1/2">
+                                    <ProgressRing 
+                                        value={null} 
+                                        size="size-4" 
+                                        meterStroke="stroke-primary-500"
+                                        trackStroke="stroke-surface-200" 
+                                    />
+                                </div>
+                            {/if}
+                        </div>
                         {#if isSearching}
-                            <div class="flex items-center gap-2 text-sm text-surface-500">
-                                <ProgressRing 
-                                    value={null} 
-                                    size="size-4" 
-                                    meterStroke="stroke-primary-500"
-                                    trackStroke="stroke-surface-200" 
-                                />
+                            <div class="flex items-center gap-2 text-sm text-primary-500 font-medium">
                                 Searching...
                             </div>
                         {/if}

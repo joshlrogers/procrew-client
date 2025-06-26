@@ -4,7 +4,6 @@
     interface SearchInputProps {
         placeholder?: string;
         value?: string;
-        debounceMs?: number;
         onSearch?: (value: string) => void;
         onClear?: () => void;
         class?: string;
@@ -13,7 +12,6 @@
     let { 
         placeholder = 'Search...', 
         value = '', 
-        debounceMs = 300,
         onSearch,
         onClear,
         class: className = ''
@@ -21,34 +19,17 @@
 
     let inputElement: HTMLInputElement;
     let searchValue = $state(value);
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
     // Update searchValue when value prop changes
     $effect(() => {
         searchValue = value;
     });
 
-    // Debounced search effect - only triggers when searchValue changes
+    // Trigger search immediately when searchValue changes
     $effect(() => {
-        // Clear existing timer
-        if (debounceTimer) {
-            clearTimeout(debounceTimer);
+        if (onSearch) {
+            onSearch(searchValue);
         }
-
-        // Set new timer - this will trigger when searchValue changes
-        debounceTimer = setTimeout(() => {
-            console.log('SearchInput: Triggering search with value:', searchValue);
-            if (onSearch) {
-                onSearch(searchValue);
-            }
-        }, debounceMs);
-
-        // Cleanup function
-        return () => {
-            if (debounceTimer) {
-                clearTimeout(debounceTimer);
-            }
-        };
     });
 
     const handleClear = () => {

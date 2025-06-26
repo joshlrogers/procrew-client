@@ -95,7 +95,6 @@
 			<TimezoneSelectList
 				name="timezone"
 				label="Timezone"
-				required={true}
 				errors={$errors.timezone}
 				constraints={$constraints.timezone}
 				tabindex={9}

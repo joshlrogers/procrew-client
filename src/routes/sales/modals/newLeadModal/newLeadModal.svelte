@@ -98,6 +98,7 @@
 	// Sync dialog open state with prop
 	$effect(() => {
 		$open = isOpen;
+		reset();
 	});
 
 	let titleClasses = cn('text-lg', 'font-semibold');

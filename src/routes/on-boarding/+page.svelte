@@ -120,7 +120,6 @@
 							<div class="flex flex-col items-center gap-4">
 								<TextInput
 									label="First Name"
-									required={true}
 									wrapperClass="w-1/2"
 									bind:value={$form.firstName}
 									constraints={$constraints.firstName}
@@ -129,7 +128,6 @@
 								/>
 								<TextInput
 									label="Last Name"
-									required={true}
 									wrapperClass="w-1/2"
 									bind:value={$form.lastName}
 									constraints={$constraints.lastName}

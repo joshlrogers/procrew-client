@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { SelectList } from '$lib/components/selectList/index';
 
-	let { value = $bindable(), required = false, ...otherProps } = $props();
+	let { value = $bindable(), required = undefined, ...otherProps } = $props();
 
 	const availableTimezones = [
 		'America/New_York',

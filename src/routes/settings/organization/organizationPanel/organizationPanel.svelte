@@ -53,7 +53,6 @@
 			label="Organization"
 			maxlength={120}
 			wrapperClass="mb-5"
-			required={true}
 			autofocus={true}
 			tabindex={1}
 			autocomplete="off"

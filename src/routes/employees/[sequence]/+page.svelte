@@ -2,7 +2,7 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { EmployeeFormSchema } from '$lib/shared/models/employee';
-	import { DateInput, MaskedTextInput, TextInput } from '$lib/components/inputs';
+	import { Checkbox, DateInput, MaskedTextInput, TextInput } from '$lib/components/inputs';
 	import { Panel } from '$lib/components/panel';
 	import { Section } from '$lib/components/section';
 	import { DateUtils } from '$lib/utils';
@@ -123,8 +123,8 @@
 								)}
 								errors={$errors.hireDate}
 								onDateChange={(val) => {
-									const newValue = val ? DateUtils.toDate(val)?.toISOString().split('T')[0] : null;
-									$form.hireDate = newValue;
+
+									$form.hireDate = val ? DateUtils.toDate(val)?.toISOString().split('T')[0] : null;
 								}}
 							/>
 
@@ -174,10 +174,9 @@
 									)}
 									errors={$errors.demographics?.dateOfBirth}
 									onDateChange={(val) => {
-										const newValue = val
+										$form.demographics.dateOfBirth = val
 											? DateUtils.toDate(val)?.toISOString().split('T')[0]
 											: null;
-										$form.demographics.dateOfBirth = newValue;
 									}}
 								/>
 							</div>
@@ -227,6 +226,29 @@
 											(go) => go.value === val
 										)?.[0]?.value)}
 									items={MaritalStatusOptions}
+								/>
+							</div>
+						</div>
+					</div>
+				</Section>
+
+				<Section title="Additional information">
+					<div class="flex w-full flex-col gap-2 p-2">
+						<div class="flex w-full flex-row">
+							<div class="mr-2 w-1/2">
+								<TextInput
+									bind:value={$form.title}
+									constraints={$constraints.title}
+									errors={$errors.title}
+									label="Title"
+									tabindex={21}
+								/>
+							</div>
+							<div class="w-1/2">
+								<Checkbox
+									bind:checked={$form.isSalesPerson}
+									label="Sales Person"
+									tabindex={22}
 								/>
 							</div>
 						</div>

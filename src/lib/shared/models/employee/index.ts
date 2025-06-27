@@ -58,7 +58,8 @@ const employeeSchema = z
 			.nullish(),
 		phoneNumber: z.string().optional().nullish(),
 		sequence: z.number().optional().nullish(),
-		title: z.string().optional().nullish()
+		title: z.string().optional().nullish(),
+		isSalesPerson: z.boolean().default(false)
 	})
 	.superRefine((emp, ctx) => {
 		if (!emp.emailAddress && !emp.phoneNumber) {
@@ -89,7 +90,8 @@ const employeeFormSchema = z
 		hireDate: z.string().nullish(),
 		phoneNumber: z.string().optional().nullish(),
 		sequence: z.number().optional().nullish(),
-		title: z.string().optional().nullish()
+		title: z.string().optional().nullish(),
+		isSalesPerson: z.boolean().default(false)
 	})
 	.superRefine((emp, ctx) => {
 		if (!emp.emailAddress && !emp.phoneNumber) {

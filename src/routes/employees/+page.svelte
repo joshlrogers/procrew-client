@@ -38,13 +38,14 @@
 								<th>Last name</th>
 								<th>First name</th>
 								<th>Phone number</th>
+								<th>Sales Person</th>
 								<th></th>
 							</tr>
 						</thead>
 						<tbody>
 							{#if employees.length === 0}
 								<tr>
-									<td colspan="4">No employees found...</td>
+									<td colspan="5">No employees found...</td>
 								</tr>
 							{:else}
 								{#each employees as employee}
@@ -52,6 +53,7 @@
 										<td>{employee.lastName}</td>
 										<td>{employee.firstName}</td>
 										<td>{employee.phoneNumber?.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}</td>
+										<td>{employee.isSalesPerson ? 'Yes' : 'No'}</td>
 										<td class="gap flex flex-row">
 											<a href={`/employees/${employee.sequence}`}>
 												<IconButton flat={true} icon={MaterialIcon.EDIT} />

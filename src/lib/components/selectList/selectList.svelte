@@ -53,18 +53,24 @@
 	// Derive required state from constraints if not explicitly provided
 	let isRequired = $derived(required !== undefined ? required : constraints?.required === true);
 
+	// Helper function to find item by value
+	const findItemByValue = (val: string | number | undefined) => {
+		if (val === undefined) return undefined;
+		const valueStr = val.toString();
+		return items.find((i) => i.value.toString() === valueStr);
+	};
+
 	const {
 		elements: { trigger, menu, label, option },
 		states: { open, selectedLabel, selected }
 	} = createSelect<string | number>({
 		required: required,
-		defaultSelected: value ? items[items.findIndex((i) => i.value === value)] : undefined,
+		defaultSelected: findItemByValue(value),
 		forceVisible: true,
 		onSelectedChange: ({ curr, next }) => {
-			if (curr?.value !== next?.value) {
-				onchanged?.(next?.value);
+			if (curr?.value !== next?.value && next?.value !== undefined) {
+				onchanged?.(next.value);
 			}
-
 			return next;
 		},
 		positioning: {
@@ -93,10 +99,11 @@
 
 	let extLabelClass = cn('block', 'mb-2', 'text-sm', 'font-medium', 'label', labelClass);
 
-	let selectedItem = $derived(value ? items.find((i) => i.value === value) : undefined);
+	let selectedItem = $derived(() => findItemByValue(value));
 
+	// Update selected when value prop changes
 	$effect(() => {
-		$selected = value ? items[items.findIndex((i) => i.value === value)] : undefined;
+		$selected = findItemByValue(value);
 	});
 </script>
 

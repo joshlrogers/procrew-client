@@ -47,6 +47,13 @@ let leadStatusOptions: SelectListOption[] = [
 	{ value: LeadStatus.Closed, label: 'Closed' }
 ];
 
+let dateFilterOptions: SelectListOption[] = [
+	{ value: 'all', label: 'All Time' },
+	{ value: 'today', label: 'Today' },
+	{ value: 'thisweek', label: 'This Week' },
+	{ value: 'thismonth', label: 'This Month' }
+];
+
 export {
 	ethnicityOptions as EthnicityOptions,
 	genderOptions as GenderOptions,
@@ -54,5 +61,6 @@ export {
 	salutationOptions as SalutationOptions,
 	leadPriorityOptions as LeadPriorityOptions,
 	leadStatusOptions as LeadStatusOptions,
+	dateFilterOptions as DateFilterOptions,
 	type SelectListOption
 };

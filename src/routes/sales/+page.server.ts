@@ -13,14 +13,21 @@ export const load: PageServerLoad = async ({ fetch, url, depends }) => {
     const sortBy = url.searchParams.get('sortBy') || 'lastName';
     const sortDirection = url.searchParams.get('sortDirection') || 'asc';
     const searchTerm = url.searchParams.get('search') || '';
+    const status = url.searchParams.get('status') || '';
+    const assignedToId = url.searchParams.get('assignedToId') || '';
+    const createdDateFilter = url.searchParams.get('createdDateFilter') || 'all';
 
     depends('leads:list');
 
     return {
+        leads: fetchLeads({ fetch, pageNumber, pageSize, sortBy, sortDirection, searchTerm, status, assignedToId, createdDateFilter }),
+        searchTerm, // Pass the search term back to the component
+        status,
+        assignedToId,
+        createdDateFilter,
         countries: await fetchCountries({ fetch }),
         states: await fetchStates({ fetch }),
-        leads: fetchLeads({ fetch, pageNumber, pageSize, sortBy, sortDirection, searchTerm }),
-        searchTerm // Pass the search term back to the component
+        salesRepresentatives: await fetchSalesRepresentatives({ fetch }),
     };
 };
 
@@ -31,6 +38,9 @@ interface FetchLeadsParams {
     sortBy: string;
     sortDirection: string;
     searchTerm: string;
+    status: string;
+    assignedToId: string;
+    createdDateFilter: string;
 }
 
 interface LeadsApiResponse {
@@ -40,7 +50,7 @@ interface LeadsApiResponse {
     pageSize: number;
 }
 
-const fetchLeads = async ({ fetch, pageNumber, pageSize, sortBy, sortDirection, searchTerm }: FetchLeadsParams) => {
+const fetchLeads = async ({ fetch, pageNumber, pageSize, sortBy, sortDirection, searchTerm, status, assignedToId, createdDateFilter }: FetchLeadsParams) => {
     const params = new URLSearchParams({
         pageNumber: pageNumber.toString(),
         pageSize: pageSize.toString(),
@@ -51,8 +61,21 @@ const fetchLeads = async ({ fetch, pageNumber, pageSize, sortBy, sortDirection, 
     if (searchTerm.trim()) {
         params.set('search', searchTerm.trim());
     }
+    
+    if (status.trim()) {
+        params.set('status', status.trim());
+    }
+    
+    if (assignedToId.trim()) {
+        params.set('assignedToId', assignedToId.trim());
+    }
+    
+    if (createdDateFilter.trim() && createdDateFilter !== 'all') {
+        params.set('createdDateFilter', createdDateFilter.trim());
+    }
 
-    const response = await ApiClient.get<LeadsApiResponse>(fetch, `/leads?${params.toString()}`);
+    const apiUrl = `/leads?${params.toString()}`;
+    const response = await ApiClient.get<LeadsApiResponse>(fetch, apiUrl);
 
     if (response.isOk && response.value) {
         return {
@@ -89,6 +112,24 @@ const fetchCountries = async ({ fetch }: FetchDataParams) => {
 
 const fetchStates = async ({ fetch }: FetchDataParams) => {
     const response = await ApiClient.get<StateSelectOption[]>(fetch, '/utility/lookup/address/states');
+    
+    if (response.isOk && response.value) {
+        return response.value;
+    }
+    
+    return [];
+};
+
+interface SalesRepresentative {
+    id: string;
+    firstName: string;
+    lastName: string;
+    emailAddress?: string;
+    displayName: string;
+}
+
+const fetchSalesRepresentatives = async ({ fetch }: FetchDataParams) => {
+    const response = await ApiClient.get<SalesRepresentative[]>(fetch, '/organization/company/employee/sales-representatives');
     
     if (response.isOk && response.value) {
         return response.value;
@@ -138,6 +179,9 @@ export const actions = {
         const pageSize = Number(formData.get('pageSize')) || 10;
         const sortBy = formData.get('sortBy')?.toString() || 'lastName';
         const sortDirection = formData.get('sortDirection')?.toString() || 'asc';
+        const status = formData.get('status')?.toString() || '';
+        const assignedToId = formData.get('assignedToId')?.toString() || '';
+        const createdDateFilter = formData.get('createdDateFilter')?.toString() || 'all';
 
         try {
             const searchResults = await fetchLeads({ 
@@ -146,7 +190,10 @@ export const actions = {
                 pageSize, 
                 sortBy, 
                 sortDirection, 
-                searchTerm 
+                searchTerm,
+                status,
+                assignedToId,
+                createdDateFilter
             });
             
             return {

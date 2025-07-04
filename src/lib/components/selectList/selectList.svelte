@@ -120,8 +120,11 @@
 	{/if}
 
 	<button class={buttonClass} use:melt={$trigger} {...otherProps}>
-		{#if selectedItem?.icon}
-			<Icon icon={selectedItem.icon} class="mr-2" />
+		{#if selectedItem()}
+			{@const currentItem = selectedItem()}
+			{#if currentItem && currentItem.icon}
+				<Icon icon={currentItem.icon} class="mr-2" />
+			{/if}
 		{/if}
 		{$selectedLabel}
 		<Icon icon={MaterialIcon.ARROW_DROP_DOWN} class="mr-0 ml-auto" />

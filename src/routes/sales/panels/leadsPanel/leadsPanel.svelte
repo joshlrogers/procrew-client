@@ -1,6 +1,6 @@
 <script lang="ts">
     import { goto } from '$app/navigation';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { Panel } from '$lib/components/panel';
     import { IconButton } from '$lib/components/buttons/iconButton';
     import { Icon, MaterialIcon } from '$lib/components/icon';
@@ -8,12 +8,22 @@
     import { ProgressRing } from '@skeletonlabs/skeleton-svelte';
     import type { Lead } from '$lib/shared/models/lead';
     import { LeadStatus, LeadPriority } from '$lib/shared/models/lead';
-    import { LeadStatusOptions, LeadPriorityOptions } from '$lib/shared/models/options';
+    import { LeadStatusOptions, LeadPriorityOptions, DateFilterOptions } from '$lib/shared/models/options';
     import { Badge } from '$lib/components/badge';
     import { NewLeadModal } from '../../modals';
     import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
     import { invalidate } from '$app/navigation';
     import { SearchInput } from '$lib/components/inputs';
+    import { SelectList } from '$lib/components/selectList';
+    import type { SelectListOption } from '$lib/shared/models/options';
+
+    interface SalesRepresentative {
+        id: string;
+        firstName: string;
+        lastName: string;
+        emailAddress?: string;
+        displayName: string;
+    }
 
     interface LeadsPanelProps {
         leadsData: Promise<{
@@ -25,42 +35,75 @@
         }>;
         countries?: CountrySelectOption[];
         states?: StateSelectOption[];
+        salesRepresentatives?: SalesRepresentative[];
         initialSearchTerm?: string;
+        initialStatus?: string;
+        initialAssignedToId?: string;
+        initialCreatedDateFilter?: string;
     }
 
-    let { leadsData, countries = [], states = [], initialSearchTerm = '' }: LeadsPanelProps = $props();
+    let { 
+        leadsData, 
+        countries = [], 
+        states = [], 
+        salesRepresentatives = [],
+        initialSearchTerm = '',
+        initialStatus = '',
+        initialAssignedToId = '',
+        initialCreatedDateFilter = 'all'
+    }: LeadsPanelProps = $props();
 
     let currentPage = $state(1);
     let pageSize = $state(10);
     let sortBy = $state('companyName');
     let sortDirection = $state('asc');
     let searchTerm = $state(initialSearchTerm);
+    let statusFilter = $state(initialStatus);
+    let assignedToFilter = $state(initialAssignedToId);
+    let createdDateFilter = $state(initialCreatedDateFilter);
     let showNewLeadModal = $state(false);
     let isSearching = $state(false);
     let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // Keep filter states in sync with URL parameters
+    $effect(() => {
+        const urlPage = Number(page.url.searchParams.get('pageNumber')) || 1;
+        const urlPageSize = Number(page.url.searchParams.get('pageSize')) || 10;
+        const urlSortBy = page.url.searchParams.get('sortBy') || 'companyName';
+        const urlSortDirection = page.url.searchParams.get('sortDirection') || 'asc';
+        const urlSearch = page.url.searchParams.get('search') || '';
+        const urlStatus = page.url.searchParams.get('status') || '';
+        const urlAssignedToId = page.url.searchParams.get('assignedToId') || '';
+        const urlCreatedDateFilter = page.url.searchParams.get('createdDateFilter') || 'all';
+        
+        currentPage = urlPage;
+        pageSize = urlPageSize;
+        sortBy = urlSortBy;
+        sortDirection = urlSortDirection;
+        searchTerm = urlSearch;
+        statusFilter = urlStatus;
+        assignedToFilter = urlAssignedToId;
+        createdDateFilter = urlCreatedDateFilter;
+    });
     
     // Keep a separate state for the input value to prevent disruption
     let inputSearchTerm = $state(initialSearchTerm);
 
     // Update URL with new parameters and trigger load function
-    const updateUrl = (newPage?: number, newPageSize?: number, newSortBy?: string, newSortDirection?: string, newSearchTerm?: string) => {
-        const url = new URL($page.url);
+    const updateUrl = (newPage?: number, newPageSize?: number, newSortBy?: string, newSortDirection?: string, newSearchTerm?: string, newStatusFilter?: string, newAssignedToFilter?: string, newCreatedDateFilter?: string) => {
+        const url = new URL(page.url);
         
         if (newPage !== undefined) {
             url.searchParams.set('pageNumber', newPage.toString());
-            currentPage = newPage;
         }
         if (newPageSize !== undefined) {
             url.searchParams.set('pageSize', newPageSize.toString());
-            pageSize = newPageSize;
         }
         if (newSortBy !== undefined) {
             url.searchParams.set('sortBy', newSortBy);
-            sortBy = newSortBy;
         }
         if (newSortDirection !== undefined) {
             url.searchParams.set('sortDirection', newSortDirection);
-            sortDirection = newSortDirection;
         }
         if (newSearchTerm !== undefined) {
             if (newSearchTerm.trim()) {
@@ -68,14 +111,35 @@
             } else {
                 url.searchParams.delete('search');
             }
-            searchTerm = newSearchTerm;
+        }
+        if (newStatusFilter !== undefined) {
+            if (newStatusFilter.trim()) {
+                url.searchParams.set('status', newStatusFilter.trim());
+            } else {
+                url.searchParams.delete('status');
+            }
+        }
+        if (newAssignedToFilter !== undefined) {
+            if (newAssignedToFilter.trim()) {
+                url.searchParams.set('assignedToId', newAssignedToFilter.trim());
+            } else {
+                url.searchParams.delete('assignedToId');
+            }
+        }
+        if (newCreatedDateFilter !== undefined) {
+            if (newCreatedDateFilter.trim() && newCreatedDateFilter !== 'all') {
+                url.searchParams.set('createdDateFilter', newCreatedDateFilter.trim());
+            } else {
+                url.searchParams.delete('createdDateFilter');
+            }
         }
         
         // Use goto to trigger load function with proper options to minimize disruption
         goto(url.toString(), { 
             noScroll: true,
             keepFocus: true,
-            replaceState: false
+            replaceState: false,
+            invalidateAll: true
         }).then(() => {
             // Clear loading state once navigation completes
             isSearching = false;
@@ -133,6 +197,30 @@
         updateUrl(1, undefined, undefined, undefined, '');
     };
 
+    const handleStatusFilter = (status: string | number | undefined) => {
+        // Allow undefined values to be converted to empty string for clearing
+        const statusValue = status === undefined ? '' : status?.toString() || '';
+        updateUrl(1, undefined, undefined, undefined, undefined, statusValue);
+    };
+
+    const handleAssignedToFilter = (assignedToId: string | number | undefined) => {
+        // Allow undefined values to be converted to empty string for clearing
+        const assignedToValue = assignedToId === undefined ? '' : assignedToId?.toString() || '';
+        updateUrl(1, undefined, undefined, undefined, undefined, undefined, assignedToValue);
+    };
+
+    const handleCreatedDateFilter = (dateFilter: string | number | undefined) => {
+        // Allow undefined values to be converted to 'all' for clearing
+        const dateFilterValue = dateFilter === undefined ? 'all' : dateFilter?.toString() || 'all';
+        updateUrl(1, undefined, undefined, undefined, undefined, undefined, undefined, dateFilterValue);
+    };
+
+    const handleClearFilters = () => {
+        // Clear search and filters, reset to page 1
+        inputSearchTerm = '';
+        updateUrl(1, undefined, undefined, undefined, '', '', '', 'all');
+    };
+
     const getSortIcon = (field: string) => {
         if (sortBy !== field) return MaterialIcon.LIST;
         return sortDirection === 'asc' ? MaterialIcon.ARROW_DROP_UP : MaterialIcon.ARROW_DROP_DOWN;
@@ -153,13 +241,13 @@
     };
 
     const getStatusLabel = (status: number) => {
-        const statusOption = LeadStatusOptions.find(option => option.value === status);
+        const statusOption = LeadStatusOptions.find((option: SelectListOption) => option.value === status);
         return statusOption ? statusOption.label : 'Unknown';
     };
 
     const getPriorityLabel = (priority: number | null | undefined) => {
         if (priority === null || priority === undefined) return '';
-        const priorityOption = LeadPriorityOptions.find(option => option.value === priority);
+        const priorityOption = LeadPriorityOptions.find((option: SelectListOption) => option.value === priority);
         return priorityOption ? priorityOption.label : '';
     };
 
@@ -221,6 +309,31 @@
         }
     };
 
+    // Create filter options
+    const statusOptions: SelectListOption[] = [
+        { value: '', label: 'All' },
+        ...LeadStatusOptions
+    ];
+
+    const assignedToOptions: SelectListOption[] = [
+        { value: '', label: 'All' },
+        { value: 'me', label: 'Me' },
+        ...salesRepresentatives.map(rep => ({
+            value: rep.id,
+            label: rep.displayName
+        }))
+    ];
+
+    const dateCreatedOptions: SelectListOption[] = DateFilterOptions;
+
+    // Check if there are any active filters
+    const hasActiveFilters = $derived(
+        statusFilter.trim() !== '' || 
+        assignedToFilter.trim() !== '' || 
+        searchTerm.trim() !== '' ||
+        (createdDateFilter.trim() !== '' && createdDateFilter !== 'all')
+    );
+
 
 </script>
 
@@ -257,32 +370,111 @@
         {:then data}
             {#if data.isOk && data.value}
                 <div class="space-y-4">
-                    <!-- Search Input -->
-                    <div class="flex items-center gap-4">
-                        <div class="relative flex-1 max-w-md">
-                            <SearchInput
-                                placeholder="Search leads..."
-                                value={inputSearchTerm}
-                                onSearch={handleSearch}
-                                onClear={handleClearSearch}
-                                class="w-full"
-                            />
+                    <!-- Search and Filter Controls -->
+                    <div class="space-y-4">
+                        <!-- Search Input -->
+                        <div class="flex items-center gap-4">
+                            <div class="relative flex-1 max-w-md">
+                                <SearchInput
+                                    placeholder="Search leads..."
+                                    value={inputSearchTerm}
+                                    onSearch={handleSearch}
+                                    onClear={handleClearSearch}
+                                    class="w-full"
+                                />
+                                {#if isSearching}
+                                    <div class="absolute right-12 top-1/2 transform -translate-y-1/2">
+                                        <ProgressRing 
+                                            value={null} 
+                                            size="size-4" 
+                                            meterStroke="stroke-primary-500"
+                                            trackStroke="stroke-surface-200" 
+                                        />
+                                    </div>
+                                {/if}
+                            </div>
                             {#if isSearching}
-                                <div class="absolute right-12 top-1/2 transform -translate-y-1/2">
-                                    <ProgressRing 
-                                        value={null} 
-                                        size="size-4" 
-                                        meterStroke="stroke-primary-500"
-                                        trackStroke="stroke-surface-200" 
-                                    />
+                                <div class="flex items-center gap-2 text-sm text-primary-500 font-medium">
+                                    Searching...
                                 </div>
                             {/if}
                         </div>
-                        {#if isSearching}
-                            <div class="flex items-center gap-2 text-sm text-primary-500 font-medium">
-                                Searching...
+
+                        <!-- Filter Controls -->
+                        <div class="flex flex-wrap items-center gap-4">
+                            <div class="flex items-center gap-4">
+                                <SelectList
+                                    label="Status"
+                                    items={statusOptions}
+                                    value={statusFilter}
+                                    onchanged={handleStatusFilter}
+                                    class="min-w-[140px]"
+                                    height="h-9"
+                                />
+                                
+                                <SelectList
+                                    label="Assigned To"
+                                    items={assignedToOptions}
+                                    value={assignedToFilter}
+                                    onchanged={handleAssignedToFilter}
+                                    class="min-w-[160px]"
+                                    height="h-9"
+                                />
+                                
+                                <SelectList
+                                    label="Date Created"
+                                    items={dateCreatedOptions}
+                                    value={createdDateFilter}
+                                    onchanged={handleCreatedDateFilter}
+                                    class="min-w-[140px]"
+                                    height="h-9"
+                                />
                             </div>
-                        {/if}
+                            
+                            {#if hasActiveFilters}
+                                <div class="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onclick={handleClearFilters}
+                                        class="btn btn-sm btn-ghost text-primary-500 hover:text-primary-600"
+                                    >
+                                        Clear Filters
+                                    </button>
+                                    
+                                    <!-- Active Filter Indicators -->
+                                    <div class="flex items-center gap-1">
+                                        {#if statusFilter.trim()}
+                                            <Badge 
+                                                text={`Status: ${statusOptions.find(o => o.value.toString() === statusFilter)?.label || statusFilter}`}
+                                                variant="tonal"
+                                                color="primary"
+                                            />
+                                        {/if}
+                                        {#if assignedToFilter.trim()}
+                                            <Badge 
+                                                text={`Assigned: ${assignedToOptions.find(o => o.value === assignedToFilter)?.label || assignedToFilter}`}
+                                                variant="tonal"
+                                                color="primary"
+                                            />
+                                        {/if}
+                                        {#if createdDateFilter.trim() && createdDateFilter !== 'all'}
+                                            <Badge 
+                                                text={`Date: ${dateCreatedOptions.find(o => o.value === createdDateFilter)?.label || createdDateFilter}`}
+                                                variant="tonal"
+                                                color="primary"
+                                            />
+                                        {/if}
+                                        {#if searchTerm.trim()}
+                                            <Badge 
+                                                text={`Search: "${searchTerm}"`}
+                                                variant="tonal"
+                                                color="primary"
+                                            />
+                                        {/if}
+                                    </div>
+                                </div>
+                            {/if}
+                        </div>
                     </div>
 
                     <!-- Table -->

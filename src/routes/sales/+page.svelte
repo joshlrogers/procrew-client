@@ -15,7 +15,11 @@
 			leadsData={data.leads}
 			countries={data.countries}
 			states={data.states}
+			salesRepresentatives={data.salesRepresentatives}
 			initialSearchTerm={data.searchTerm}
+			initialStatus={data.status}
+			initialAssignedToId={data.assignedToId}
+			initialCreatedDateFilter={data.createdDateFilter}
 		/>
 	</div>
 </div>

@@ -51,7 +51,9 @@ let dateFilterOptions: SelectListOption[] = [
 	{ value: 'all', label: 'All Time' },
 	{ value: 'today', label: 'Today' },
 	{ value: 'thisweek', label: 'This Week' },
-	{ value: 'thismonth', label: 'This Month' }
+	{ value: 'lastweek', label: 'Last Week' },
+	{ value: 'thismonth', label: 'This Month' },
+	{ value: 'lastmonth', label: 'Last Month' }
 ];
 
 export {

@@ -10,6 +10,8 @@
     import { LeadStatus, LeadPriority } from '$lib/shared/models/lead';
     import { LeadStatusOptions, LeadPriorityOptions, DateFilterOptions } from '$lib/shared/models/options';
     import { Badge } from '$lib/components/badge';
+    import { FilterBar } from '$lib/components/filters';
+    import { filterStore } from '$lib/shared/stores/filterContext';
     import { NewLeadModal } from '../../modals';
     import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
     import { invalidate } from '$app/navigation';
@@ -63,6 +65,7 @@
     let createdDateFilter = $state(initialCreatedDateFilter);
     let showNewLeadModal = $state(false);
     let isSearching = $state(false);
+    let isFilteringActive = $state(false);
     let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
 
     // Keep filter states in sync with URL parameters
@@ -141,11 +144,13 @@
             replaceState: false,
             invalidateAll: true
         }).then(() => {
-            // Clear loading state once navigation completes
+            // Clear loading states once navigation completes
             isSearching = false;
+            isFilteringActive = false;
         }).catch(() => {
-            // Also clear loading state on error
+            // Also clear loading states on error
             isSearching = false;
+            isFilteringActive = false;
         });
     };
 
@@ -200,24 +205,28 @@
     const handleStatusFilter = (status: string | number | undefined) => {
         // Allow undefined values to be converted to empty string for clearing
         const statusValue = status === undefined ? '' : status?.toString() || '';
+        isFilteringActive = true;
         updateUrl(1, undefined, undefined, undefined, undefined, statusValue);
     };
 
     const handleAssignedToFilter = (assignedToId: string | number | undefined) => {
         // Allow undefined values to be converted to empty string for clearing
         const assignedToValue = assignedToId === undefined ? '' : assignedToId?.toString() || '';
+        isFilteringActive = true;
         updateUrl(1, undefined, undefined, undefined, undefined, undefined, assignedToValue);
     };
 
     const handleCreatedDateFilter = (dateFilter: string | number | undefined) => {
         // Allow undefined values to be converted to 'all' for clearing
         const dateFilterValue = dateFilter === undefined ? 'all' : dateFilter?.toString() || 'all';
+        isFilteringActive = true;
         updateUrl(1, undefined, undefined, undefined, undefined, undefined, undefined, dateFilterValue);
     };
 
     const handleClearFilters = () => {
         // Clear search and filters, reset to page 1
         inputSearchTerm = '';
+        isFilteringActive = true;
         updateUrl(1, undefined, undefined, undefined, '', '', '', 'all');
     };
 
@@ -334,6 +343,71 @@
         (createdDateFilter.trim() !== '' && createdDateFilter !== 'all')
     );
 
+    // Sync filter store with local state
+    $effect(() => {
+        filterStore.setFilter('search', searchTerm);
+        filterStore.setFilter('status', statusFilter);
+        filterStore.setFilter('assignedTo', assignedToFilter);
+        filterStore.setFilter('dateCreated', createdDateFilter);
+    });
+
+    // Update result counts in filter store
+    $effect(() => {
+        leadsData.then(data => {
+            if (data.isOk) {
+                filterStore.setResultCount(data.count, data.total);
+            }
+        });
+    });
+
+    // Create filter items for FilterBar
+    const createFilterItems = () => {
+        const items = [];
+        
+        if (searchTerm.trim()) {
+            items.push({
+                key: 'search',
+                label: `Search: "${searchTerm}"`,
+                value: searchTerm,
+                onClear: () => { isFilteringActive = true; handleClearSearch(); }
+            });
+        }
+        
+        if (statusFilter.trim()) {
+            const statusLabel = statusOptions.find(o => o.value.toString() === statusFilter)?.label || statusFilter;
+            items.push({
+                key: 'status',
+                label: `Status: ${statusLabel}`,
+                value: statusFilter,
+                onClear: () => { isFilteringActive = true; handleStatusFilter(''); }
+            });
+        }
+        
+        if (assignedToFilter.trim()) {
+            const assignedLabel = assignedToOptions.find(o => o.value === assignedToFilter)?.label || assignedToFilter;
+            items.push({
+                key: 'assignedTo',
+                label: `Assigned: ${assignedLabel}`,
+                value: assignedToFilter,
+                onClear: () => { isFilteringActive = true; handleAssignedToFilter(''); }
+            });
+        }
+        
+        if (createdDateFilter.trim() && createdDateFilter !== 'all') {
+            const dateLabel = dateCreatedOptions.find(o => o.value === createdDateFilter)?.label || createdDateFilter;
+            items.push({
+                key: 'dateCreated',
+                label: `Date: ${dateLabel}`,
+                value: createdDateFilter,
+                onClear: () => { isFilteringActive = true; handleCreatedDateFilter('all'); }
+            });
+        }
+        
+        return items;
+    };
+
+    const filterItems = $derived(createFilterItems());
+
 
 </script>
 
@@ -430,51 +504,34 @@
                                     height="h-9"
                                 />
                             </div>
-                            
-                            {#if hasActiveFilters}
-                                <div class="flex items-center gap-2">
-                                    <button
-                                        type="button"
-                                        onclick={handleClearFilters}
-                                        class="btn btn-sm btn-ghost text-primary-500 hover:text-primary-600"
-                                    >
-                                        Clear Filters
-                                    </button>
-                                    
-                                    <!-- Active Filter Indicators -->
-                                    <div class="flex items-center gap-1">
-                                        {#if statusFilter.trim()}
-                                            <Badge 
-                                                text={`Status: ${statusOptions.find(o => o.value.toString() === statusFilter)?.label || statusFilter}`}
-                                                variant="tonal"
-                                                color="primary"
-                                            />
-                                        {/if}
-                                        {#if assignedToFilter.trim()}
-                                            <Badge 
-                                                text={`Assigned: ${assignedToOptions.find(o => o.value === assignedToFilter)?.label || assignedToFilter}`}
-                                                variant="tonal"
-                                                color="primary"
-                                            />
-                                        {/if}
-                                        {#if createdDateFilter.trim() && createdDateFilter !== 'all'}
-                                            <Badge 
-                                                text={`Date: ${dateCreatedOptions.find(o => o.value === createdDateFilter)?.label || createdDateFilter}`}
-                                                variant="tonal"
-                                                color="primary"
-                                            />
-                                        {/if}
-                                        {#if searchTerm.trim()}
-                                            <Badge 
-                                                text={`Search: "${searchTerm}"`}
-                                                variant="tonal"
-                                                color="primary"
-                                            />
-                                        {/if}
-                                    </div>
-                                </div>
-                            {/if}
                         </div>
+
+                        <!-- Enhanced Filter Bar -->
+                        {#await leadsData then data}
+                            {#if data.isOk}
+                                <FilterBar
+                                    filters={filterItems}
+                                    onClearAll={handleClearFilters}
+                                    resultCount={data.count}
+                                    totalCount={data.total}
+                                    isLoading={isSearching || isFilteringActive}
+                                    class="mt-4"
+                                />
+                            {/if}
+                        {/await}
+                        
+                        <!-- Filter Activity Indicator -->
+                        {#if isFilteringActive && !isSearching}
+                            <div class="flex items-center gap-2 text-sm text-primary-500 font-medium">
+                                <ProgressRing 
+                                    value={null} 
+                                    size="size-4" 
+                                    meterStroke="stroke-primary-500"
+                                    trackStroke="stroke-surface-200" 
+                                />
+                                Applying filters...
+                            </div>
+                        {/if}
                     </div>
 
                     <!-- Table -->

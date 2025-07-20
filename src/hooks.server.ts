@@ -21,7 +21,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 	if (token === null) {
 		event.locals.account = undefined;
 		if (event.url.pathname !== '/login/b2c' && event.url.pathname !== '/login/b2c/callback') {
-			return redirect(302, `/login/b2c?redirect_url=${event.url.pathname}`);
+			return redirect(302, `/login/b2c?redirect_url=${encodeURIComponent(event.url.pathname)}`);
 		}
 		return resolve(event);
 	}
@@ -30,6 +30,10 @@ export const handle: Handle = async ({ event, resolve }) => {
 	let account = getAccount(event);
 	if (!account) {
 		deleteSessionTokenCookie(event);
+		event.locals.account = undefined;
+		if (event.url.pathname !== '/login/b2c' && event.url.pathname !== '/login/b2c/callback') {
+			return redirect(302, `/login/b2c?redirect_url=${encodeURIComponent(event.url.pathname)}`);
+		}
 		return resolve(event);
 	}
 

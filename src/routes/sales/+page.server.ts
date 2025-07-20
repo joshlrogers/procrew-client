@@ -1,5 +1,5 @@
 import { ApiClient } from '$lib/server/apiClient';
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad, Actions } from './$types';
 import type { Lead } from '$lib/shared/models/lead';
 import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { fail } from '@sveltejs/kit';
@@ -138,7 +138,7 @@ const fetchSalesRepresentatives = async ({ fetch }: FetchDataParams) => {
     return [];
 };
 
-export const actions = {
+export const actions: Actions = {
     createLead: async ({ request, fetch }) => {
         const form = await superValidate(request, zod(LeadSchema));
 

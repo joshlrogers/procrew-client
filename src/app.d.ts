@@ -1,7 +1,6 @@
 // See https://svelte.dev/docs/kit/types#app.d.ts
 // for information about these interfaces
 import type { Account } from '$lib/shared/models/account';
-import { IStaticMethods } from 'flyonui/flyonui';
 
 declare global {
 	namespace App {
@@ -23,7 +22,7 @@ declare global {
 	}
 
 	interface Window {
-		HSStaticMethods: IStaticMethods;
+		HSStaticMethods: any;
 	}
 }
 

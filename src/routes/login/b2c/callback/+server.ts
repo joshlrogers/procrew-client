@@ -1,5 +1,5 @@
 import type { RequestEvent } from '@sveltejs/kit';
-import { confidentialClientApp, cryptoProvider } from '$lib/server/auth/oauth';
+import { publicClientApp, cryptoProvider } from '$lib/server/auth/oauth';
 import type { AuthenticationResult, AuthorizationCodeRequest } from '@azure/msal-node';
 import { AZURE_REDIRECT_URI, AZURE_SCOPES } from '$env/static/private';
 import { ApiClient } from '$lib/server/apiClient';
@@ -10,42 +10,69 @@ export async function GET(event: RequestEvent): Promise<Response> {
 	const requestCode = event.url.searchParams.get('code');
 	const requestState = event.url.searchParams.get('state');
 
-	const rawLocalState = cryptoProvider.base64Decode(event.cookies.get('oauth_state') ?? '');
+	const oauthStateCookie = event.cookies.get('oauth_state');
+
 	if (!requestState) {
-		return new Response(null, { status: 400 });
+		return new Response('Missing state parameter', { status: 400 });
 	}
 
-	const state: { csrfToken: string } = JSON.parse(
-		cryptoProvider.base64Decode(requestState.toString())
-	);
-	const localState: { csrfToken: string; redirectUrl: string } = JSON.parse(rawLocalState ?? '');
+	if (!oauthStateCookie) {
+		return new Response('Missing authentication state cookie', { status: 400 });
+	}
+
+	let state: { csrfToken: string };
+	let localState: { csrfToken: string; redirectUrl: string };
+
+	try {
+		const rawLocalState = cryptoProvider.base64Decode(oauthStateCookie);
+		state = JSON.parse(cryptoProvider.base64Decode(requestState.toString()));
+		localState = JSON.parse(rawLocalState);
+	} catch (error) {
+		console.error('Failed to parse state data:', error);
+		return new Response('Invalid state data', { status: 400 });
+	}
+
 	if (state.csrfToken !== localState.csrfToken) {
-		return new Response(null, { status: 401 });
+		return new Response('Invalid authentication state', { status: 401 });
 	}
 
 	const rawChallenge = event.cookies.get('oauth_challenge') ?? null;
-	const codeVerifier: {
+	let codeVerifier: {
 		challengeMethod: string;
 		verifier: string;
 		challenge: string;
-	} | null = rawChallenge === null ? null : JSON.parse(cryptoProvider.base64Decode(rawChallenge));
+	} | null = null;
 
-	if (requestCode === null || codeVerifier === null) {
-		return new Response(null, {
-			status: 400
-		});
+	if (rawChallenge) {
+		try {
+			codeVerifier = JSON.parse(cryptoProvider.base64Decode(rawChallenge));
+		} catch (error) {
+			console.error('Failed to parse oauth_challenge cookie:', error);
+			return new Response('Invalid challenge data', { status: 400 });
+		}
+	}
+
+	if (requestCode === null) {
+		return new Response('Missing authorization code', { status: 400 });
+	}
+
+	if (codeVerifier === null) {
+		return new Response('Missing code verifier', { status: 400 });
 	}
 
 	try {
+		console.log('Attempting token acquisition with authorization code');
 		const authRequest: AuthorizationCodeRequest = {
 			code: requestCode.toString(),
 			redirectUri: AZURE_REDIRECT_URI,
 			codeVerifier: codeVerifier.verifier,
 			scopes: AZURE_SCOPES.split(',')
 		};
-		const tokenResponse = await confidentialClientApp.acquireTokenByCode(authRequest);
+		
+		const tokenResponse = await publicClientApp.acquireTokenByCode(authRequest);
+
 		if (!tokenResponse || !tokenResponse.account) {
-			return new Response(null, { status: 401 });
+			return new Response('Authentication failed', { status: 401 });
 		}
 
 		const account = await getUser(tokenResponse);
@@ -58,17 +85,18 @@ export async function GET(event: RequestEvent): Promise<Response> {
 
 		setSessionCookie(event, tokenResponse.accessToken, tokenResponse.expiresOn!);
 		setAccountCookie(event, account, tokenResponse.expiresOn!);
+		
+		const redirectUrl = localState.redirectUrl || '/';
+
 		return new Response(null, {
 			status: 302,
 			headers: {
-				Location: localState.redirectUrl ? localState.redirectUrl : '/'
+				Location: redirectUrl
 			}
 		});
 	} catch (e) {
-		// Invalid code or client credentials
-		return new Response(null, {
-			status: 400
-		});
+		console.error('Authentication error:', e);
+		return new Response('Authentication failed', { status: 400 });
 	}
 }
 

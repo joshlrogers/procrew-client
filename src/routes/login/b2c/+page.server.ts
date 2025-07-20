@@ -1,4 +1,4 @@
-import { confidentialClientApp, cryptoProvider } from '$lib/server/auth/oauth';
+import { publicClientApp, cryptoProvider } from '$lib/server/auth/oauth';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
 import type { AuthorizationUrlRequest } from '@azure/msal-node';
 import { AZURE_AUTHORITY, AZURE_REDIRECT_URI, AZURE_SCOPES } from '$env/static/private';
@@ -18,7 +18,7 @@ export const load = async (event: RequestEvent) => {
 		),
 		{
 			httpOnly: true,
-			maxAge: 60 * 10,
+			maxAge: 60 * 30,
 			secure: import.meta.env.PROD,
 			path: '/',
 			sameSite: 'lax'
@@ -35,7 +35,7 @@ export const load = async (event: RequestEvent) => {
 
 	event.cookies.set('oauth_state', state, {
 		httpOnly: true,
-		maxAge: 60 * 10,
+		maxAge: 60 * 30,
 		secure: import.meta.env.PROD,
 		path: '/',
 		sameSite: 'lax'
@@ -50,7 +50,7 @@ export const load = async (event: RequestEvent) => {
 		state: state
 	};
 
-	const authUrl = await confidentialClientApp.getAuthCodeUrl(authCodeUrlRequest);
+	const authUrl = await publicClientApp.getAuthCodeUrl(authCodeUrlRequest);
 	return redirect(302, authUrl);
 	// return new Response(null, {
 	// 	status: 302,

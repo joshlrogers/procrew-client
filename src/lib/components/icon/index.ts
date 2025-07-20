@@ -45,7 +45,8 @@ enum MaterialIcon {
 	SEARCH = 'search',
 	SELL = 'sell',
 	SETTINGS = 'settings',
-	TODAY = 'today'
+	TODAY = 'today',
+	VISIBILITY = 'visibility'
 }
 
 export { Root as Icon, MaterialIcon, type IconProps };

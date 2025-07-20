@@ -414,9 +414,12 @@
 <Panel class="w-full">
     {#snippet header()}
         <div class="flex flex-row items-center justify-between">
-            <div class="flex flex-row items-center">
-                <Icon icon={MaterialIcon.SELL} class="mr-2" />
-                Leads
+            <div class="flex items-center gap-3">
+                <Icon icon={MaterialIcon.SELL} iconSize="2rem" />
+                <div>
+                    <h1 class="text-xl font-semibold">Leads</h1>
+                    <p class="text-sm opacity-75">Manage your sales prospects</p>
+                </div>
             </div>
             <div>
                 <IconButton
@@ -600,7 +603,7 @@
                                     </tr>
                                 {:else}
                                     {#each data.value as lead}
-                                        <tr>
+                                        <tr class="cursor-pointer" onclick={() => goto(`/sales/${lead.id}`)}>
                                             <td class="font-medium">
                                                 {getDisplayName(lead)}
                                                 {#if lead.salutation}
@@ -636,11 +639,12 @@
                                                 {lead.notes || ''}
                                             </td>
                                             <td>
-                                                <div class="flex gap-1">
+                                                <div class="flex gap-1" onclick={(e) => e.stopPropagation()}>
                                                     <IconButton
                                                         icon={MaterialIcon.EDIT}
                                                         flat={true}
                                                         tooltip="Edit lead"
+                                                        onclick={() => goto(`/sales/${lead.id}`)}
                                                     />
                                                     <IconButton
                                                         icon={MaterialIcon.DELETE}

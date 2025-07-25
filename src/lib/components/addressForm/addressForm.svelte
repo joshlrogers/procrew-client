@@ -121,6 +121,21 @@
 		}
 		$formData.address[field] = value;
 	};
+
+	// Initialize address object if it doesn't exist
+	$effect(() => {
+		if (!$formData.address) {
+			$formData.address = {
+				addressLine1: '',
+				addressLine2: '',
+				addressLine3: '',
+				city: '',
+				state: '',
+				postalCode: '',
+				country: ''
+			};
+		}
+	});
 </script>
 
 <div class="flex flex-col gap-2">
@@ -138,8 +153,7 @@
 		tabindex={startingTabIndex ? startingTabIndex : undefined}
 		constraints={($formConstraints as any).address?.addressLine1}
 		errors={($formErrors as any).address?.addressLine1}
-		value={getAddressField('addressLine1')}
-		onchange={(val) => setAddressField('addressLine1', val)}
+		bind:value={$formData.address.addressLine1}
 	/>
 
 	<TextInput
@@ -149,8 +163,7 @@
 		autocomplete="address-line2"
 		constraints={($formConstraints as any).address?.addressLine2}
 		errors={($formErrors as any).address?.addressLine2}
-		value={getAddressField('addressLine2')}
-		onchange={(val) => setAddressField('addressLine2', val)}
+		bind:value={$formData.address.addressLine2}
 	/>
 
 	<TextInput
@@ -160,8 +173,7 @@
 		autocomplete="address-line3"
 		constraints={($formConstraints as any).address?.addressLine3}
 		errors={($formErrors as any).address?.addressLine3}
-		value={getAddressField('addressLine3')}
-		onchange={(val) => setAddressField('addressLine3', val)}
+		bind:value={$formData.address.addressLine3}
 	/>
 </div>
 
@@ -173,8 +185,7 @@
 		tabindex={startingTabIndex ? startingTabIndex + 1 : undefined}
 		constraints={($formConstraints as any).address?.city}
 		errors={($formErrors as any).address?.city}
-		value={getAddressField('city')}
-		onchange={(val) => setAddressField('city', val)}
+		bind:value={$formData.address.city}
 	/>
 
 	<SelectList
@@ -198,8 +209,7 @@
 		constraints={($formConstraints as any).address?.postalCode}
 		errors={($formErrors as any).address?.postalCode}
 		tabindex={startingTabIndex ? startingTabIndex + 3 : undefined}
-		value={getAddressField('postalCode')}
-		onchange={(val) => setAddressField('postalCode', val)}
+		bind:value={$formData.address.postalCode}
 	/>
 
 	<SelectList

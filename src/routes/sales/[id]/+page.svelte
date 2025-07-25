@@ -1,54 +1,80 @@
 <script lang="ts">
+	import { superForm } from 'sveltekit-superforms/client';
+	import { zod } from 'sveltekit-superforms/adapters';
+	import { LeadSchema, LeadStatus, LeadPriority } from '$lib/shared/models/lead';
+	import { TextInput, MaskedTextInput } from '$lib/components/inputs';
 	import { Panel } from '$lib/components/panel';
 	import { Breadcrumb } from '$lib/components/breadcrumb';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
-	import { LeadStatus, LeadPriority } from '$lib/shared/models/lead';
+	import { SelectList } from '$lib/components/selectList';
+	import { 
+		SalutationOptions, 
+		LeadStatusOptions, 
+		LeadPriorityOptions,
+		type SelectListOption 
+	} from '$lib/shared/models/options';
+	import { AddressForm } from '$lib/components/addressForm';
+	import { Button, ButtonStyle } from '$lib/components/buttons/button';
+	import toast from 'svelte-french-toast';
 
 	let { data } = $props();
 
+	let salesRepOptions: SelectListOption[] = $derived(
+		data.salesRepresentatives?.map((rep) => ({
+			label: rep.displayName,
+			value: rep.id
+		})) ?? []
+	);
+
+	const { form, errors, enhance, constraints, isTainted, tainted, submitting } = superForm(
+		data.form,
+		{
+			dataType: 'json',
+			invalidateAll: false,
+			multipleSubmits: 'prevent',
+			resetForm: false,
+			validators: zod(LeadSchema),
+			validationMethod: 'onsubmit',
+			clearOnSubmit: 'errors-and-message',
+			onUpdated: (event) => {
+				if (event.form.valid) {
+					const displayName = event.form.data.companyName || 
+						`${event.form.data.firstName || ''} ${event.form.data.lastName || ''}`.trim() || 'Lead';
+					toast.success(`Updated lead ${displayName}.`);
+				} else {
+					toast.error('Failed to update lead.');
+				}
+			}
+		}
+	);
+
 	// Get display name for the lead
 	let leadDisplayName = $derived.by(() => {
-		if (data.lead.companyName?.trim()) {
-			return data.lead.companyName;
+		if ($form.companyName?.trim()) {
+			return $form.companyName;
 		} else {
-			return `${data.lead.firstName || ''} ${data.lead.lastName || ''}`.trim() || 'Lead';
+			return `${$form.firstName || ''} ${$form.lastName || ''}`.trim() || 'Lead';
 		}
 	});
 
-	// Format status for display
-	const getStatusDisplay = (status: number) => {
-		switch (status) {
-			case LeadStatus.New: return 'New';
-			case LeadStatus.Contacted: return 'Contacted';
-			case LeadStatus.Qualified: return 'Qualified';
-			case LeadStatus.Closed: return 'Closed';
-			default: return 'Unknown';
+	// Initialize address object for form binding
+	$effect(() => {
+		if ($form && !$form.address) {
+			$form.address = {
+				addressLine1: '',
+				addressLine2: '',
+				addressLine3: '',
+				city: '',
+				state: '',
+				postalCode: '',
+				country: ''
+			};
 		}
-	};
-
-	// Format priority for display
-	const getPriorityDisplay = (priority: number | null) => {
-		if (priority === null) return 'Not Set';
-		switch (priority) {
-			case LeadPriority.Low: return 'Low';
-			case LeadPriority.Medium: return 'Medium';
-			case LeadPriority.High: return 'High';
-			default: return 'Unknown';
-		}
-	};
-
-	// Format currency
-	const formatCurrency = (value: number | null) => {
-		if (!value) return 'Not specified';
-		return new Intl.NumberFormat('en-US', { 
-			style: 'currency', 
-			currency: 'USD' 
-		}).format(value);
-	};
+	});
 </script>
 
 <svelte:head>
-	<title>Lead Details - {leadDisplayName}</title>
+	<title>Edit Lead - {leadDisplayName}</title>
 </svelte:head>
 
 <div class="flex flex-col items-center gap-4">
@@ -57,160 +83,212 @@
 			items={[
 				{ label: 'Home', url: '/' },
 				{ label: 'Sales', url: '/sales' },
-				{ label: leadDisplayName, url: `/sales/${data.lead.id}` }
+				{ label: 'Edit Lead', url: `/sales/${data.lead.id}` }
 			]}
 		/>
 	</div>
 	<Panel class="w-[75%]">
 		{#snippet header()}
 			<div class="flex items-center gap-3">
-				<Icon icon={MaterialIcon.PERSON} iconSize="2rem" />
+				<Icon icon={MaterialIcon.EDIT} iconSize="2rem" />
 				<div>
-					<h1 class="text-xl font-semibold">Lead Details</h1>
+					<h1 class="text-xl font-semibold">Edit Lead</h1>
 					<p class="text-sm opacity-75">{leadDisplayName}</p>
 				</div>
 			</div>
 		{/snippet}
 		{#snippet content()}
-			<div class="flex w-full flex-col gap-6">
+			<form use:enhance method="POST" action="?/updateLead">
 				<!-- Contact Information Section -->
-				<section>
+				<section class="mb-6">
 					<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Contact Information</h3>
-					<div class="flex w-full flex-row p-2">
-						<div class="grid grid-cols-1 gap-4 md:grid-cols-2 w-full">
-							{#if data.lead.salutation}
-								<div class="flex flex-col gap-1">
-									<span class="text-sm font-medium">Salutation</span>
-									<p class="text-sm">{data.lead.salutation}</p>
-								</div>
-							{/if}
+					<div class="flex w-full flex-col gap-4 p-2">
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+							<SelectList
+								label="Salutation"
+								placeholder="Select salutation"
+								required={false}
+								tabindex={1}
+								value={SalutationOptions.find(opt => opt.value === $form.salutation)?.value}
+								onchanged={(val) => $form.salutation = val?.toString() || null}
+								items={SalutationOptions}
+								wrapperClass="w-full"
+							/>
 							
-							{#if data.lead.companyName}
-								<div class="flex flex-col gap-1">
-									<span class="text-sm font-medium">Company Name</span>
-									<p class="text-sm">{data.lead.companyName}</p>
-								</div>
-							{/if}
+							<TextInput
+								wrapperClass="w-full"
+								constraints={$constraints.companyName}
+								errors={$errors.companyName}
+								bind:value={$form.companyName}
+								tabindex={2}
+								label="Company Name"
+							/>
+						</div>
+						
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+							<TextInput
+								wrapperClass="w-full"
+								constraints={$constraints.firstName}
+								errors={$errors.firstName}
+								bind:value={$form.firstName}
+								tabindex={3}
+								label="First Name"
+							/>
 							
-							{#if data.lead.firstName}
-								<div class="flex flex-col gap-1">
-									<span class="text-sm font-medium">First Name</span>
-									<p class="text-sm">{data.lead.firstName}</p>
-								</div>
-							{/if}
+							<TextInput
+								wrapperClass="w-full"
+								constraints={$constraints.lastName}
+								errors={$errors.lastName}
+								bind:value={$form.lastName}
+								tabindex={4}
+								label="Last Name"
+							/>
+						</div>
+						
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+							<TextInput
+								wrapperClass="w-full"
+								constraints={$constraints.emailAddress}
+								errors={$errors.emailAddress}
+								bind:value={$form.emailAddress}
+								tabindex={5}
+								label="Email Address"
+								type="email"
+							/>
 							
-							{#if data.lead.lastName}
-								<div class="flex flex-col gap-1">
-									<span class="text-sm font-medium">Last Name</span>
-									<p class="text-sm">{data.lead.lastName}</p>
-								</div>
-							{/if}
-							
-							{#if data.lead.emailAddress}
-								<div class="flex flex-col gap-1">
-									<span class="text-sm font-medium">Email Address</span>
-									<p class="text-sm">
-										<a href="mailto:{data.lead.emailAddress}" class="anchor">
-											{data.lead.emailAddress}
-										</a>
-									</p>
-								</div>
-							{/if}
-							
-							{#if data.lead.phoneNumber}
-								<div class="flex flex-col gap-1">
-									<span class="text-sm font-medium">Phone Number</span>
-									<p class="text-sm">
-										<a href="tel:{data.lead.phoneNumber}" class="anchor">
-											{data.lead.phoneNumber}
-										</a>
-									</p>
-								</div>
-							{/if}
+							<MaskedTextInput
+								wrapperClass="w-full"
+								bind:value={$form.phoneNumber}
+								constraints={$constraints.phoneNumber}
+								errors={$errors.phoneNumber}
+								maskType="Phone"
+								label="Phone Number"
+								tabindex={6}
+							/>
 						</div>
 					</div>
 				</section>
 
 				<!-- Lead Details Section -->
-				<section>
+				<section class="mb-6">
 					<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Lead Details</h3>
-					<div class="flex w-full flex-row p-2">
-						<div class="grid grid-cols-1 gap-4 md:grid-cols-3 w-full">
-							<div class="flex flex-col gap-1">
-								<span class="text-sm font-medium">Status</span>
-								<p class="text-sm">
-									<span class="badge variant-filled-{data.lead.status === LeadStatus.New ? 'surface' :
-									 data.lead.status === LeadStatus.Contacted ? 'primary' :
-									 data.lead.status === LeadStatus.Qualified ? 'success' :
-									 'tertiary'}">
-										{getStatusDisplay(data.lead.status)}
-									</span>
-								</p>
-							</div>
+					<div class="flex w-full flex-col gap-4 p-2">
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+							<SelectList
+								label="Status"
+								placeholder="Select status"
+								required={true}
+								tabindex={7}
+								value={LeadStatusOptions.find(opt => opt.value === $form.status)?.value}
+								onchanged={(val) => $form.status = typeof val === 'number' ? val : LeadStatus.New}
+								items={LeadStatusOptions}
+								wrapperClass="w-full"
+							/>
 							
-							<div class="flex flex-col gap-1">
-								<span class="text-sm font-medium">Priority</span>
-								<p class="text-sm">
-									{#if data.lead.priority !== null}
-										<span class="badge variant-filled-{data.lead.priority === LeadPriority.High ? 'error' :
-										 data.lead.priority === LeadPriority.Medium ? 'warning' :
-										 'surface'}">
-											{getPriorityDisplay(data.lead.priority)}
-										</span>
-									{:else}
-										<span class="text-surface-500">Not Set</span>
-									{/if}
-								</p>
-							</div>
+							<SelectList
+								label="Priority"
+								placeholder="Select priority"
+								required={false}
+								tabindex={8}
+								value={LeadPriorityOptions.find(opt => opt.value === $form.priority)?.value}
+								onchanged={(val) => $form.priority = typeof val === 'number' ? val : null}
+								items={LeadPriorityOptions}
+								wrapperClass="w-full"
+							/>
 							
-							<div class="flex flex-col gap-1">
-								<span class="text-sm font-medium">Estimated Value</span>
-								<p class="text-sm font-mono">{formatCurrency(data.lead.estimatedValue)}</p>
-							</div>
+							<TextInput
+								wrapperClass="w-full"
+								constraints={$constraints.estimatedValue}
+								errors={$errors.estimatedValue}
+								bind:value={$form.estimatedValue}
+								tabindex={9}
+								label="Estimated Value"
+								type="number"
+								step="0.01"
+								min="0"
+								max="999999.99"
+							/>
+						</div>
+						
+						<div class="grid grid-cols-1 gap-4">
+							<SelectList
+								label="Assigned To"
+								placeholder="Select sales representative"
+								required={false}
+								tabindex={10}
+								value={salesRepOptions.find(opt => opt.value === $form.assignedToId)?.value}
+								onchanged={(val) => $form.assignedToId = val?.toString() || null}
+								items={salesRepOptions}
+								wrapperClass="w-full"
+							/>
 						</div>
 					</div>
 				</section>
 
 				<!-- Address Section -->
-				{#if data.lead.address}
-					<section>
-						<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Address</h3>
-						<div class="flex w-full flex-row p-2">
-							<div class="text-sm space-y-1">
-								{#if data.lead.address.addressLine1}
-									<p>{data.lead.address.addressLine1}</p>
-								{/if}
-								{#if data.lead.address.addressLine2}
-									<p>{data.lead.address.addressLine2}</p>
-								{/if}
-								{#if data.lead.address.addressLine3}
-									<p>{data.lead.address.addressLine3}</p>
-								{/if}
-								{#if data.lead.address.city || data.lead.address.state || data.lead.address.postalCode}
-									<p>
-										{data.lead.address.city || ''}{data.lead.address.city && data.lead.address.state ? ', ' : ''}{data.lead.address.state || ''} {data.lead.address.postalCode || ''}
-									</p>
-								{/if}
-								{#if data.lead.address.country}
-									<p>{data.lead.address.country}</p>
-								{/if}
-							</div>
-						</div>
-					</section>
-				{/if}
+				<section class="mb-6">
+					<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Address</h3>
+					<div class="flex w-full flex-col gap-4 p-2">
+						{#await data.countries then countries}
+							{#await data.states then states}
+								<AddressForm
+									name="address"
+									{countries}
+									{states}
+									formConstraints={constraints}
+									formData={form}
+									startingTabIndex={11}
+									formErrors={errors}
+								/>
+							{/await}
+						{/await}
+					</div>
+				</section>
 
 				<!-- Notes Section -->
-				{#if data.lead.notes}
-					<section>
-						<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Notes</h3>
-						<div class="flex w-full flex-row p-2">
-							<div class="card p-4 w-full">
-								<p class="text-sm whitespace-pre-wrap">{data.lead.notes}</p>
-							</div>
+				<section class="mb-6">
+					<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Notes</h3>
+					<div class="flex w-full flex-col gap-4 p-2">
+						<div class="w-full">
+							<label for="notes" class="label mb-2 block text-sm font-medium">
+								<span class="label-text">Notes</span>
+							</label>
+							<textarea
+								id="notes"
+								name="notes"
+								bind:value={$form.notes}
+								disabled={$submitting}
+								class="textarea w-full"
+								rows="4"
+								tabindex={17}
+								placeholder="Enter any additional notes..."
+								{...$constraints.notes}
+							></textarea>
+							{#if $errors.notes}
+								<div class="text-error-500 mt-1 text-sm">
+									{$errors.notes}
+								</div>
+							{/if}
 						</div>
-					</section>
-				{/if}
-			</div>
+					</div>
+				</section>
+
+				<!-- Action Buttons -->
+				<div class="flex w-full flex-row-reverse gap-4 px-4">
+					<Button
+						text="Save Changes"
+						buttonStyle={ButtonStyle.PRIMARY}
+						disabled={!isTainted($tainted) || $submitting}
+						type="submit"
+					/>
+					<Button
+						text="Cancel"
+						buttonStyle={ButtonStyle.SECONDARY}
+						disabled={$submitting}
+						onclick={() => history.back()}
+					/>
+				</div>
+			</form>
 		{/snippet}
 	</Panel>
 </div>

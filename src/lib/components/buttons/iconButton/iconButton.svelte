@@ -8,6 +8,7 @@
 		disabled = false,
 		icon,
 		onclick = undefined,
+		onhover = undefined,
 		isRounded = false,
 		class: className = undefined,
 		textColor = 'text-primary-500',
@@ -33,12 +34,12 @@
 
 {#if tooltip && tooltip.length > 0}
 	<Tooltip openDelay={200} text={tooltip} triggerClass={buttonClasses}>
-		<button {type} {onclick} {disabled} {...otherProps}>
+		<button {type} {onclick} onmouseover={onhover} {disabled} {...otherProps}>
 			<Icon {icon} class={iconClasses} />
 		</button>
 	</Tooltip>
 {:else}
-	<button class={buttonClasses} {type} {onclick} {disabled} {...otherProps}>
+	<button class={buttonClasses} onmouseover={onhover} {type} {onclick} {disabled} {...otherProps}>
 		<Icon {icon} class={iconClasses} />
 	</button>
 {/if}

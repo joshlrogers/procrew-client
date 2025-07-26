@@ -1,6 +1,6 @@
 ---
 description: 
-globs: *.svelte,*.server.ts
+globs: *.svelte,*.+server.ts
 alwaysApply: false
 ---
 - All log, result, and error messages should end with a period.

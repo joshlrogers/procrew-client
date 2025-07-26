@@ -12,21 +12,17 @@
 	import { Panel } from '$lib/components/panel';
 	import { defaults, superForm } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 	import toast from 'svelte-french-toast';
 
 	interface NewLeadModalProps {
 		open?: boolean;
-		countries?: CountrySelectOption[];
-		states?: StateSelectOption[];
 		onClose?: (success?: boolean) => void;
 	}
 
 	let {
 		open: isOpen = false,
-		countries = [],
-		states = [],
-		onClose = (success?: boolean) => {}
+		onClose = (success?: boolean) => {
+		}
 	}: NewLeadModalProps = $props();
 
 	const {
@@ -44,7 +40,7 @@
 		}
 	});
 
-	let { form, enhance, errors, constraints, submitting, reset, message, validate } = superForm(
+	let { form, enhance, errors, constraints, submitting, reset, message } = superForm(
 		defaults(zod(LeadSchema)),
 		{
 			dataType: 'json',
@@ -123,7 +119,7 @@
 			transition:fade={{ duration: 150 }}
 		></div>
 		<div
-			class="bg-surface-900 fixed top-1/2 left-1/2 z-50 max-h-[90vh] max-w-[90vw] min-w-[600px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl shadow-lg"
+			class="bg-surface-900 fixed top-1/2 left-1/2 z-50 max-h-[90vh] max-w-[90vw] min-w-[55vw] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl shadow-lg"
 			use:melt={$content}
 		>
 			<Panel extHeaderClass={titleClasses}>
@@ -218,7 +214,7 @@
 										items={LeadPriorityOptions}
 										value={$form.priority || LeadPriority.Medium}
 										onchanged={(val) =>
-											($form.priority = val as (typeof LeadPriority)[keyof typeof LeadPriority])}
+											($form.priority = (val as (typeof LeadPriority)[keyof typeof LeadPriority]))}
 										wrapperClass="w-full"
 									/>
 								</div>
@@ -229,53 +225,11 @@
 								<div class="border-surface-300 mb-4 border-b pb-2">
 									<h3 class="text-surface-50 text-lg font-semibold">Service Address</h3>
 								</div>
-
-								{#if countries.length > 0 && states.length > 0}
-									<AddressForm
-										{countries}
-										{states}
-										formData={form}
-										formErrors={errors}
-										formConstraints={constraints}
-									/>
-								{:else}
-									<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-										<TextInput
-											label="Street"
-											name="address.addressLine1"
-											bind:value={$form.address!.addressLine1}
-											constraints={$constraints.address?.addressLine1}
-											errors={$errors.address?.addressLine1}
-											disabled={$submitting}
-										/>
-										<TextInput
-											label="City"
-											name="address.city"
-											bind:value={$form.address!.city}
-											constraints={$constraints.address?.city}
-											errors={$errors.address?.city}
-											disabled={$submitting}
-										/>
-									</div>
-									<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-										<TextInput
-											label="State"
-											name="address.state"
-											bind:value={$form.address!.state}
-											constraints={$constraints.address?.state}
-											errors={$errors.address?.state}
-											disabled={$submitting}
-										/>
-										<TextInput
-											label="Zip"
-											name="address.postalCode"
-											bind:value={$form.address!.postalCode}
-											constraints={$constraints.address?.postalCode}
-											errors={$errors.address?.postalCode}
-											disabled={$submitting}
-										/>
-									</div>
-								{/if}
+								<AddressForm
+									formData={form}
+									formErrors={errors}
+									formConstraints={constraints}
+								/>
 							</div>
 
 							<!-- Additional Information -->

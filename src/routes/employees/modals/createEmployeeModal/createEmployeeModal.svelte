@@ -26,14 +26,12 @@
 			<TextInput
 				label="Last name"
 				name="last_name"
-				required={true}
 				class="min-w-96"
 				placeholder="Last name"
 			/>
 			<TextInput
 				label="First name"
 				name="first_name"
-				required={true}
 				class="min-w-96"
 				placeholder="First name"
 			/>

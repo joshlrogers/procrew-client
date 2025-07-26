@@ -1,11 +1,11 @@
 import { ApiClient } from '$lib/server/apiClient';
 import type { PageServerLoad, Actions } from './$types';
 import type { Lead } from '$lib/shared/models/lead';
-import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { LeadSchema } from '$lib/shared/models/lead';
+import type { Fetch } from '$lib/shared';
 
 export const load: PageServerLoad = async ({ fetch, url, depends }) => {
     const pageNumber = Number(url.searchParams.get('pageNumber')) || 1;
@@ -25,9 +25,7 @@ export const load: PageServerLoad = async ({ fetch, url, depends }) => {
         status,
         assignedToId,
         createdDateFilter,
-        countries: await fetchCountries({ fetch }),
-        states: await fetchStates({ fetch }),
-        salesRepresentatives: await fetchSalesRepresentatives({ fetch }),
+        salesRepresentatives: await fetchSalesRepresentatives(fetch),
     };
 };
 
@@ -96,30 +94,6 @@ const fetchLeads = async ({ fetch, pageNumber, pageSize, sortBy, sortDirection, 
     };
 };
 
-interface FetchDataParams {
-    fetch: (input: string, init?: RequestInit) => Promise<Response>;
-}
-
-const fetchCountries = async ({ fetch }: FetchDataParams) => {
-    const response = await ApiClient.get<CountrySelectOption[]>(fetch, '/utility/lookup/address/countries');
-    
-    if (response.isOk && response.value) {
-        return response.value;
-    }
-    
-    return [];
-};
-
-const fetchStates = async ({ fetch }: FetchDataParams) => {
-    const response = await ApiClient.get<StateSelectOption[]>(fetch, '/utility/lookup/address/states');
-    
-    if (response.isOk && response.value) {
-        return response.value;
-    }
-    
-    return [];
-};
-
 interface SalesRepresentative {
     id: string;
     firstName: string;
@@ -128,7 +102,7 @@ interface SalesRepresentative {
     displayName: string;
 }
 
-const fetchSalesRepresentatives = async ({ fetch }: FetchDataParams) => {
+const fetchSalesRepresentatives = async (fetch: Fetch) => {
     const response = await ApiClient.get<SalesRepresentative[]>(fetch, '/organization/company/employee/sales-representatives');
     
     if (response.isOk && response.value) {

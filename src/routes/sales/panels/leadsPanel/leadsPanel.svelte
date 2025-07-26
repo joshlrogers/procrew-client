@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { goto } from '$app/navigation';
+    import { goto, preloadData } from '$app/navigation';
     import { page } from '$app/state';
     import { Panel } from '$lib/components/panel';
     import { IconButton } from '$lib/components/buttons/iconButton';
@@ -35,8 +35,6 @@
             count: number;
             isOk: boolean;
         }>;
-        countries?: CountrySelectOption[];
-        states?: StateSelectOption[];
         salesRepresentatives?: SalesRepresentative[];
         initialSearchTerm?: string;
         initialStatus?: string;
@@ -45,9 +43,7 @@
     }
 
     let { 
-        leadsData, 
-        countries = [], 
-        states = [], 
+        leadsData,
         salesRepresentatives = [],
         initialSearchTerm = '',
         initialStatus = '',
@@ -67,6 +63,8 @@
     let isSearching = $state(false);
     let isFilteringActive = $state(false);
     let searchDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+    let states: StateSelectOption[] = $state([]);
+    let countries: CountrySelectOption[] = $state([]);
 
     // Keep filter states in sync with URL parameters
     $effect(() => {
@@ -335,14 +333,6 @@
 
     const dateCreatedOptions: SelectListOption[] = DateFilterOptions;
 
-    // Check if there are any active filters
-    const hasActiveFilters = $derived(
-        statusFilter.trim() !== '' || 
-        assignedToFilter.trim() !== '' || 
-        searchTerm.trim() !== '' ||
-        (createdDateFilter.trim() !== '' && createdDateFilter !== 'all')
-    );
-
     // Sync filter store with local state
     $effect(() => {
         filterStore.setFilter('search', searchTerm);
@@ -407,8 +397,6 @@
     };
 
     const filterItems = $derived(createFilterItems());
-
-
 </script>
 
 <Panel class="w-full">
@@ -644,6 +632,7 @@
                                                         icon={MaterialIcon.EDIT}
                                                         flat={true}
                                                         tooltip="Edit lead"
+                                                        onhover={() => preloadData(`/sales/${lead.id}`)}
                                                         onclick={() => goto(`/sales/${lead.id}`)}
                                                     />
                                                     <IconButton

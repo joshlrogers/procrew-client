@@ -9,10 +9,9 @@
 	import type { InputConstraints } from 'sveltekit-superforms';
 	import type { Writable } from 'svelte/store';
 	import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
+	import type { AddressLookupDetails } from '../../../routes/api/lookup/address-details/+server';
 
 	interface AddressFormProps extends HTMLInputAttributes {
-		countries?: CountrySelectOption[];
-		states?: StateSelectOption[];
 		formConstraints: Writable<InputConstraints<Record<string, any>>>;
 		formData: SuperFormData<Record<string, any>>;
 		formErrors: SuperFormErrors<Record<string, any>>;
@@ -20,26 +19,25 @@
 	}
 
 	let {
-		countries = [],
-		states = [],
 		formConstraints = $bindable(),
 		formData = $bindable(),
 		formErrors = $bindable(),
 		startingTabIndex = undefined
 	}: AddressFormProps = $props();
 
+	let states: StateSelectOption[] = $state([]);
+	let countries: CountrySelectOption[] = $state([]);
+
 	let availableCountries = $derived(
 		countries.map((country) => ({ value: country.shortCode, label: country.name }))
 	);
 
-	let availableStates = $derived(
-		states
-			.filter((s) => s.country == $formData.address?.country)
-			.map((state) => ({
-				value: state.abbreviation,
-				label: state.name
-			}))
-	);
+	let availableStates = $derived(states
+				.filter((s) => s.country == ($formData.address?.country))
+				.map((state) => ({
+					value: state.abbreviation,
+					label: state.name
+				})));
 
 	let addressAutofill: any;
 
@@ -57,6 +55,13 @@
 
 			addressAutofill.addEventListener('retrieve', onInternalAddressChanged);
 		}
+
+		let response = await fetch('/api/lookup/address-details');
+
+		let { states: _states, countries: _countries }: AddressLookupDetails = await response.json();
+
+		states = _states;
+		countries = _countries;
 	});
 
 	onDestroy(() => {
@@ -153,7 +158,8 @@
 		tabindex={startingTabIndex ? startingTabIndex : undefined}
 		constraints={($formConstraints as any).address?.addressLine1}
 		errors={($formErrors as any).address?.addressLine1}
-		bind:value={$formData.address.addressLine1}
+		value={getAddressField('addressLine1')}
+		oninput={(e) => setAddressField('addressLine1', (e.target as HTMLInputElement)?.value)}
 	/>
 
 	<TextInput
@@ -163,7 +169,8 @@
 		autocomplete="address-line2"
 		constraints={($formConstraints as any).address?.addressLine2}
 		errors={($formErrors as any).address?.addressLine2}
-		bind:value={$formData.address.addressLine2}
+		value={getAddressField('addressLine2')}
+		oninput={(e) => setAddressField('addressLine2', (e.target as HTMLInputElement)?.value)}
 	/>
 
 	<TextInput
@@ -173,7 +180,8 @@
 		autocomplete="address-line3"
 		constraints={($formConstraints as any).address?.addressLine3}
 		errors={($formErrors as any).address?.addressLine3}
-		bind:value={$formData.address.addressLine3}
+		value={getAddressField('addressLine3')}
+		oninput={(e) => setAddressField('addressLine3', (e.target as HTMLInputElement)?.value)}
 	/>
 </div>
 
@@ -185,7 +193,8 @@
 		tabindex={startingTabIndex ? startingTabIndex + 1 : undefined}
 		constraints={($formConstraints as any).address?.city}
 		errors={($formErrors as any).address?.city}
-		bind:value={$formData.address.city}
+		value={getAddressField('city')}
+		oninput={(e) => setAddressField('city', (e.target as HTMLInputElement)?.value)}
 	/>
 
 	<SelectList
@@ -209,7 +218,8 @@
 		constraints={($formConstraints as any).address?.postalCode}
 		errors={($formErrors as any).address?.postalCode}
 		tabindex={startingTabIndex ? startingTabIndex + 3 : undefined}
-		bind:value={$formData.address.postalCode}
+		value={getAddressField('postalCode')}
+		oninput={(e) => setAddressField('postalCode', (e.target as HTMLInputElement)?.value)}
 	/>
 
 	<SelectList

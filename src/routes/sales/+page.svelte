@@ -3,6 +3,7 @@
 	import type { PageProps } from './$types';
 
 	let { data }: PageProps = $props();
+
 </script>
 
 <svelte:head>
@@ -13,8 +14,6 @@
 	<div class="w-[90%]">
 		<LeadsPanel
 			leadsData={data.leads}
-			countries={data.countries}
-			states={data.states}
 			salesRepresentatives={data.salesRepresentatives}
 			initialSearchTerm={data.searchTerm}
 			initialStatus={data.status}

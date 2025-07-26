@@ -57,7 +57,6 @@
 								label="First name"
 								autofocus
 								tabindex={1}
-								required={true}
 							/>
 							<TextInput
 								wrapperClass="w-1/2"
@@ -66,7 +65,6 @@
 								errors={$errors.lastName}
 								label="Last name"
 								tabindex={2}
-								required={true}
 							/>
 						</div>
 
@@ -124,19 +122,14 @@
 							</div>
 						</div>
 
-						{#await data.countries then countries}
-							{#await data.states then states}
-								<AddressForm
-									name="address"
-									{countries}
-									{states}
-									formConstraints={constraints}
-									formData={form}
-									startingTabIndex={6}
-									formErrors={errors}
-								/>
-							{/await}
-						{/await}
+						<AddressForm
+							name="address"
+							formConstraints={constraints}
+							formData={form}
+							startingTabIndex={6}
+							formErrors={errors}
+						/>
+
 					</div>
 				</Section>
 

@@ -3,7 +3,6 @@ import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { type Employee, EmployeeFormSchema } from '$lib/shared/models/employee';
 import { ApiClient } from '$lib/server/apiClient';
-import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import type { Department } from '$lib/shared/models/department';
 import { redirect, type RequestEvent } from '@sveltejs/kit';
 import { dateToString } from '$lib/utils';
@@ -21,16 +20,6 @@ const transformEmployeeForForm = (employee: Employee) => {
 	};
 };
 
-const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	let response = await ApiClient.get<CountrySelectOption[]>(
-		fetch,
-		'/utility/lookup/address/countries'
-	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-};
-
 const fetchDepartments = async (
 	fetch: (input: string, init?: RequestInit) => Promise<Response>
 ) => {
@@ -45,13 +34,6 @@ const fetchEmployee = async (
 	id: string
 ) => {
 	let response = await ApiClient.get<Employee>(fetch, `/organization/company/employee/${id}`);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-};
-
-const fetchStates = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	let response = await ApiClient.get<StateSelectOption[]>(fetch, '/utility/lookup/address/states');
 	if (response.isOk && response.value) {
 		return response.value;
 	}
@@ -89,8 +71,6 @@ export const load: PageServerLoad = async ({ fetch, params }: RequestEvent) => {
 
 	return {
 		form,
-		countries: fetchCountries(fetch),
-		states: fetchStates(fetch),
 		departments: await fetchDepartments(fetch)
 	};
 };

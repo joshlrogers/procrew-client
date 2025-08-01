@@ -1,5 +1,4 @@
 import { ApiClient } from '$lib/server/apiClient';
-import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { CustomerSchema, type Customer } from '$lib/shared/models/customer';
 import { zod } from 'sveltekit-superforms/adapters';
 import { superValidate } from 'sveltekit-superforms/server';
@@ -16,28 +15,6 @@ const fetchCustomer = async (
 	}
 
 	return null;
-};
-
-const fetchStates = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	const response = await ApiClient.get<StateSelectOption[]>(
-		fetch,
-		`/utility/lookup/address/states`
-	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-	return [];
-};
-
-const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	const response = await ApiClient.get<CountrySelectOption[]>(
-		fetch,
-		`/utility/lookup/address/countries`
-	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-	return [];
 };
 
 const updateCustomer = async ({ fetch, request, params }: RequestEvent) => {
@@ -67,8 +44,6 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 	const form = await superValidate(customer, zod(CustomerSchema));
 
 	return {
-		form,
-		states: fetchStates(fetch),
-		countries: fetchCountries(fetch)
+		form
 	};
 };

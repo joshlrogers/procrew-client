@@ -1,9 +1,7 @@
 <script lang="ts">
 	import { defaults, superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
-
-	import { page } from '$app/state';
-
+	
 	import { type Company, CompanySchema } from '$lib/shared/models/company';
 	import { TextInput } from '$lib/components/inputs';
 	import { AddressForm } from '$lib/components/addressForm';
@@ -58,19 +56,13 @@
 				bind:value={$form.name}
 			/>
 
-			{#await page.data.countries then countries}
-				{#await page.data.states then states}
-					<AddressForm
-						name="address"
-						{countries}
-						{states}
-						formConstraints={constraints}
-						formData={form}
-						startingTabIndex={2}
-						formErrors={errors}
-					/>
-				{/await}
-			{/await}
+			<AddressForm
+				name="address"
+				formConstraints={constraints}
+				formData={form}
+				startingTabIndex={2}
+				formErrors={errors}
+			/>
 
 			<TextInput
 				label="Email address"

@@ -1,7 +1,6 @@
 import { ApiClient } from '$lib/server/apiClient';
 import type { Lead } from '$lib/shared/models/lead';
 import { LeadSchema } from '$lib/shared/models/lead';
-import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import type { PageServerLoad, RequestEvent } from './$types';
 import { error } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
@@ -24,7 +23,7 @@ const fetchLead = async (
 		return response.value;
 	}
 
-	if (response.error?.includes('not found')) {
+	if (response.error?.error.includes('not found')) {
 		throw error(404, 'Lead not found');
 	}
 
@@ -37,28 +36,6 @@ const fetchSalesRepresentatives = async (
 	const response = await ApiClient.get<SalesRepresentative[]>(
 		fetch,
 		'/organization/company/employee/sales-representatives'
-	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-	return [];
-};
-
-const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	const response = await ApiClient.get<CountrySelectOption[]>(
-		fetch,
-		'/utility/lookup/address/countries'
-	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-	return [];
-};
-
-const fetchStates = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	const response = await ApiClient.get<StateSelectOption[]>(
-		fetch,
-		'/utility/lookup/address/states'
 	);
 	if (response.isOk && response.value) {
 		return response.value;
@@ -95,7 +72,5 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 		lead,
 		form,
 		salesRepresentatives: await fetchSalesRepresentatives(fetch),
-		countries: fetchCountries(fetch),
-		states: fetchStates(fetch)
 	};
 };

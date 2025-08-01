@@ -64,10 +64,10 @@
 		{#snippet header()}
 			Edit employee {$form.firstName}
 			{$form.lastName} (<span class="px-0.5 proportional-nums slashed-zero"
-				># {Intl.NumberFormat('en-US', { minimumIntegerDigits: 3 }).format(
-					$form.sequence ?? 0
-				)}</span
-			>)
+		># {Intl.NumberFormat('en-US', { minimumIntegerDigits: 3 }).format(
+			$form.sequence ?? 0
+		)}</span
+		>)
 		{/snippet}
 		{#snippet content()}
 			<form use:enhance method="POST" action="?/updateEmployee">
@@ -143,19 +143,13 @@
 							/>
 						</div>
 
-						{#await data.countries then countries}
-							{#await data.states then states}
-								<AddressForm
-									name="address"
-									{countries}
-									{states}
-									formConstraints={constraints}
-									formData={form}
-									startingTabIndex={7}
-									formErrors={errors}
-								/>
-							{/await}
-						{/await}
+						<AddressForm
+							name="address"
+							formConstraints={constraints}
+							formData={form}
+							startingTabIndex={7}
+							formErrors={errors}
+						/>
 					</div>
 				</Section>
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { LeadSchema, LeadStatus, LeadPriority } from '$lib/shared/models/lead';
+	import { LeadSchema, LeadStatus } from '$lib/shared/models/lead';
 	import { TextInput, MaskedTextInput } from '$lib/components/inputs';
 	import { Panel } from '$lib/components/panel';
 	import { Breadcrumb } from '$lib/components/breadcrumb';
@@ -229,19 +229,13 @@
 				<section class="mb-6">
 					<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Address</h3>
 					<div class="flex w-full flex-col gap-4 p-2">
-						{#await data.countries then countries}
-							{#await data.states then states}
 								<AddressForm
 									name="address"
-									{countries}
-									{states}
 									formConstraints={constraints}
 									formData={form}
 									startingTabIndex={11}
 									formErrors={errors}
 								/>
-							{/await}
-						{/await}
 					</div>
 				</section>
 

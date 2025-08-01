@@ -10,7 +10,7 @@
 	import { CompanySchema } from '$lib/shared/models/company';
 	import toast from 'svelte-french-toast';
 
-	let { states = [], countries = [], open = false, onclosed = undefined, companyTypes } = $props();
+	let { open = false, onclosed = undefined, companyTypes } = $props();
 
 	const { form, constraints, errors, reset, enhance, submitting, tainted, isTainted } = superForm(
 		defaults(zod(CompanySchema)),
@@ -66,8 +66,6 @@
 				/>
 
 				<AddressForm
-					{states}
-					{countries}
 					formConstraints={constraints}
 					formErrors={errors}
 					formData={form}

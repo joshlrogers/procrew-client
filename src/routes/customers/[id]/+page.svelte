@@ -58,129 +58,117 @@
 		{/snippet}
 		{#snippet content()}
 			<form method="post" action="?/updateCustomer" use:enhance>
-				{#await data.countries then countries}
-					{#await data.states}
-						<div class="container mx-auto p-6">
-							<div class="flex h-64 items-center justify-center">
-								<div class="h-12 w-12 animate-spin rounded-full border-b-2 border-blue-600"></div>
-							</div>
-						</div>
-					{:then states}
-						<div class="mb-6">
-							<div class="label mb-2 block">
-								<span class="label-text">Customer Type</span>
-							</div>
-							<div class="flex gap-4">
-								<label class="flex cursor-pointer items-center">
-									<input
-										type="radio"
-										name="customerType"
-										value={CustomerType.RESIDENTIAL}
-										checked={$form.customerType === CustomerType.RESIDENTIAL}
-										onchange={() => handleCustomerTypeChange(CustomerType.RESIDENTIAL)}
-										disabled={$submitting}
-										class="radio radio-primary mr-2"
-									/>
-									<span class="text-sm">Residential</span>
-								</label>
-								<label class="flex cursor-pointer items-center">
-									<input
-										type="radio"
-										name="customerType"
-										value={CustomerType.COMMERCIAL}
-										checked={$form.customerType === CustomerType.COMMERCIAL}
-										onchange={() => handleCustomerTypeChange(CustomerType.COMMERCIAL)}
-										disabled={$submitting}
-										class="radio radio-primary mr-2"
-									/>
-									<span class="text-sm">Commercial</span>
-								</label>
-							</div>
-						</div>
-
-						{#if $form.customerType === CustomerType.RESIDENTIAL}
-							<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-								<TextInput
-									label="First Name"
-									required={true}
-									bind:value={$form.firstName}
-									constraints={$constraints.firstName}
-									errors={$errors.firstName}
-									disabled={$submitting}
-								/>
-								<TextInput
-									label="Last Name"
-									required={true}
-									bind:value={$form.lastName}
-									constraints={$constraints.lastName}
-									errors={$errors.lastName}
-									disabled={$submitting}
-								/>
-							</div>
-						{:else if $form.customerType === CustomerType.COMMERCIAL}
-							<div class="mb-4">
-								<TextInput
-									label="Company Name"
-									required={true}
-									bind:value={$form.companyName}
-									constraints={$constraints.companyName}
-									errors={$errors.companyName}
-									disabled={$submitting}
-								/>
-							</div>
-						{/if}
-
-						<!-- Contact Information Section -->
-						<div>
-							<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-								<TextInput
-									label="Phone Number"
-									type="tel"
-									bind:value={$form.phoneNumber}
-									constraints={$constraints.phoneNumber}
-									errors={$errors.phoneNumber}
-									disabled={$submitting}
-								/>
-								<TextInput
-									label="Email Address"
-									type="email"
-									bind:value={$form.primaryEmailAddress}
-									constraints={$constraints.primaryEmailAddress}
-									errors={$errors.primaryEmailAddress}
-									disabled={$submitting}
-								/>
-							</div>
-						</div>
-
-						<AddressForm
-							{states}
-							{countries}
-							formConstraints={constraints}
-							formData={form}
-							formErrors={errors}
-						/>
-
-						<!-- Action Buttons -->
-						<div class="flex justify-end gap-4 pt-6">
-							<Button
-								text="Cancel"
-								buttonStyle={ButtonStyle.SECONDARY}
+				<div class="mb-6">
+					<div class="label mb-2 block">
+						<span class="label-text">Customer Type</span>
+					</div>
+					<div class="flex gap-4">
+						<label class="flex cursor-pointer items-center">
+							<input
+								type="radio"
+								name="customerType"
+								value={CustomerType.RESIDENTIAL}
+								checked={$form.customerType === CustomerType.RESIDENTIAL}
+								onchange={() => handleCustomerTypeChange(CustomerType.RESIDENTIAL)}
 								disabled={$submitting}
-								onclick={() => history.back()}
-								width="w-auto"
-								class="px-6"
+								class="radio radio-primary mr-2"
 							/>
-							<Button
-								text={$submitting ? 'Saving...' : 'Save Changes'}
-								buttonStyle={ButtonStyle.PRIMARY}
-								disabled={!isTainted($tainted) || $submitting}
-								type="submit"
-								width="w-auto"
-								class="px-6"
+							<span class="text-sm">Residential</span>
+						</label>
+						<label class="flex cursor-pointer items-center">
+							<input
+								type="radio"
+								name="customerType"
+								value={CustomerType.COMMERCIAL}
+								checked={$form.customerType === CustomerType.COMMERCIAL}
+								onchange={() => handleCustomerTypeChange(CustomerType.COMMERCIAL)}
+								disabled={$submitting}
+								class="radio radio-primary mr-2"
 							/>
-						</div>
-					{/await}
-				{/await}
+							<span class="text-sm">Commercial</span>
+						</label>
+					</div>
+				</div>
+
+				{#if $form.customerType === CustomerType.RESIDENTIAL}
+					<div class="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+						<TextInput
+							label="First Name"
+							required={true}
+							bind:value={$form.firstName}
+							constraints={$constraints.firstName}
+							errors={$errors.firstName}
+							disabled={$submitting}
+						/>
+						<TextInput
+							label="Last Name"
+							required={true}
+							bind:value={$form.lastName}
+							constraints={$constraints.lastName}
+							errors={$errors.lastName}
+							disabled={$submitting}
+						/>
+					</div>
+				{:else if $form.customerType === CustomerType.COMMERCIAL}
+					<div class="mb-4">
+						<TextInput
+							label="Company Name"
+							required={true}
+							bind:value={$form.companyName}
+							constraints={$constraints.companyName}
+							errors={$errors.companyName}
+							disabled={$submitting}
+						/>
+					</div>
+				{/if}
+
+				<!-- Contact Information Section -->
+				<div>
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<TextInput
+							label="Phone Number"
+							type="tel"
+							bind:value={$form.phoneNumber}
+							constraints={$constraints.phoneNumber}
+							errors={$errors.phoneNumber}
+							disabled={$submitting}
+						/>
+						<TextInput
+							label="Email Address"
+							type="email"
+							bind:value={$form.primaryEmailAddress}
+							constraints={$constraints.primaryEmailAddress}
+							errors={$errors.primaryEmailAddress}
+							disabled={$submitting}
+						/>
+					</div>
+				</div>
+
+				<AddressForm
+					formConstraints={constraints}
+					formData={form}
+					formErrors={errors}
+				/>
+
+				<!-- Action Buttons -->
+				<div class="flex justify-end gap-4 pt-6">
+					<Button
+						text="Cancel"
+						buttonStyle={ButtonStyle.SECONDARY}
+						disabled={$submitting}
+						onclick={() => history.back()}
+						width="w-auto"
+						class="px-6"
+					/>
+					<Button
+						text={$submitting ? 'Saving...' : 'Save Changes'}
+						buttonStyle={ButtonStyle.PRIMARY}
+						disabled={!isTainted($tainted) || $submitting}
+						type="submit"
+						width="w-auto"
+						class="px-6"
+					/>
+				</div>
 			</form>
 		{/snippet}
 	</Panel>

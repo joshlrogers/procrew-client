@@ -6,7 +6,6 @@ import type { PageServerLoad, RequestEvent } from './$types';
 
 import { getAccount, getToken } from '$lib/server/auth/session';
 import { ApiClient } from '$lib/server/apiClient';
-import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { type Organization, OrganizationSchema } from '$lib/shared/models/organization';
 import { type Company, CompanySchema, type CompanyType } from '$lib/shared/models/company';
 
@@ -24,9 +23,7 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 	return {
 		companies: fetchCompanies(event),
 		form,
-		companyTypes: fetchCompanyTypes(event),
-		countries: fetchCountries(event),
-		states: fetchStates(event)
+		companyTypes: fetchCompanyTypes(event)
 	};
 };
 
@@ -97,28 +94,8 @@ const fetchCompanyTypes = async (event: RequestEvent) => {
 	}
 };
 
-const fetchCountries = async (event: RequestEvent) => {
-	let response = await ApiClient.get<CountrySelectOption[]>(
-		event.fetch,
-		'/utility/lookup/address/countries'
-	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-};
-
 const fetchOrganization = async (event: RequestEvent, organizationId: string) => {
 	let response = await ApiClient.get<Organization>(event.fetch, `/organization/${organizationId}`);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-};
-
-const fetchStates = async (event: RequestEvent) => {
-	let response = await ApiClient.get<StateSelectOption[]>(
-		event.fetch,
-		'/utility/lookup/address/states'
-	);
 	if (response.isOk && response.value) {
 		return response.value;
 	}

@@ -1,5 +1,5 @@
 import Root from './addressForm.svelte';
-import type { Address, CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
+import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import type { SuperFormData, SuperFormErrors } from 'sveltekit-superforms/client';
 import type { InputConstraints } from 'sveltekit-superforms';
 import type { Writable } from 'svelte/store';

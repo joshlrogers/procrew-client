@@ -2,23 +2,18 @@
 	import { TextInput } from '$lib/components/inputs';
 	import { AddressForm } from '$lib/components/addressForm';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
-	import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 	import { OrganizationSchema, type Organization } from '$lib/shared/models/organization';
 	import { superForm, type SuperValidated } from 'sveltekit-superforms';
 	import { zod } from 'sveltekit-superforms/adapters';
 
 	interface OrganizationPanelProps {
 		organizationForm: SuperValidated<Organization>;
-		countries?: CountrySelectOption[];
-		states?: StateSelectOption[];
 		action: string;
 		onUpdated?: (organization: Organization) => void;
 	}
 
 	let {
 		organizationForm,
-		countries = [],
-		states = [],
 		action = '?/updateOrganization',
 		onUpdated = undefined
 	}: OrganizationPanelProps = $props();
@@ -62,8 +57,6 @@
 
 		<AddressForm
 			name="address"
-			{countries}
-			{states}
 			formConstraints={constraints}
 			formData={form}
 			startingTabIndex={2}

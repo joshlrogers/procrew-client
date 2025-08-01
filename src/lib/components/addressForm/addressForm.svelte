@@ -28,16 +28,23 @@
 	let states: StateSelectOption[] = $state([]);
 	let countries: CountrySelectOption[] = $state([]);
 
+	fetch('/api/lookup/address-details')
+		.then(res => res.json() as Promise<AddressLookupDetails>)
+		.then(details => {
+			states = details.states;
+			countries = details.countries;
+		});
+
 	let availableCountries = $derived(
 		countries.map((country) => ({ value: country.shortCode, label: country.name }))
 	);
 
 	let availableStates = $derived(states
-				.filter((s) => s.country == ($formData.address?.country))
-				.map((state) => ({
-					value: state.abbreviation,
-					label: state.name
-				})));
+		.filter((s) => s.country == ($formData.address?.country))
+		.map((state) => ({
+			value: state.abbreviation,
+			label: state.name
+		})));
 
 	let addressAutofill: any;
 
@@ -55,13 +62,6 @@
 
 			addressAutofill.addEventListener('retrieve', onInternalAddressChanged);
 		}
-
-		let response = await fetch('/api/lookup/address-details');
-
-		let { states: _states, countries: _countries }: AddressLookupDetails = await response.json();
-
-		states = _states;
-		countries = _countries;
 	});
 
 	onDestroy(() => {
@@ -87,7 +87,7 @@
 		$formData.address.country =
 			countries[
 				countries.findIndex((c) => c.shortCode == selectedProperties.country_code.toUpperCase())
-			].abbreviation;
+				].abbreviation;
 	};
 
 	const setCountry = (country: any) => {

@@ -9,12 +9,15 @@ export interface AddressLookupDetails {
 }
 
 export const GET: RequestHandler = async ({ fetch }: RequestEvent): Promise<Response> => {
-	return new Response(
+	const response = new Response(
 		JSON.stringify({
 			countries: await fetchCountries(fetch),
 			states: await fetchStates(fetch)
-		})
-	);
+		}));
+
+	response.headers.set("Cache-Control", "private,max-age=86400");
+
+	return response;
 };
 
 const fetchCountries = async (fetch: Fetch) => {

@@ -13,7 +13,6 @@ import {
 import { fail } from '@sveltejs/kit';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
-import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { type Department, DepartmentSchema } from '$lib/shared/models/department';
 import type { Result } from '$lib/shared/models/result';
 
@@ -27,8 +26,6 @@ export const load: PageServerLoad = async ({ fetch, locals, depends }) => {
 	depends('app:company');
 
 	return {
-		countries: fetchCountries(fetch),
-		states: fetchStates(fetch),
 		departments: getDepartments(fetch),
 		federalHolidays: fetchFederalHolidays(fetch),
 		holidays: fetchCompanyHolidays(fetch),
@@ -197,27 +194,10 @@ const fetchCompanyTypes = async (
 	}
 };
 
-const fetchCountries = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	let response = await ApiClient.get<CountrySelectOption[]>(
-		fetch,
-		'/utility/lookup/address/countries'
-	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-};
-
 const fetchFederalHolidays = async (
 	fetch: (input: string, init?: RequestInit) => Promise<Response>
 ) => {
 	let response = await ApiClient.get<Holiday[]>(fetch, '/utility/lookup/holidays');
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-};
-
-const fetchStates = async (fetch: (input: string, init?: RequestInit) => Promise<Response>) => {
-	let response = await ApiClient.get<StateSelectOption[]>(fetch, '/utility/lookup/address/states');
 	if (response.isOk && response.value) {
 		return response.value;
 	}

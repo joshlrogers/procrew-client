@@ -4,7 +4,6 @@ import { type Account, AccountSchema } from '$lib/shared/models/account/index';
 import { message, superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
 import { ApiClient } from '$lib/server/apiClient';
-import type { CountrySelectOption, StateSelectOption } from '$lib/shared/models/address';
 import { OrganizationSchema, type Organization } from '$lib/shared/models/organization';
 import { redirect } from '@sveltejs/kit';
 import { CompanySchema } from '$lib/shared/models/company';
@@ -24,9 +23,7 @@ export const load: PageServerLoad = async (event: RequestEvent) => {
 	return {
 		form,
 		organizationForm,
-		companyForm,
-		countries: fetchCountries(event),
-		states: fetchStates(event)
+		companyForm
 	};
 };
 
@@ -75,25 +72,5 @@ export const actions: Actions = {
 		}
 
 		return message(form, { text: 'Organization creation failed!', type: 'error' });
-	}
-};
-
-const fetchCountries = async (event: RequestEvent) => {
-	let response = await ApiClient.get<CountrySelectOption[]>(
-		event.fetch,
-		'/utility/lookup/address/countries'
-	);
-	if (response.isOk && response.value) {
-		return response.value;
-	}
-};
-
-const fetchStates = async (event: RequestEvent) => {
-	let response = await ApiClient.get<StateSelectOption[]>(
-		event.fetch,
-		'/utility/lookup/address/states'
-	);
-	if (response.isOk && response.value) {
-		return response.value;
 	}
 };

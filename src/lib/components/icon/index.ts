@@ -3,7 +3,7 @@ import type { HTMLAttributes } from 'svelte/elements';
 
 interface IconProps extends HTMLAttributes<HTMLElement> {
 	icon: MaterialIcon;
-	iconSize?: 'default' | 'small' | 'medium' | 'large';
+	iconSize?: 'default' | 'small' | 'medium' | 'large' | string;
 }
 
 enum MaterialIcon {

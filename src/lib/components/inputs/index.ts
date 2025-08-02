@@ -5,5 +5,6 @@ import MaskedTextInput from './text/maskedTextInput.svelte';
 import TextInput from './text/textInput.svelte';
 import InputField from './inputField.svelte';
 import SearchInput from './searchInput.svelte';
+import LeadStatusDropdown from './LeadStatusDropdown.svelte';
 
-export { Checkbox, DateInput, DateRangeInput, InputField, MaskedTextInput, SearchInput, TextInput };
+export { Checkbox, DateInput, DateRangeInput, InputField, MaskedTextInput, SearchInput, TextInput, LeadStatusDropdown };

@@ -111,4 +111,23 @@ const leadSchema = z
 
 type Lead = z.infer<typeof leadSchema>;
 
+// Status update request schema for API
+export const updateLeadStatusRequestSchema = z.object({
+	status: z.nativeEnum(LeadStatus),
+	closedReason: z.string().optional().nullable(),
+	notes: z.string().optional().nullable()
+});
+
+export type UpdateLeadStatusRequest = z.infer<typeof updateLeadStatusRequestSchema>;
+
+// Status update form schema for superforms
+export const leadStatusUpdateFormSchema = z.object({
+	leadId: z.string().uuid(),
+	status: z.nativeEnum(LeadStatus),
+	closedReason: z.string().optional().nullable(),
+	notes: z.string().max(500, 'Notes cannot exceed 500 characters.').optional().nullable()
+});
+
+export type LeadStatusUpdateForm = z.infer<typeof leadStatusUpdateFormSchema>;
+
 export { leadSchema as LeadSchema, type Lead };

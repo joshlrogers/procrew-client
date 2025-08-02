@@ -1,4 +1,5 @@
 import Root from './dialog.svelte';
+import ClosedReasonDialog from './ClosedReasonDialog.svelte';
 
 enum DialogType {
 	Error,
@@ -7,4 +8,4 @@ enum DialogType {
 	Warn
 }
 
-export { Root as Dialog, DialogType };
+export { Root as Dialog, ClosedReasonDialog, DialogType };

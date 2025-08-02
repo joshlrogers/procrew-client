@@ -1,17 +1,16 @@
 <script lang="ts">
 	import { superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { LeadSchema, LeadStatus } from '$lib/shared/models/lead';
-	import { TextInput, MaskedTextInput } from '$lib/components/inputs';
+	import { LeadSchema, leadStatusUpdateFormSchema } from '$lib/shared/models/lead';
+	import { TextInput, MaskedTextInput, LeadStatusDropdown } from '$lib/components/inputs';
 	import { Panel } from '$lib/components/panel';
 	import { Breadcrumb } from '$lib/components/breadcrumb';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
 	import { SelectList } from '$lib/components/selectList';
-	import { 
-		SalutationOptions, 
-		LeadStatusOptions, 
+	import {
+		SalutationOptions,
 		LeadPriorityOptions,
-		type SelectListOption 
+		type SelectListOption
 	} from '$lib/shared/models/options';
 	import { AddressForm } from '$lib/components/addressForm';
 	import { Button, ButtonStyle } from '$lib/components/buttons/button';
@@ -26,6 +25,7 @@
 		})) ?? []
 	);
 
+	// Main lead form
 	const { form, errors, enhance, constraints, isTainted, tainted, submitting } = superForm(
 		data.form,
 		{
@@ -38,7 +38,7 @@
 			clearOnSubmit: 'errors-and-message',
 			onUpdated: (event) => {
 				if (event.form.valid) {
-					const displayName = event.form.data.companyName || 
+					const displayName = event.form.data.companyName ||
 						`${event.form.data.firstName || ''} ${event.form.data.lastName || ''}`.trim() || 'Lead';
 					toast.success(`Updated lead ${displayName}.`);
 				} else {
@@ -47,6 +47,38 @@
 			}
 		}
 	);
+
+	// Status update form
+	const {
+			form: statusForm,
+			errors: statusErrors,
+			enhance: statusEnhance
+		} = superForm(
+			data.statusForm,
+			{
+				dataType: 'json',
+				invalidateAll: false,
+				multipleSubmits: 'prevent',
+				resetForm: false,
+				validators: zod(leadStatusUpdateFormSchema),
+				validationMethod: 'onsubmit',
+				clearOnSubmit: 'errors-and-message',
+				onUpdated: (event) => {
+					if (event.form.valid) {
+						// Update the main form's status when status update succeeds
+						$form.status = event.form.data.status;
+						if (event.form.data.notes) {
+							$form.notes = event.form.data.notes;
+						}
+						toast.success('Lead status updated successfully');
+					} else {
+						const errorMessage = event.form.errors._errors?.[0] || 'Failed to update lead status';
+						toast.error(errorMessage);
+					}
+				}
+			}
+		)
+	;
 
 	// Get display name for the lead
 	let leadDisplayName = $derived.by(() => {
@@ -71,6 +103,12 @@
 			};
 		}
 	});
+
+	// Create reactive lead object for the status dropdown
+	let currentLead = $derived({
+		...$form,
+		id: data.lead.id
+	});
 </script>
 
 <svelte:head>
@@ -90,7 +128,7 @@
 	<Panel class="w-[75%]">
 		{#snippet header()}
 			<div class="flex items-center gap-3">
-				<Icon icon={MaterialIcon.EDIT} iconSize="2rem" />
+				<Icon icon={MaterialIcon.EDIT} iconSize="2em" />
 				<div>
 					<h1 class="text-xl font-semibold">Edit Lead</h1>
 					<p class="text-sm opacity-75">{leadDisplayName}</p>
@@ -114,7 +152,7 @@
 								items={SalutationOptions}
 								wrapperClass="w-full"
 							/>
-							
+
 							<TextInput
 								wrapperClass="w-full"
 								constraints={$constraints.companyName}
@@ -124,7 +162,7 @@
 								label="Company Name"
 							/>
 						</div>
-						
+
 						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 							<TextInput
 								wrapperClass="w-full"
@@ -134,7 +172,7 @@
 								tabindex={3}
 								label="First Name"
 							/>
-							
+
 							<TextInput
 								wrapperClass="w-full"
 								constraints={$constraints.lastName}
@@ -144,7 +182,7 @@
 								label="Last Name"
 							/>
 						</div>
-						
+
 						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 							<TextInput
 								wrapperClass="w-full"
@@ -155,7 +193,7 @@
 								label="Email Address"
 								type="email"
 							/>
-							
+
 							<MaskedTextInput
 								wrapperClass="w-full"
 								bind:value={$form.phoneNumber}
@@ -174,17 +212,23 @@
 					<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Lead Details</h3>
 					<div class="flex w-full flex-col gap-4 p-2">
 						<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
-							<SelectList
-								label="Status"
-								placeholder="Select status"
-								required={true}
-								tabindex={7}
-								value={LeadStatusOptions.find(opt => opt.value === $form.status)?.value}
-								onchanged={(val) => $form.status = typeof val === 'number' ? val : LeadStatus.New}
-								items={LeadStatusOptions}
-								wrapperClass="w-full"
-							/>
-							
+							<div class="w-full">
+								<label class="label mb-2 block text-sm font-medium">
+									<span class="label-text">Status <span class="text-error-200-800 ml-1">*</span></span>
+								</label>
+								<LeadStatusDropdown
+									lead={currentLead}
+									onStatusChanged={(val) => $statusForm.status = val}
+									enhance={statusEnhance}
+									wrapperClass="w-full"
+								/>
+								{#if $statusErrors._errors}
+									<div class="text-error-500 mt-1 text-sm">
+										{$statusErrors._errors.join(', ')}
+									</div>
+								{/if}
+							</div>
+
 							<SelectList
 								label="Priority"
 								placeholder="Select priority"
@@ -195,7 +239,7 @@
 								items={LeadPriorityOptions}
 								wrapperClass="w-full"
 							/>
-							
+
 							<TextInput
 								wrapperClass="w-full"
 								constraints={$constraints.estimatedValue}
@@ -209,7 +253,7 @@
 								max="999999.99"
 							/>
 						</div>
-						
+
 						<div class="grid grid-cols-1 gap-4">
 							<SelectList
 								label="Assigned To"
@@ -229,13 +273,13 @@
 				<section class="mb-6">
 					<h3 class="text-lg bg-surface-200-800 px-2 mb-4 rounded">Address</h3>
 					<div class="flex w-full flex-col gap-4 p-2">
-								<AddressForm
-									name="address"
-									formConstraints={constraints}
-									formData={form}
-									startingTabIndex={11}
-									formErrors={errors}
-								/>
+						<AddressForm
+							name="address"
+							formConstraints={constraints}
+							formData={form}
+							startingTabIndex={11}
+							formErrors={errors}
+						/>
 					</div>
 				</section>
 
@@ -256,8 +300,7 @@
 								rows="4"
 								tabindex={17}
 								placeholder="Enter any additional notes..."
-								{...$constraints.notes}
-							></textarea>
+								{...$constraints.notes}></textarea>
 							{#if $errors.notes}
 								<div class="text-error-500 mt-1 text-sm">
 									{$errors.notes}
@@ -270,7 +313,7 @@
 				<!-- Action Buttons -->
 				<div class="flex w-full flex-row-reverse gap-4 px-4">
 					<Button
-						text="Save Changes"
+						text="Save"
 						buttonStyle={ButtonStyle.PRIMARY}
 						disabled={!isTainted($tainted) || $submitting}
 						type="submit"

@@ -28,13 +28,6 @@
 	let states: StateSelectOption[] = $state([]);
 	let countries: CountrySelectOption[] = $state([]);
 
-	fetch('/api/lookup/address-details')
-		.then(res => res.json() as Promise<AddressLookupDetails>)
-		.then(details => {
-			states = details.states;
-			countries = details.countries;
-		});
-
 	let availableCountries = $derived(
 		countries.map((country) => ({ value: country.shortCode, label: country.name }))
 	);
@@ -62,6 +55,13 @@
 
 			addressAutofill.addEventListener('retrieve', onInternalAddressChanged);
 		}
+
+		fetch('/api/lookup/address-details')
+			.then(res => res.json() as Promise<AddressLookupDetails>)
+			.then(details => {
+				states = details.states;
+				countries = details.countries;
+			});
 	});
 
 	onDestroy(() => {

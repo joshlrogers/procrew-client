@@ -2,7 +2,7 @@
 	import { superForm } from 'sveltekit-superforms/client';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { LeadSchema, leadStatusUpdateFormSchema } from '$lib/shared/models/lead';
-	import { TextInput, MaskedTextInput, LeadStatusDropdown } from '$lib/components/inputs';
+	import { TextInput, MaskedTextInput, LeadStatusDropdown, LeadAssignmentPicker } from '$lib/components/inputs';
 	import { Panel } from '$lib/components/panel';
 	import { Breadcrumb } from '$lib/components/breadcrumb';
 	import { Icon, MaterialIcon } from '$lib/components/icon';
@@ -147,7 +147,7 @@
 								placeholder="Select salutation"
 								required={false}
 								tabindex={1}
-								value={SalutationOptions.find(opt => opt.value === $form.salutation)?.value}
+								value={$form.salutation}
 								onchanged={(val) => $form.salutation = val?.toString() || null}
 								items={SalutationOptions}
 								wrapperClass="w-full"
@@ -234,7 +234,7 @@
 								placeholder="Select priority"
 								required={false}
 								tabindex={8}
-								value={LeadPriorityOptions.find(opt => opt.value === $form.priority)?.value}
+								value={$form.priority}
 								onchanged={(val) => $form.priority = typeof val === 'number' ? val : null}
 								items={LeadPriorityOptions}
 								wrapperClass="w-full"
@@ -255,14 +255,14 @@
 						</div>
 
 						<div class="grid grid-cols-1 gap-4">
-							<SelectList
-								label="Assigned To"
-								placeholder="Select sales representative"
-								required={false}
-								tabindex={10}
-								value={salesRepOptions.find(opt => opt.value === $form.assignedToId)?.value}
-								onchanged={(val) => $form.assignedToId = val?.toString() || null}
-								items={salesRepOptions}
+							<LeadAssignmentPicker
+								leadId={data.lead.id || ''}
+								currentAssigneeId={$form.assignedToId}
+								assignableUsers={data.assignableUsers}
+								onAssignmentChanged={(assigneeId) => {
+									// Update the main form when assignment changes
+									$form.assignedToId = assigneeId;
+								}}
 								wrapperClass="w-full"
 							/>
 						</div>

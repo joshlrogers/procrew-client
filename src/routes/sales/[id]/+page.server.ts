@@ -9,6 +9,7 @@ import type { PageServerLoad, RequestEvent } from './$types';
 import { error, fail } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod } from 'sveltekit-superforms/adapters';
+import { z } from 'zod';
 
 interface SalesRepresentative {
 	id: string;
@@ -17,6 +18,23 @@ interface SalesRepresentative {
 	emailAddress?: string;
 	displayName: string;
 }
+
+interface AssignableUser {
+	id: string;
+	name: string;
+	email: string;
+	avatar?: string | null;
+	role: string;
+	isActive: boolean;
+}
+
+// Schema for assignment request
+const assignLeadSchema = z.object({
+	assignedToId: z.string().uuid().optional().nullable(),
+	notes: z.string().max(500, 'Notes cannot exceed 500 characters.').optional().nullable()
+});
+
+type AssignLeadRequest = z.infer<typeof assignLeadSchema>;
 
 const fetchLead = async (
 	fetch: (input: string, init?: RequestInit) => Promise<Response>,
@@ -40,6 +58,19 @@ const fetchSalesRepresentatives = async (
 	const response = await ApiClient.get<SalesRepresentative[]>(
 		fetch,
 		'/organization/company/employee/sales-representatives'
+	);
+	if (response.isOk && response.value) {
+		return response.value;
+	}
+	return [];
+};
+
+const fetchAssignableUsers = async (
+	fetch: (input: string, init?: RequestInit) => Promise<Response>
+) => {
+	const response = await ApiClient.get<AssignableUser[]>(
+		fetch,
+		'/leads/assignable-users'
 	);
 	if (response.isOk && response.value) {
 		return response.value;
@@ -111,9 +142,41 @@ const updateLeadStatus = async ({ fetch, request, params }: RequestEvent) => {
 	return fail(400, { statusForm });
 };
 
+const assignLead = async ({ fetch, request, params }: RequestEvent) => {
+	const formData = await request.formData();
+	const assignForm = await superValidate(formData, zod(assignLeadSchema));
+	
+	if (!assignForm.valid) {
+		return fail(400, { assignForm });
+	}
+
+	const result = await ApiClient.put<Lead>(fetch, `/leads/${params.id}/assign`, assignForm.data);
+	
+	if (result.isOk && result.value) {
+		const updatedAssignForm = await superValidate(
+			{
+				assignedToId: result.value.assignedToId,
+				notes: null
+			}, 
+			zod(assignLeadSchema)
+		);
+		return { assignForm: updatedAssignForm, success: true, updatedLead: result.value };
+	}
+
+	// Handle API errors
+	if (result.error?.error) {
+		assignForm.errors._errors = [result.error.error];
+	} else {
+		assignForm.errors._errors = ['Failed to assign lead'];
+	}
+	
+	return fail(400, { assignForm });
+};
+
 export const actions = {
 	updateLead,
-	updateLeadStatus
+	updateLeadStatus,
+	assignLead
 };
 
 export const load: PageServerLoad = async ({ fetch, params }) => {
@@ -136,5 +199,6 @@ export const load: PageServerLoad = async ({ fetch, params }) => {
 		form,
 		statusForm,
 		salesRepresentatives: await fetchSalesRepresentatives(fetch),
+		assignableUsers: await fetchAssignableUsers(fetch),
 	};
 };

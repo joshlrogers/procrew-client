@@ -20,9 +20,9 @@
 		textColor?: string;
 		items: SelectListOption[];
 		maxListHeight?: string;
-		value?: string | number;
+		value?: string | number | null;
 		wrapperClass?: string;
-		onchanged?: (val: string | number | undefined) => void;
+		onchanged?: (val: string | number | null | undefined) => void;
 	}
 
 	let {
@@ -54,21 +54,26 @@
 	let isRequired = $derived(required !== undefined ? required : constraints?.required === true);
 
 	// Helper function to find item by value
-	const findItemByValue = (val: string | number | undefined) => {
-		if (val === undefined) return undefined;
+	const findItemByValue = (val: string | number | null | undefined) => {
+		if (val === undefined || val === null) {
+			return items.find((i) => i.value === null);
+		}
 		const valueStr = val.toString();
-		return items.find((i) => i.value.toString() === valueStr);
+		return items.find((i) => {
+			if (i.value === null) return false;
+			return i.value.toString() === valueStr;
+		});
 	};
 
 	const {
 		elements: { trigger, menu, label, option },
 		states: { open, selectedLabel, selected }
-	} = createSelect<string | number>({
+	} = createSelect<string | number | null>({
 		required: required,
 		defaultSelected: findItemByValue(value),
 		forceVisible: true,
 		onSelectedChange: ({ curr, next }) => {
-			if (curr?.value !== next?.value && next?.value !== undefined) {
+			if (curr?.value !== next?.value && next !== undefined) {
 				onchanged?.(next.value);
 			}
 			return next;
